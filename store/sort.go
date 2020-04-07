@@ -43,6 +43,7 @@ func (m *Manager) GroupByTitle() (groups []Group) {
 
 	var lastTitleStart rune = -1
 
+	var appendedGroup bool
 	for _, song := range list {
 		title := strings.ToUpper(song.MusicData.Title)
 		// This shouldn't happen, but treat it as a special character
@@ -59,6 +60,7 @@ func (m *Manager) GroupByTitle() (groups []Group) {
 		// Store the old group. On the first iteration, this will be nil
 		if g != nil {
 			groups = append(groups, *g)
+			appendedGroup = true
 		}
 
 		// Create a new group
@@ -71,6 +73,13 @@ func (m *Manager) GroupByTitle() (groups []Group) {
 			Title: string(groupTitle),
 			Songs: []music.Entry{song},
 		}
+		appendedGroup = false
+		lastTitleStart = groupTitle
+	}
+
+	// Now store the last group that was created
+	if g != nil && !appendedGroup {
+		groups = append(groups, *g)
 	}
 
 	return
@@ -96,6 +105,7 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 		// since every len(songs) > 0
 		groups = append(groups, Group{
 			Title: songs[0].MusicData.Artist, // don't use the upper-case artist
+			Songs: songs,
 		})
 	}
 

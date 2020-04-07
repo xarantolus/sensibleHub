@@ -52,7 +52,7 @@ func InitializeManager() (err error) {
 	err = json.NewDecoder(f).Decode(M)
 	if err != nil {
 		M = nil
-		return
+		return err
 	}
 
 	return
@@ -111,6 +111,14 @@ func (m *Manager) Add(e *music.Entry) (err error) {
 	m.Songs[e.ID] = *e
 
 	return m.Save(false)
+}
+
+// GetEntry returns the entry with the given ID
+func (m *Manager) GetEntry(id string) (e music.Entry, ok bool) {
+	m.SongsLock.RLock()
+	e, ok = m.Songs[id]
+	m.SongsLock.RUnlock()
+	return
 }
 
 // generateID generates a new, unique ID.

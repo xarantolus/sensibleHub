@@ -1,61 +1,97 @@
 package music
 
+import (
+	"path/filepath"
+	"time"
+)
+
 // Entry represents the entry for an audio file
 type Entry struct {
 	// ID is the randomly-generated, unique ID for this file
-	ID string
+	ID string `json:"id"`
+
+	LastEdit time.Time `json:"last_edit"`
+	Added    time.Time `json:"added"`
 
 	// SourceURL is either the source input url where the audio file was downloaded from or
 	// the `webpage_url` field from the youtube-dl info file. Both point to the website where one might listen to the song
-	SourceURL string
+	SourceURL string `json:"source_url"`
 
 	// SyncSettings defines if this Entrys' MP3 file should be synced
-	SyncSettings SyncSettings
+	SyncSettings SyncSettings `json:"sync_settings"`
 
 	// MetaFile is the `.info.json` metadata file from youtube-dl
-	MetaFile MetaFile
+	MetaFile MetaFile `json:"meta_file"`
 
 	// FileData describes data about the original file that was downloaded
-	FileData
+	FileData `json:"file_data"`
 
 	// AudioSettings stores settings such as audio start and end time
-	AudioSettings AudioSettings
+	AudioSettings AudioSettings `json:"audio_settings"`
 
 	// MusicData describes music metadata that is typically embedded into music files
-	MusicData MusicData
+	MusicData MusicData `json:"music_data"`
 
-	// PicureData describes the picture file (cover) that should be embedded into the file
-	PicureData PictureData
+	// PictureData describes the picture file (cover) that should be embedded into the file
+	PictureData PictureData `json:"picture_data"`
+}
+
+// CoverPath returns the path of the cover
+func (e *Entry) CoverPath() string {
+	return filepath.Join("data", "songs", e.ID, e.PictureData.Filename)
+}
+
+func (e *Entry) AudioPath() string {
+	return filepath.Join("data", "songs", e.ID, e.FileData.Filename)
+}
+
+func (e *Entry) SongName() (out string) {
+	if e.MusicData.Artist != "" {
+		out = e.MusicData.Artist + " - "
+	}
+
+	return out + e.MusicData.Title
+}
+
+// Artist returns the artists' name or a fall back
+func (e *Entry) Artist() string {
+	if e.MusicData.Artist != "" {
+		return e.MusicData.Artist
+	}
+	return "Unknown"
 }
 
 type SyncSettings struct {
-	Should bool
+	Should bool `json:"should"`
 }
 
 type MetaFile struct {
-	Filename string
+	Filename string `json:"filename"`
 }
 
 type FileData struct {
-	Filename string
-	Size     int64
+	Filename string `json:"filename"`
+	Size     int64  `json:"size"`
 }
 
 type AudioSettings struct {
 	// Start is the start time of the song in the given audio. If not set, it is < 0
-	Start int
+	Start float64 `json:"start"`
 	// Start is the end time of the song in the given audio. If not set, it is < 0
-	End int
+	End float64 `json:"end"`
 }
 
 type MusicData struct {
-	Title  string
-	Artist string
-	Album  string
-	Year   int
+	Title  string `json:"title"`
+	Artist string `json:"artist"`
+	Album  string `json:"album"`
+	Year   int    `json:"year"`
+
+	// Duration is the duration of the original file in seconds
+	Duration float64 `json:"duration"`
 }
 
 type PictureData struct {
-	MimeType string
-	Filename string
+	MimeType string `json:"mime_type"`
+	Filename string `json:"filename"`
 }

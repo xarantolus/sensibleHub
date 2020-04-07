@@ -1,0 +1,15 @@
+{{ template "head.html" . }}
+<h1>{{.Title}}</h1>
+{{range .Groups}}
+<h2>{{.Title}}</h2>
+<table class="table">
+    <tbody>
+        <tr>
+        {{range .Songs}}
+        <td><a href="/song/{{.ID}}">{{.SongName}}</a></td>
+        {{end}}
+    </tr>
+    </tbody>
+</table>
+{{end}}
+{{ template "foot.html" . }}

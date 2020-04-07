@@ -12,6 +12,11 @@ import (
 	"strings"
 	"time"
 	"xarantolus/sensiblehub/store/music"
+
+	"image"
+	"image/jpeg"
+	"image/png"
+	_ "image/png"
 )
 
 const (
@@ -81,6 +86,11 @@ func (m *Manager) Download(url string) (err error) {
 		return
 	}
 
+	dur, err := getAudioDuration(audioPath)
+	if err != nil {
+		return fmt.Errorf("cannot get audio duration: %w", err)
+	}
+
 	minfo, jsonErr := readInfoFile(jsonPath)
 	if jsonErr != nil {
 		log.Println("Error while reading info file: ", jsonErr.Error())
@@ -90,9 +100,13 @@ func (m *Manager) Download(url string) (err error) {
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
 
+	now := time.Now()
 	var e = &music.Entry{
 		ID:        m.generateID(),
 		SourceURL: minfo.Webpage(url),
+
+		LastEdit: now,
+		Added:    now,
 
 		// Assume that songs should be synced by default
 		SyncSettings: music.SyncSettings{
@@ -110,12 +124,13 @@ func (m *Manager) Download(url string) (err error) {
 			End:   -1,
 		},
 		MusicData: music.MusicData{
-			Title:  cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)),
-			Artist: cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader),
-			Album:  cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle),
-			Year:   minfo.Year(),
+			Title:    cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)),
+			Artist:   cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader),
+			Album:    cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle),
+			Year:     minfo.Year(),
+			Duration: dur,
 		},
-		PicureData: music.PictureData{
+		PictureData: music.PictureData{
 			MimeType: thumbMime,
 			Filename: "cover" + filepath.Ext(thumbPath),
 		},
@@ -142,9 +157,11 @@ func (m *Manager) Download(url string) (err error) {
 		}
 	}
 	if thumbPath != "" {
-		err = os.Rename(thumbPath, filepath.Join(songDir, e.PicureData.Filename))
+		err = cropMoveCover(thumbPath, filepath.Join(songDir, e.PictureData.Filename))
 		if err != nil {
-			return
+			// reset image info
+			e.PictureData.Filename = ""
+			e.PictureData.MimeType = ""
 		}
 	}
 	err = os.Rename(audioPath, filepath.Join(songDir, e.FileData.Filename))
@@ -225,4 +242,74 @@ func cascadeStrings(s ...string) string {
 	}
 
 	return ""
+}
+
+// cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
+// If no squared image can be generated, no image will be generated.
+func cropMoveCover(sourceFile, destination string) (err error) {
+	f, err := os.Open(sourceFile)
+	if err != nil {
+		return
+	}
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		f.Close()
+		return
+	}
+
+	err = f.Close()
+	if err != nil {
+		return
+	}
+
+	bounds := img.Bounds()
+
+	// If we already have a square, we can just use the source file
+	if bounds.Max.X == bounds.Max.Y {
+		return os.Rename(sourceFile, destination)
+	}
+
+	// Use the smaller dimension for cutting off
+	smallerOne := bounds.Max.X
+	if bounds.Max.Y < smallerOne {
+		smallerOne = bounds.Max.Y
+	}
+
+	// Basically take the middle square. This works e.g. with youtube music video thumbnails
+	defaultCrop := image.Rect(bounds.Max.X/2-smallerOne/2, 0, bounds.Max.X/2+smallerOne/2, bounds.Max.Y)
+
+	type SubImager interface {
+		SubImage(r image.Rectangle) image.Image
+	}
+	subImg, ok := img.(SubImager)
+
+	// if we cannot crop, we won't use an image at all
+	if !ok {
+		return fmt.Errorf("cannot crop image")
+	}
+
+	croppedImg := subImg.SubImage(defaultCrop)
+
+	ext := strings.ToUpper(strings.TrimPrefix(filepath.Ext(destination), "."))
+
+	f, err = os.Create(destination)
+	if err != nil {
+		return
+	}
+
+	switch ext {
+	case "JPG", "JPEG":
+		err = jpeg.Encode(f, croppedImg, &jpeg.Options{
+			Quality: 100, // We don't care about file size, only quality
+		})
+	case "PNG":
+		err = png.Encode(f, croppedImg)
+	}
+	if err != nil {
+		f.Close()
+		return
+	}
+
+	return f.Close()
 }

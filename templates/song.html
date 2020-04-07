@@ -1,0 +1,8 @@
+{{ template "head.html" . }}
+
+    {{.}}
+
+    <br>
+
+    <img src="/data/songs/{{.ID}}/{{.Entry.PictureData.Filename}}" alt="Cover">
+{{ template "foot.html" . }}
