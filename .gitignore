@@ -1,0 +1,5 @@
+debug**
+*.zip
+**.exe
+.vscode
+data/
