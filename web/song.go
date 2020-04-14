@@ -38,3 +38,66 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 		e,
 	})
 }
+
+// HandleEditSong handles editing a song
+func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
+	v := mux.Vars(r)
+	if v == nil || v["songID"] == "" {
+		return HttpError{
+			StatusCode: http.StatusPreconditionFailed,
+			Message:    "Need a song ID",
+		}
+	}
+
+	songID := v["songID"]
+
+	err = r.ParseMultipartForm(10 << 20) // Limit: 10MB
+	if err != nil {
+		return
+	}
+
+	// If the delete button was clicked
+	if r.FormValue("delete") == "delete" {
+		err = store.M.DeleteEntry(songID)
+		if err != nil {
+			return err
+		}
+
+		http.Redirect(w, r, "/songs", http.StatusFound)
+		return nil
+	}
+
+	coverFile, fh, err := r.FormFile("cover-upload-button")
+	if err != nil && err != http.ErrMissingFile {
+		// Any other error
+		return
+	}
+	var coverName string
+	if coverFile != nil {
+		coverName = fh.Filename
+	}
+
+	newData := store.EditEntryData{
+		CoverImage:    coverFile,
+		CoverFilename: coverName,
+
+		Title:  r.FormValue("song-title"),
+		Artist: r.FormValue("song-artist"),
+		Album:  r.FormValue("song-album"),
+		Year:   r.FormValue("song-year"),
+
+		Start: r.FormValue("audio-start"),
+		End:   r.FormValue("audio-end"),
+
+		Sync: r.FormValue("should-sync"),
+	}
+
+	err = store.M.EditEntry(songID, newData)
+	if err != nil {
+		return
+	}
+
+	http.Redirect(w, r, "/song/"+songID, http.StatusFound)
+
+	return nil
+}

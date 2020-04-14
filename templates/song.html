@@ -1,8 +1,151 @@
 {{ template "head.html" . }}
 
-    {{.}}
+<div class="song-container">
+    <form class="form-horizontal" action="/song/{{.ID}}" method="POST" enctype="multipart/form-data">
+        <div class="columns">
+            <!-- Left Side: Image -->
+            <div class="column">
+                <figure class="image is-square song-image-container">
+                    <img id="song-cover" src="/data/songs/{{.ID}}/{{.Entry.PictureData.Filename}}" alt="Cover">
+                    <div class="middle">
+                        <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
+                        <div class="file">
+                            <label class="file-label">
+                                <input class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button" onchange="renderImagePreview(this)">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                            <path d="M403.002 217.001C388.998 148.002 328.998 96 256 96c-57.998 0-107.998 32.998-132.998 81.001C63.002 183.002 16 233.998 16 296c0 65.996 53.999 120 120 120h260c55 0 100-45 100-100 0-52.998-40.996-96.001-92.998-98.999zM288 276v76h-64v-76h-68l100-100 100 100h-68z"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="file-label" id="cover-upload-button">
+                                        Choose a cover image…
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </figure>
+            </div>
 
-    <br>
+            <!-- Right Side: Entry data -->
+            <div class="column">
+                <fieldset>
+                    <legend class="title normal-title is-5">Tags</legend>
 
-    <img src="/data/songs/{{.ID}}/{{.Entry.PictureData.Filename}}" alt="Cover">
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Title
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <input value="{{.MusicData.Title}}" id="song-title" name="song-title" class="input" placeholder="Title" type="text">
+                        </div>
+                    </div>
+
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Artist
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <input value="{{.MusicData.Artist}}" id="song-artist" name="song-artist" class="input" placeholder="Artist" type="text">
+                        </div>
+                    </div>
+
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Album
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <input value="{{.MusicData.Album}}" id="song-album" name="song-album" class="input" placeholder="Album" type="text">
+                        </div>
+                    </div>
+
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Year
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <input value="{{.MusicData.Year}}" id="song-year" name="song-year" class="input" placeholder="Year" type="number">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="title normal-title is-5">Audio</legend>
+
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Source
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <a href="{{.SourceURL}}" class="input overflow-ignore">{{.SourceURL}}</a>
+                        </div>
+                    </div>
+
+                    <div class="field has-addons">
+                        <div class="control control-label">
+                            <a class="button is-static">
+                                Duration
+                            </a>
+                        </div>
+                        <div class="control wide">
+                            <span class="input overflow-ignore">{{.FormatDuration}}</span>
+                        </div>
+                    </div>
+
+                    <div class="field has-addons">
+                        <div class="field has-addons">
+                            <div class="control control-label">
+                                <a class="button is-static">
+                                    Start
+                                </a>
+                            </div>
+                            <div class="control wide">
+                                <input name="audio-start" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.Start -1.0}}0{{else}}{{.AudioSettings.Start}}{{end}}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <div class="control control-label">
+                                <a class="button is-static">
+                                    End
+                                </a>
+                            </div>
+                            <div class="control wide">
+                                <input name="audio-end" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.End -1.0}}{{.MusicData.Duration}}{{else}}{{.AudioSettings.End}}{{end}}">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="title normal-title is-5">Sync</legend>
+
+                    <div class="field has-addons is-switch">
+                        <input class="switch" type="checkbox" name="should-sync" id="should-sync" {{if .SyncSettings.Should}} checked="checked" {{end}}>
+                        <label for="should-sync">Enable synchronization</label>
+                    </div>
+
+                    <div class="is-fullwidth has-text-centered">
+                        <input class="button is-primary" style="width: 70%;" type="submit" value="Save" />
+
+                        <button id="delete-button" name="delete" value="delete" style="width: 27.5%;" class="button is-danger">Delete</button>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+</div>
+
+<link rel="stylesheet" href="/assets/css/bulma-switch.min.css">
+<script src="/assets/js/song.min.js"></script>
 {{ template "foot.html" . }}

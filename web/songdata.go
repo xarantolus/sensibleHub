@@ -33,7 +33,6 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 	cp := e.CoverPath()
 
-	w.Header().Set("Content-Type", e.PictureData.MimeType)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
 
 	http.ServeFile(w, r, cp)
@@ -111,35 +110,53 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 
 			tmpFile := filepath.Join(td, "audio.mp3")
 
+			// ffmpeg options are quite complicated. Depending on whether on not we have a picture, we
+			// need some parameters to embed that etc.
 			cmd := exec.Command("ffmpeg",
-				"-y",
+				"-y", // don't ever ask anything
 
 				"-i", ap, // Audio input
+			)
 
-				"-i", cp, // Cover input
+			if e.PictureData.Filename != "" {
+				cmd.Args = append(cmd.Args,
+					"-i", cp, // Cover input
 
-				// somehow map these to each other
-				"-map", "0", "-map", "1",
+					// somehow map these to each other
+					"-map", "0", "-map", "1",
 
-				"-c:v", "copy",
-				"-f", "mp3",
+					// image cover metadata
+					"-metadata:s:v", "title=Album cover",
+					"-metadata:s:v", "comment=Cover (front)")
+			}
 
-				"-id3v2_version", "3",
-
+			cmd.Args = append(cmd.Args,
 				// set some idv3 tags
 				"-metadata", "title="+e.MusicData.Title,
 				"-metadata", "artist="+e.MusicData.Artist,
 				"-metadata", "album="+e.MusicData.Album,
-				"-metadata", "year="+strconv.Itoa(e.MusicData.Year),
+				"-metadata", "date="+strconv.Itoa(e.MusicData.Year),
 
-				// image cover metadata
-				"-metadata:s:v", "title=Album cover",
-				"-metadata:s:v", "comment=Cover (front)",
+				"-f", "mp3",
+				"-id3v2_version", "3")
 
-				// "-flush_packets", "0",
-				tmpFile)
+			// Audio settings: start and end
+			if e.AudioSettings.Start != -1 {
+				cmd.Args = append(cmd.Args, "-ss", strconv.FormatFloat(e.AudioSettings.Start, 'f', 3, 64))
+			}
 
-			cmd.Stderr = os.Stderr
+			if e.AudioSettings.End != -1 {
+				cmd.Args = append(cmd.Args, "-to", strconv.FormatFloat(e.AudioSettings.End, 'f', 3, 64))
+			}
+
+			// Set output file
+			cmd.Args = append(cmd.Args, tmpFile)
+
+			if debug {
+				cmd.Stderr = os.Stderr
+			}
+
+			// Start running command
 			err = cmd.Run()
 			if err != nil {
 				return

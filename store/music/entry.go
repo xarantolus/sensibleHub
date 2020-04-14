@@ -1,6 +1,7 @@
 package music
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 )
@@ -45,12 +46,31 @@ func (e *Entry) AudioPath() string {
 	return filepath.Join("data", "songs", e.ID, e.FileData.Filename)
 }
 
+func (e *Entry) DirPath() string {
+	return filepath.Join("data", "songs", e.ID)
+}
+
 func (e *Entry) SongName() (out string) {
 	if e.MusicData.Artist != "" {
 		out = e.MusicData.Artist + " - "
 	}
 
 	return out + e.MusicData.Title
+}
+
+func (e Entry) FormatDuration() string {
+	dur := time.Duration(e.MusicData.Duration) * time.Second
+
+	hours := dur / time.Hour
+	mins := (dur - hours*time.Hour) / time.Minute
+	secs := (dur - mins*time.Minute) / time.Second
+	msecs := (dur - secs*time.Second) / time.Second
+
+	if hours > 0 {
+		return fmt.Sprintf("%02d:%02d:%02d.%02d", hours, mins, secs, msecs)
+	}
+
+	return fmt.Sprintf("%02d:%02d.%03d", mins, secs, msecs)
 }
 
 // Artist returns the artists' name or a fall back
@@ -92,6 +112,5 @@ type MusicData struct {
 }
 
 type PictureData struct {
-	MimeType string `json:"mime_type"`
 	Filename string `json:"filename"`
 }

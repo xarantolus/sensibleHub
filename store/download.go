@@ -12,11 +12,6 @@ import (
 	"strings"
 	"time"
 	"xarantolus/sensiblehub/store/music"
-
-	"image"
-	"image/jpeg"
-	"image/png"
-	_ "image/png"
 )
 
 const (
@@ -50,7 +45,6 @@ func (m *Manager) Download(url string) (err error) {
 		jsonPath string
 
 		thumbPath string
-		thumbMime string
 
 		audioPath string
 		audioSize int64
@@ -68,12 +62,13 @@ func (m *Manager) Download(url string) (err error) {
 			jsonPath = path
 		case "JPG", "JPEG":
 			thumbPath = path
-			thumbMime = "image/jpeg"
 		case "PNG":
 			thumbPath = path
-			thumbMime = "image/png"
 		case "TEMP", "TMP":
-			return fmt.Errorf("Invalid temporary file %s, assuming error", filepath.Base(path))
+			{
+				// Do nothing; however, it could the sign of an error.
+				// There is only a problem if audioPath == "", but that is handeled below
+			}
 		default:
 			// Assume this is the audio file
 			audioPath = path
@@ -84,6 +79,11 @@ func (m *Manager) Download(url string) (err error) {
 	})
 	if err != nil {
 		return
+	}
+
+	if audioPath == "" {
+		// Well, what can we do?
+		return fmt.Errorf("invalid empty audio path, it seems like no audio was downloaded")
 	}
 
 	dur, err := getAudioDuration(audioPath)
@@ -116,7 +116,7 @@ func (m *Manager) Download(url string) (err error) {
 			Filename: "info.json",
 		},
 		FileData: music.FileData{
-			Filename: "original" + filepath.Ext(audioPath),
+			Filename: "original" + strings.ToLower(filepath.Ext(audioPath)),
 			Size:     audioSize,
 		},
 		AudioSettings: music.AudioSettings{
@@ -131,8 +131,7 @@ func (m *Manager) Download(url string) (err error) {
 			Duration: dur,
 		},
 		PictureData: music.PictureData{
-			MimeType: thumbMime,
-			Filename: "cover" + filepath.Ext(thumbPath),
+			Filename: "cover" + strings.ToLower(filepath.Ext(thumbPath)),
 		},
 	}
 
@@ -155,15 +154,20 @@ func (m *Manager) Download(url string) (err error) {
 		if err != nil {
 			return
 		}
+	} else {
+		e.MetaFile.Filename = ""
 	}
+
 	if thumbPath != "" {
 		err = cropMoveCover(thumbPath, filepath.Join(songDir, e.PictureData.Filename))
 		if err != nil {
 			// reset image info
 			e.PictureData.Filename = ""
-			e.PictureData.MimeType = ""
 		}
+	} else {
+		e.PictureData.Filename = ""
 	}
+
 	err = os.Rename(audioPath, filepath.Join(songDir, e.FileData.Filename))
 	if err != nil {
 		return
@@ -172,6 +176,9 @@ func (m *Manager) Download(url string) (err error) {
 	return m.Add(e)
 }
 
+// info is the struct that stores data that can be read from a typical youtube-dl `.info.json` file
+// If some fields duplicate information, only one of them will be used;
+// however, there are clear preferences on which fields should be used
 type info struct {
 	Track    string `json:"track"`     // Prefered
 	Title    string `json:"title"`     // Fallback
@@ -189,6 +196,7 @@ type info struct {
 	UploadDate  string `json:"upload_date"`  // Take year from here...
 	ReleaseDate string `json:"release_date"` // ...or from here
 
+	// WebpageURL is used to "clean" the URL, e.g. to remove playlist parameters as they aren't used here
 	WebpageURL string `json:"webpage_url"` // This usually shouldn't be empty
 }
 
@@ -205,6 +213,7 @@ func (i *info) Year() int {
 		return i.ReleaseYear
 	}
 
+	// this date format is typically used in the info file: YYYYMMDD
 	const dFormat = "20060102"
 
 	d, err := time.Parse(dFormat, i.ReleaseDate)
@@ -242,74 +251,4 @@ func cascadeStrings(s ...string) string {
 	}
 
 	return ""
-}
-
-// cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
-// If no squared image can be generated, no image will be generated.
-func cropMoveCover(sourceFile, destination string) (err error) {
-	f, err := os.Open(sourceFile)
-	if err != nil {
-		return
-	}
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		f.Close()
-		return
-	}
-
-	err = f.Close()
-	if err != nil {
-		return
-	}
-
-	bounds := img.Bounds()
-
-	// If we already have a square, we can just use the source file
-	if bounds.Max.X == bounds.Max.Y {
-		return os.Rename(sourceFile, destination)
-	}
-
-	// Use the smaller dimension for cutting off
-	smallerOne := bounds.Max.X
-	if bounds.Max.Y < smallerOne {
-		smallerOne = bounds.Max.Y
-	}
-
-	// Basically take the middle square. This works e.g. with youtube music video thumbnails
-	defaultCrop := image.Rect(bounds.Max.X/2-smallerOne/2, 0, bounds.Max.X/2+smallerOne/2, bounds.Max.Y)
-
-	type SubImager interface {
-		SubImage(r image.Rectangle) image.Image
-	}
-	subImg, ok := img.(SubImager)
-
-	// if we cannot crop, we won't use an image at all
-	if !ok {
-		return fmt.Errorf("cannot crop image")
-	}
-
-	croppedImg := subImg.SubImage(defaultCrop)
-
-	ext := strings.ToUpper(strings.TrimPrefix(filepath.Ext(destination), "."))
-
-	f, err = os.Create(destination)
-	if err != nil {
-		return
-	}
-
-	switch ext {
-	case "JPG", "JPEG":
-		err = jpeg.Encode(f, croppedImg, &jpeg.Options{
-			Quality: 100, // We don't care about file size, only quality
-		})
-	case "PNG":
-		err = png.Encode(f, croppedImg)
-	}
-	if err != nil {
-		f.Close()
-		return
-	}
-
-	return f.Close()
 }
