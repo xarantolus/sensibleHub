@@ -1,4 +1,18 @@
+# github.com/disintegration/imaging v1.6.2
+github.com/disintegration/imaging
+# github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
+github.com/edwvee/exiffix
 # github.com/gorilla/mux v1.7.4
 github.com/gorilla/mux
+# github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+github.com/nfnt/resize
+# github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+github.com/rwcarlsen/goexif/exif
+github.com/rwcarlsen/goexif/tiff
+# golang.org/x/image v0.0.0-20200119044424-58c23975cae1
+golang.org/x/image/bmp
+golang.org/x/image/ccitt
+golang.org/x/image/tiff
+golang.org/x/image/tiff/lzw
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 golang.org/x/sync/singleflight

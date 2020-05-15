@@ -125,6 +125,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="field">
+                        <div class="control">
+                            <audio class="audio-controls" controls="">
+                                <source src="/song/{{.ID}}/audio">
+                                <source src="/song/{{.ID}}/mp3" type="audio/mpeg">
+                                It seems like your browser doesn't support playing audio.
+                            </audio>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="title normal-title is-5">Download</legend>
+                    <div class="field">
+                        <div class="control">
+                            <a id="download-song-button" href="/song/{{.ID}}/mp3" class="button is-info">Download MP3</a>
+                        </div>
+                    </div>
                 </fieldset>
 
                 <fieldset>
@@ -136,7 +155,7 @@
                     </div>
 
                     <div class="is-fullwidth has-text-centered">
-                        <input class="button is-primary" style="width: 70%;" type="submit" value="Save" />
+                        <button class="button is-primary" style="width: 70%;" type="submit" value="Save">Save</button>
 
                         <button id="delete-button" name="delete" value="delete" style="width: 27.5%;" class="button is-danger">Delete</button>
                     </div>

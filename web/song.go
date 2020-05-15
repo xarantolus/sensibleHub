@@ -97,7 +97,9 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	http.Redirect(w, r, "/song/"+songID, http.StatusFound)
+	// cover preview must be re-generated
+	coverGroup.Forget(songID + "-small")
 
-	return nil
+	http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
+	return
 }

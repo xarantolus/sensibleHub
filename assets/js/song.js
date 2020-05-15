@@ -26,4 +26,29 @@ function confirmSubmit(evt) {
     return true;
 }
 
-document.getElementById("delete-button").addEventListener("click", confirmSubmit)
+document.getElementById("delete-button").addEventListener("click", confirmSubmit);
+
+// Store and restore audio volume
+function saveVolumeChange(evt) {
+    localStorage.setItem("audio-volume", evt.target.volume);
+}
+
+var audioElement = document.getElementsByTagName("audio")[0];
+audioElement.volume = localStorage.getItem("audio-volume") || 1;
+if (audioElement.volume == 0) {
+    audioElement.volume = 0.5;
+}
+audioElement.addEventListener("volumechange", saveVolumeChange);
+
+// Download button loading animation
+var songDownloadButton = document.getElementById("download-song-button");
+
+function removeLoading(evt) {
+    songDownloadButton.classList.remove("is-loading");
+}
+function downloadButtonClicked() {
+    songDownloadButton.classList.add("is-loading");
+}
+
+songDownloadButton.addEventListener('click', downloadButtonClicked);
+songDownloadButton.addEventListener('blur', removeLoading)

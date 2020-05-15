@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -8,10 +9,17 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"xarantolus/sensiblehub/store"
 
 	"github.com/gorilla/mux"
 	"golang.org/x/sync/singleflight"
+)
+
+var (
+	// coverGroup manages the functions that generate cover previews.
+	// They are started in HandleCover, and forgotten in HandleEditSong
+	coverGroup singleflight.Group
 )
 
 func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
@@ -33,11 +41,43 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 	cp := e.CoverPath()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
+	sizeParam := r.URL.Query().Get("size")
+	switch strings.ToUpper(sizeParam) {
+	case "SMALL":
 
-	http.ServeFile(w, r, cp)
+		// While ServeContent checks this too, the calls to coverGroup.Do are quite expensive and take long.
+		// So if we are able to abort before getting to that point because the browser already has that image,
+		// we can save some resources and make this request *a lot* faster
+		lm := r.Header.Get("If-Modified-Since")
+		if lm != "" && lm == e.LastEdit.UTC().Format(http.TimeFormat) {
+			http.Error(w, "", http.StatusNotModified)
+			return
+		}
 
-	return nil
+		// Since we never call
+		coverBytes, err, _ := coverGroup.Do(e.ID+"-small", func() (res interface{}, err error) {
+			var b bytes.Buffer
+			err = store.ResizeCover(cp, 60, &b)
+			if err != nil {
+				return
+			}
+
+			return b.Bytes(), nil
+		})
+		if err != nil {
+			return err
+		}
+		w.Header().Set("Content-Type", "image/png")
+
+		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes.([]byte)))
+		return nil
+
+	default:
+		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
+		http.ServeFile(w, r, cp)
+
+		return nil
+	}
 }
 
 func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
@@ -58,7 +98,7 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 	cp := e.AudioPath()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(e.FileData.Filename)))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(e.FileData.Filename)))
 
 	http.ServeFile(w, r, cp)
 
@@ -179,7 +219,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	w.Header().Set("Content-Type", "audio/mpeg")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+".mp3"))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+".mp3"))
 
 	http.ServeFile(w, r, outName)
 

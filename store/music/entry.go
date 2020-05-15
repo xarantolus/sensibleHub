@@ -112,5 +112,6 @@ type MusicData struct {
 }
 
 type PictureData struct {
+	// Filename is the name of the original cover for this song
 	Filename string `json:"filename"`
 }

@@ -23,7 +23,7 @@ func ErrWrap(f func(http.ResponseWriter, *http.Request) error) http.HandlerFunc 
 			return
 		}
 
-		log.Printf("[Web] Serving %s: %s\n", r.URL.Path, err.Error())
+		log.Printf("[Web] %s %s: %s\n", r.Method, r.URL.Path, err.Error())
 
 		// is it an http error?
 		if h, ok := err.(HttpError); ok {
