@@ -29,6 +29,10 @@ func (m *Manager) SetEventFunc(f func(f func(c *websocket.Conn) error)) {
 }
 
 func (m *Manager) event(evtType string, evtData interface{}) {
+	if m.evtFunc == nil {
+		return
+	}
+
 	go m.evtFunc(func(c *websocket.Conn) error {
 		return c.WriteJSON(map[string]interface{}{
 			"type": evtType,

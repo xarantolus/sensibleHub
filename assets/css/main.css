@@ -29,12 +29,18 @@
     margin: 0 auto;
 }
 
-.add-notif:empty {
+.notif:empty {
     display: none;
 }
 
 .title {
     padding-bottom: 1.5%;
+}
+
+.title.is-6 {
+    padding-top: .5%;
+    padding-bottom: .5%;
+    margin-bottom: 0;
 }
 
 .navbar {
@@ -59,7 +65,7 @@ a.button.is-static {
     background-color: grey;
     border-radius: 10px;
 }
-
+ä
 .song-listing-item {
     transition: all 0.05s ease-in-out;
 }
@@ -68,6 +74,16 @@ a.button.is-static {
     background-color: #d6d6d6;
 }
 
+
+pre {
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+ }
+ 
 .song-listing-meta {
     width: 100%;
     display: table-caption;

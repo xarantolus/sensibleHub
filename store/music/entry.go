@@ -37,6 +37,10 @@ type Entry struct {
 	PictureData PictureData `json:"picture_data"`
 }
 
+func (e *Entry) IsImported() bool {
+	return e.SourceURL == "Import"
+}
+
 // CoverPath returns the path of the cover
 func (e *Entry) CoverPath() string {
 	if e.PictureData.Filename == "" {

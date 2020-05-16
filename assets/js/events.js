@@ -40,7 +40,7 @@ ws.onmessage = function (evt) {
         if (isListingPage()) {
             // this listing might contain this song, so we reload 
             reload();
-        } else {
+        } else if (e.type !== "song-delete" && !isReload) {
             // If we are on a song page, we reload it on edit
             if (trimChar(location.pathname, "/") === "song/" + e.data.id) {
                 reload();
@@ -51,6 +51,10 @@ ws.onmessage = function (evt) {
     if (e.type.startsWith("progress-")) {
         setProgressbar(e.type)
         lastProgress = e.type;
+
+        if (location.pathname === "/add" && document.getElementById("url").value.trim() === "") {
+            reload();
+        }
     }
 }
 

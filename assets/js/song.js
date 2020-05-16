@@ -23,11 +23,24 @@ function songPage() {
 
     // Confirm submitting if 
     function confirmSubmit(evt) {
+        evt.preventDefault();
+        
         if (!confirm("Are you sure you want to delete this song?")) {
-            evt.preventDefault();
             return false;
         }
-        return true;
+        
+        var formData = new FormData();
+        formData.set("delete", "delete");
+
+        ajax(location.pathname, formData).post(function(status, obj) {
+            if (status === 200) {
+                isReload = true;
+                InstantClick.go("/");
+            } else {
+                document.getElementById("song-notif").innerText = obj.message || "Unknown error";
+            }
+        })
+        return false;
     }
 
     document.getElementById("delete-button").addEventListener("click", confirmSubmit);

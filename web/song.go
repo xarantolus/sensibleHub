@@ -11,7 +11,7 @@ import (
 type SongPage struct {
 	Title string
 
-	music.Entry
+	*music.Entry
 }
 
 // HandleShowSong shows information about a song
@@ -34,7 +34,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	return renderTemplate(w, r, "song.html", SongPage{
 		e.SongName(),
-		e,
+		&e,
 	})
 }
 
@@ -47,6 +47,8 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 			Message:    "Need a song ID",
 		}
 	}
+
+	var isAjax = r.Header.Get("X-XHR") == "true"
 
 	songID := v["songID"]
 
@@ -62,7 +64,11 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 			return err
 		}
 
-		http.Redirect(w, r, "/songs", http.StatusFound)
+		if isAjax {
+			http.Error(w, `{"message": "Deleted"}`, http.StatusOK)
+		} else {
+			http.Redirect(w, r, "/songs", http.StatusFound)
+		}
 		return nil
 	}
 
@@ -98,6 +104,11 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	// cover preview must be re-generated
 	coverGroup.Forget(songID + "-small")
+
+	if isAjax {
+		http.Error(w, `{"message": "Updated"}`, http.StatusOK)
+		return
+	}
 
 	http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
 	return

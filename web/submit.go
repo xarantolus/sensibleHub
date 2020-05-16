@@ -11,9 +11,9 @@ type addAccept struct {
 	URL string `json:"url"`
 }
 
-//
+// HandleDownloadSong handles a song download request. This kind of request is done
+// from the /add page, either using AJAX (with ?format=json) or a normal form submit
 func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
-
 	// For AJAX requests
 	if strings.ToUpper(r.URL.Query().Get("format")) == "JSON" {
 		acc := new(addAccept)

@@ -40,8 +40,27 @@ func (e *Entry) MP3Path() (p string, err error) {
 
 		tempAudio := filepath.Join(td, "temp.mp3")
 
-		// Convert the given audio to mp3
-		err = exec.Command("ffmpeg", "-i", ap, "-f", "mp3", tempAudio).Run()
+		var cmd *exec.Cmd
+		if strings.ToUpper(filepath.Ext(ap)) == ".MP3" {
+			cmd = exec.Command("ffmpeg", "-i", ap, "-map_metadata", "-1", "-c:a", "copy", "-map", "a")
+		} else {
+			// Convert the given audio to mp3
+			cmd = exec.Command("ffmpeg", "-i", ap, "-f", "mp3")
+		}
+
+		// Audio settings: start and end
+		if e.AudioSettings.Start != -1 {
+			cmd.Args = append(cmd.Args, "-ss", strconv.FormatFloat(e.AudioSettings.Start, 'f', 3, 64))
+		}
+
+		if e.AudioSettings.End != -1 {
+			cmd.Args = append(cmd.Args, "-to", strconv.FormatFloat(e.AudioSettings.End, 'f', 3, 64))
+		}
+
+		// Set output file
+		cmd.Args = append(cmd.Args, tempAudio)
+
+		err = cmd.Run()
 		if err != nil {
 			return
 		}

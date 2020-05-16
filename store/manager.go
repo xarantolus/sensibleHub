@@ -32,6 +32,8 @@ type Manager struct {
 	isWorking    bool
 	isWorkingMut sync.RWMutex
 
+	lastErr error
+
 	OnEvent func(ManagerEvent) `json:"-"`
 }
 
@@ -197,6 +199,8 @@ func (m *Manager) serve() {
 		m.setIsWorking(true)
 
 		err := m.download(newURL)
+		m.lastErr = err
+
 		if err != nil {
 			log.Printf("[Downloader]: %s\n", err.Error())
 		}
@@ -215,6 +219,11 @@ func (m *Manager) setIsWorking(state bool) {
 	} else {
 		m.event("progress-end", nil)
 	}
+}
+
+// LastError returns the last error encountered while downloading
+func (m *Manager) LastError() error {
+	return m.lastErr
 }
 
 // IsWorking returns whether the manager is currently doing work

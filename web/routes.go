@@ -25,11 +25,13 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 type NewPage struct {
-	Title string
+	Title     string
+	LastError error
 }
 
 func HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
 	return renderTemplate(w, r, "add.html", NewPage{
-		Title: "Add a new song",
+		Title:     "Add a new song",
+		LastError: store.M.LastError(),
 	})
 }

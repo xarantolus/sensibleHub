@@ -101,6 +101,7 @@ func (m *Manager) download(url string) (err error) {
 		return fmt.Errorf("cannot get audio duration: %w", err)
 	}
 
+	// this means that we have to assume. Also who would listen to a 0.5 seconds song?
 	if dur < 1 {
 		return fmt.Errorf("invalid audio (%s): duration too short", filepath.Base(audioPath))
 	}

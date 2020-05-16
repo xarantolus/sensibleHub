@@ -31,6 +31,8 @@
             <!-- Right Side: Entry data -->
             <div class="column">
                 <fieldset>
+                    <div id="song-notif" class="notification is-danger notif"></div>
+            
                     <legend class="title normal-title is-5">Tags</legend>
 
                     <div class="field has-addons">
@@ -88,7 +90,7 @@
                             </a>
                         </div>
                         <div class="control wide">
-                            <a href="{{.SourceURL}}" class="input overflow-ignore">{{.SourceURL}}</a>
+                            {{ if .IsImported}}<span class="input overflow-ignore">{{.SourceURL}}</span>{{else}}<a href="{{.SourceURL}}" class="input overflow-ignore">{{.SourceURL}}</a>{{end}}                            
                         </div>
                     </div>
 

@@ -1,13 +1,13 @@
 {{ template "head.html" . }}
 <form class="form-horizontal add-form" method="POST" action="/add">
     <fieldset>
-        <div id="add-notif" class="notification is-danger add-notif"></div>
+        <div id="add-notif" class="notification is-danger notif"></div>
 
         <div class="field">
             <label class="label" for="url">Link</label>
             <div class="control">
                 <input autofocus="" id="url" name="url" type="url" placeholder="Link to song" class="input" required="">
-                <p class="help">Can be any website <a href="https://ytdl-org.github.io/youtube-dl/supportedsites.html" rel="noopener noreferrer">supported by youtube-dl</a>. Does not work for playlists.</p>
+                <p class="help">Can be any website <a tabindex="-1" href="https://ytdl-org.github.io/youtube-dl/supportedsites.html" rel="noopener noreferrer">supported by youtube-dl</a>. Does not work for playlists.</p>
             </div>
         </div>
 
@@ -16,6 +16,14 @@
                 <button class="button is-primary" type="submit" id="submit-button" name="submit-button">Download</button>
             </div>
         </div>
+        {{with .LastError}}
+
+        <div class="field">
+            <div class="control">
+                <h4 class="title is-6">Last download error</h4>
+                <pre>{{.Error}}</pre>
+            </div>
+        </div>{{end}}
 
     </fieldset>
 </form>

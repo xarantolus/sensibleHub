@@ -36,6 +36,10 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	cp := e.CoverPath()
+	if cp == "" {
+		http.ServeFile(w, r, "assets/image-missing.svg")
+		return
+	}
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")

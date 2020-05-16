@@ -29,6 +29,7 @@ var ajax = function (url, data) {
     var wrap = function (method, cb) {
         var xhr = new XMLHttpRequest();
         xhr.open(method, url, true);
+        xhr.setRequestHeader("X-XHR", "true");
 
         var sendstr = null;
         if (method === "POST" && data) {
