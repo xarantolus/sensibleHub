@@ -3,16 +3,10 @@ package web
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"xarantolus/sensiblehub/store"
-
-	"github.com/bogem/id3v2"
 
 	"github.com/gorilla/mux"
 	"golang.org/x/sync/singleflight"
@@ -114,10 +108,6 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	return nil
 }
 
-var (
-	mp3Group singleflight.Group
-)
-
 // HandleMP3 returns the requested songs' audio as an MP3 stream.
 // It creates the mp3 file from the associated data and caches the result
 func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
@@ -137,108 +127,9 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	ap, err := filepath.Abs(e.AudioPath())
+	outName, err := e.MP3Path()
 	if err != nil {
 		return
-	}
-
-	var outName = filepath.Join("data", "songs", e.ID, "latest.mp3")
-
-	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
-	if fi, ferr := os.Stat(outName); os.IsNotExist(ferr) || fi.ModTime().Before(e.LastEdit) {
-		_, err, _ = mp3Group.Do(e.ID, func() (res interface{}, err error) {
-			td, err := ioutil.TempDir("", "sh-mp3")
-			if err != nil {
-				return
-			}
-			defer os.RemoveAll(td)
-
-			tempAudio := filepath.Join(td, "temp.mp3")
-
-			// Convert the given audio to mp3
-			err = exec.Command("ffmpeg", "-i", ap, "-f", "mp3", tempAudio).Run()
-			if err != nil {
-				return
-			}
-
-			// And open it
-			tag, err := id3v2.Open(tempAudio, id3v2.Options{Parse: false})
-			if err != nil {
-				return
-			}
-
-			// Now we edit its tags
-
-			// Set artist
-			if have(&e.MusicData.Artist) {
-				tag.SetArtist(e.MusicData.Artist)
-			}
-
-			// Set title
-			if have(&e.MusicData.Title) {
-				tag.SetTitle(e.MusicData.Title)
-			}
-
-			if have(&e.MusicData.Album) {
-				tag.SetAlbum(e.MusicData.Album)
-			}
-
-			if e.MusicData.Year != 0 {
-				tag.SetYear(strconv.Itoa(e.MusicData.Year))
-			}
-
-			// Set artwork
-			if have(&e.PictureData.Filename) {
-				b, err := ioutil.ReadFile(e.CoverPath())
-				if err != nil {
-					tag.Close()
-					return nil, err
-				}
-
-				// Other mime types don't work as only jpeg and png images are accepted
-				mimeType := "image/jpeg"
-				if strings.ToUpper(filepath.Ext(e.PictureData.Filename)) == ".PNG" {
-					mimeType = "image/png"
-				}
-
-				pic := id3v2.PictureFrame{
-					Encoding:    id3v2.EncodingUTF8,
-					MimeType:    mimeType,
-					PictureType: id3v2.PTFrontCover,
-					Description: "Front cover",
-					Picture:     b,
-				}
-
-				tag.AddAttachedPicture(pic)
-			}
-
-			// and save it
-			err = tag.Save()
-			if err != nil {
-				tag.Close()
-				return
-			}
-
-			err = tag.Close()
-			if err != nil {
-				return
-			}
-
-			// if everything goes right, we can now move it to its destination
-			err = os.Rename(tempAudio, outName)
-			if err != nil {
-				return
-			}
-
-			mp3Group.Forget(e.ID)
-
-			return outName, nil
-		})
-
-		if err != nil {
-			return err
-		}
-
 	}
 
 	w.Header().Set("Content-Type", "audio/mpeg")
@@ -247,8 +138,4 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	http.ServeFile(w, r, outName)
 
 	return nil
-}
-
-func have(s *string) bool {
-	return strings.TrimSpace(*s) != ""
 }
