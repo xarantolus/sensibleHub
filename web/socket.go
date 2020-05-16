@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 	"sync"
+	"xarantolus/sensiblehub/store"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,26 +15,19 @@ var upgrader = websocket.Upgrader{
 
 var (
 	connectedSockets = make(map[*websocket.Conn]chan struct{})
-	csl              sync.RWMutex
+	csl              sync.Mutex
 )
 
 func AllSockets(f func(c *websocket.Conn) error) {
-	csl.RLock()
-	defer csl.RUnlock()
+	csl.Lock()
+	defer csl.Unlock()
 
 	for c, cc := range connectedSockets {
 		err := f(c)
 		if err != nil {
 			c.Close()
-
-			csl.RUnlock()
-			csl.Lock()
-
 			close(cc)
 			delete(connectedSockets, c)
-
-			csl.Unlock()
-			csl.RLock()
 		}
 	}
 }
@@ -45,6 +39,12 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	closeChan := make(chan struct{})
+
+	if store.M.IsWorking() {
+		conn.WriteJSON(map[string]interface{}{
+			"type": "progress-start",
+		})
+	}
 
 	csl.Lock()
 	connectedSockets[conn] = closeChan

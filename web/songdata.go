@@ -43,6 +43,10 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 	cp := e.CoverPath()
 
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+
 	sizeParam := r.URL.Query().Get("size")
 	switch strings.ToUpper(sizeParam) {
 	case "SMALL":
@@ -51,8 +55,10 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		// So if we are able to abort before getting to that point because the browser already has that image,
 		// we can save some resources and make this request *a lot* faster
 		lm := r.Header.Get("If-Modified-Since")
-		if lm != "" && lm == e.LastEdit.UTC().Format(http.TimeFormat) {
-			http.Error(w, "", http.StatusNotModified)
+		le := e.LastEdit.UTC().Format(http.TimeFormat)
+
+		if lm != "" && lm == le {
+			w.WriteHeader(http.StatusNotModified)
 			return
 		}
 
@@ -69,6 +75,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		if err != nil {
 			return err
 		}
+		w.Header().Set("Last-Modified", le)
 		w.Header().Set("Content-Type", "image/png")
 
 		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes.([]byte)))

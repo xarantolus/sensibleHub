@@ -10,6 +10,11 @@
     padding-top: 1%;
 }
 
+#main-progress {
+    display: none;
+    animation-timing-function: cubic-bezier(.65,.05,.36,1);
+}
+
 #instantclick-bar {
     background: red;
 }

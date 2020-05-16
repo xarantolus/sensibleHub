@@ -29,6 +29,9 @@ type Manager struct {
 
 	evtFunc func(f func(c *websocket.Conn) error)
 
+	isWorking    bool
+	isWorkingMut sync.RWMutex
+
 	OnEvent func(ManagerEvent) `json:"-"`
 }
 
@@ -191,9 +194,33 @@ func randSeq(n int) string {
 
 func (m *Manager) serve() {
 	for newURL := range m.enqueuedURLs {
+		m.setIsWorking(true)
+
 		err := m.download(newURL)
 		if err != nil {
 			log.Printf("[Downloader]: %s\n", err.Error())
 		}
+
+		m.setIsWorking(false)
 	}
+}
+
+func (m *Manager) setIsWorking(state bool) {
+	m.isWorkingMut.Lock()
+	m.isWorking = state
+	m.isWorkingMut.Unlock()
+
+	if state {
+		m.event("progress-start", nil)
+	} else {
+		m.event("progress-end", nil)
+	}
+}
+
+// IsWorking returns whether the manager is currently doing work
+func (m *Manager) IsWorking() bool {
+	m.isWorkingMut.RLock()
+	defer m.isWorkingMut.RUnlock()
+
+	return m.isWorking
 }

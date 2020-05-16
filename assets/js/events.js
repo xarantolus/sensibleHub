@@ -22,13 +22,13 @@ function reload() {
 
     try {
         InstantClick.go(location.toString())
-    }catch(e) {
+    } catch (e) {
         isReload = false;
     }
 
 }
 
-
+var lastProgress = "progress-end"; // default: don't show
 ws.onmessage = function (evt) {
     var e = JSON.parse(evt.data)
 
@@ -48,4 +48,26 @@ ws.onmessage = function (evt) {
         }
     }
 
+    if (e.type.startsWith("progress-")) {
+        setProgressbar(e.type)
+        lastProgress = e.type;
+    }
 }
+
+function setProgressbar(event) {
+    var progressBar = document.getElementById("main-progress");
+    switch (event) {
+        case "progress-start":
+            progressBar.style.display = "block";
+            break;
+        case "progress-end":
+            progressBar.style.display = "none";
+            break;
+        default:
+            break;
+    }
+}
+
+InstantClick.on('change', function() {
+    setProgressbar(lastProgress)
+})
