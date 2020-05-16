@@ -3,6 +3,7 @@ package store
 import (
 	"sort"
 	"strings"
+	"time"
 	"xarantolus/sensiblehub/store/music"
 )
 
@@ -122,4 +123,49 @@ func isLetter(r rune) bool {
 		return true
 	}
 	return false
+}
+
+const (
+	newSongs = 7
+)
+
+// Newest returns the newest entries
+func (m *Manager) Newest() (list []music.Entry, today bool) {
+	entries := m.AllEntries()
+	if len(entries) == 0 {
+		return
+	}
+
+	// Sort by date added, newest at the top
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Added.After(entries[j].Added)
+	})
+
+	// Try to get all songs that were added today
+	date := time.Now()
+	if date.Hour() > 12 {
+		date = date.Add(-12 * time.Hour)
+	}
+	date = date.Round(24 * time.Hour)
+
+	for _, song := range entries {
+		if song.Added.Before(date) {
+			break
+		}
+
+		list = append(list, song)
+	}
+
+	if len(list) >= (newSongs / 2) {
+		return list, true
+	}
+
+	// If not enough were added today, we just take the first few - this can include songs that were *not* added today
+
+	limit := newSongs
+	if len(entries) < limit {
+		limit = len(entries)
+	}
+
+	return entries[:limit], false
 }

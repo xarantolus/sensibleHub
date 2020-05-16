@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 	"xarantolus/sensiblehub/store"
 	"xarantolus/sensiblehub/store/music"
@@ -34,7 +33,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	return renderTemplate(w, r, "song.html", SongPage{
-		fmt.Sprintf("%s - %s", e.MusicData.Title, e.MusicData.Artist),
+		e.SongName(),
 		e,
 	})
 }

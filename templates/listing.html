@@ -4,14 +4,7 @@
     <h4 class="title is-4">{{.Title}}</h4>
     <ul>
     {{range .Songs}}
-    <li class="song-listing-item"><a href="/song/{{.ID}}">
-        <img class="song-listing-image" src="/song/{{.ID}}/cover?size=small"/>
-        <div class="song-listing-meta">
-            <h5 class="title is-5">{{.MusicData.Title}}</h5>
-            {{.MusicData.Artist}}
-        </div>
-    </a>
-    </li>
+        {{ template "song-item.html" . }}
     {{end}}
     </ul>
 </div>

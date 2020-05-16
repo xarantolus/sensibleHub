@@ -48,9 +48,8 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	entry.MusicData.Artist = strings.TrimSpace(data.Artist)
 	entry.MusicData.Album = strings.TrimSpace(data.Album)
 
-	// Year will always have a value
-	year, _ := strconv.Atoi(data.Year)
-	if year != 0 {
+	year, err := strconv.Atoi(data.Year)
+	if err == nil {
 		entry.MusicData.Year = year
 	}
 
@@ -102,7 +101,17 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 
 	m.Songs[id] = entry
 
-	return m.Save(false)
+	err = m.Save(false)
+	if err != nil {
+		return
+	}
+
+	m.event("song-edit", map[string]interface{}{
+		"id":   id,
+		"song": entry,
+	})
+
+	return nil
 }
 
 func setValidS(target *string, value string) {

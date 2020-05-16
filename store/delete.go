@@ -22,5 +22,14 @@ func (m *Manager) DeleteEntry(id string) (err error) {
 		return
 	}
 
-	return m.Save(false)
+	err = m.Save(false)
+	if err != nil {
+		return
+	}
+
+	m.event("song-delete", map[string]interface{}{
+		"id": id,
+	})
+
+	return nil
 }

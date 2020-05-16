@@ -10,6 +10,28 @@
     padding-top: 1%;
 }
 
+#instantclick-bar {
+    background: red;
+}
+
+.image-column {
+    padding-top: 6.5%;
+}
+
+.add-form {
+    padding-top: 5%;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.add-notif:empty {
+    display: none;
+}
+
+.title {
+    padding-bottom: 1.5%;
+}
+
 .navbar {
     position: fixed;
     width: 100%;

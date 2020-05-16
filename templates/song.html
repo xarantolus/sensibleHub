@@ -4,14 +4,14 @@
     <form class="form-horizontal" action="/song/{{.ID}}" method="POST" enctype="multipart/form-data">
         <div class="columns">
             <!-- Left Side: Image -->
-            <div class="column">
+            <div class="column image-column">
                 <figure class="image is-square song-image-container">
-                    <img id="song-cover" src="/data/songs/{{.ID}}/{{.Entry.PictureData.Filename}}" alt="Cover">
+                    <img id="song-cover" src="/song/{{.ID}}/cover" alt="Cover">
                     <div class="middle">
                         <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
                         <div class="file">
                             <label class="file-label">
-                                <input class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button" onchange="renderImagePreview(this)">
+                                <input id="song-cover-input" class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button">
                                 <span class="file-cta">
                                     <span class="file-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -128,7 +128,7 @@
 
                     <div class="field">
                         <div class="control">
-                            <audio class="audio-controls" controls="">
+                            <audio preload="none" class="audio-controls" controls="">
                                 <source src="/song/{{.ID}}/audio">
                                 <source src="/song/{{.ID}}/mp3" type="audio/mpeg">
                                 It seems like your browser doesn't support playing audio.
@@ -141,7 +141,7 @@
                     <legend class="title normal-title is-5">Download</legend>
                     <div class="field">
                         <div class="control">
-                            <a id="download-song-button" href="/song/{{.ID}}/mp3" class="button is-info">Download MP3</a>
+                            <a id="download-song-button" download href="/song/{{.ID}}/mp3" class="button is-info">Download MP3</a>
                         </div>
                     </div>
                 </fieldset>
@@ -164,7 +164,4 @@
         </div>
     </form>
 </div>
-
-<link rel="stylesheet" href="/assets/css/bulma-switch.min.css">
-<script src="/assets/js/song.min.js"></script>
 {{ template "foot.html" . }}

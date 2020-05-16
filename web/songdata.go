@@ -12,6 +12,8 @@ import (
 	"strings"
 	"xarantolus/sensiblehub/store"
 
+	"github.com/bogem/id3v2"
+
 	"github.com/gorilla/mux"
 	"golang.org/x/sync/singleflight"
 )
@@ -133,11 +135,6 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	cp, err := filepath.Abs(e.CoverPath())
-	if err != nil {
-		return
-	}
-
 	var outName = filepath.Join("data", "songs", e.ID, "latest.mp3")
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
@@ -147,62 +144,81 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 			if err != nil {
 				return
 			}
+			defer os.RemoveAll(td)
 
-			tmpFile := filepath.Join(td, "audio.mp3")
+			tempAudio := filepath.Join(td, "temp.mp3")
 
-			// ffmpeg options are quite complicated. Depending on whether on not we have a picture, we
-			// need some parameters to embed that etc.
-			cmd := exec.Command("ffmpeg",
-				"-y", // don't ever ask anything
-
-				"-i", ap, // Audio input
-			)
-
-			if e.PictureData.Filename != "" {
-				cmd.Args = append(cmd.Args,
-					"-i", cp, // Cover input
-
-					// somehow map these to each other
-					"-map", "0", "-map", "1",
-
-					// image cover metadata
-					"-metadata:s:v", "title=Album cover",
-					"-metadata:s:v", "comment=Cover (front)")
-			}
-
-			cmd.Args = append(cmd.Args,
-				// set some idv3 tags
-				"-metadata", "title="+e.MusicData.Title,
-				"-metadata", "artist="+e.MusicData.Artist,
-				"-metadata", "album="+e.MusicData.Album,
-				"-metadata", "date="+strconv.Itoa(e.MusicData.Year),
-
-				"-f", "mp3",
-				"-id3v2_version", "3")
-
-			// Audio settings: start and end
-			if e.AudioSettings.Start != -1 {
-				cmd.Args = append(cmd.Args, "-ss", strconv.FormatFloat(e.AudioSettings.Start, 'f', 3, 64))
-			}
-
-			if e.AudioSettings.End != -1 {
-				cmd.Args = append(cmd.Args, "-to", strconv.FormatFloat(e.AudioSettings.End, 'f', 3, 64))
-			}
-
-			// Set output file
-			cmd.Args = append(cmd.Args, tmpFile)
-
-			if debug {
-				cmd.Stderr = os.Stderr
-			}
-
-			// Start running command
-			err = cmd.Run()
+			// Convert the given audio to mp3
+			err = exec.Command("ffmpeg", "-i", ap, "-f", "mp3", tempAudio).Run()
 			if err != nil {
 				return
 			}
 
-			err = os.Rename(tmpFile, outName)
+			// And open it
+			tag, err := id3v2.Open(tempAudio, id3v2.Options{Parse: false})
+			if err != nil {
+				return
+			}
+
+			// Now we edit its tags
+
+			// Set artist
+			if have(&e.MusicData.Artist) {
+				tag.SetArtist(e.MusicData.Artist)
+			}
+
+			// Set title
+			if have(&e.MusicData.Title) {
+				tag.SetTitle(e.MusicData.Title)
+			}
+
+			if have(&e.MusicData.Album) {
+				tag.SetAlbum(e.MusicData.Album)
+			}
+
+			if e.MusicData.Year != 0 {
+				tag.SetYear(strconv.Itoa(e.MusicData.Year))
+			}
+
+			// Set artwork
+			if have(&e.PictureData.Filename) {
+				b, err := ioutil.ReadFile(e.CoverPath())
+				if err != nil {
+					tag.Close()
+					return nil, err
+				}
+
+				// Other mime types don't work as only jpeg and png images are accepted
+				mimeType := "image/jpeg"
+				if strings.ToUpper(filepath.Ext(e.PictureData.Filename)) == ".PNG" {
+					mimeType = "image/png"
+				}
+
+				pic := id3v2.PictureFrame{
+					Encoding:    id3v2.EncodingUTF8,
+					MimeType:    mimeType,
+					PictureType: id3v2.PTFrontCover,
+					Description: "Front cover",
+					Picture:     b,
+				}
+
+				tag.AddAttachedPicture(pic)
+			}
+
+			// and save it
+			err = tag.Save()
+			if err != nil {
+				tag.Close()
+				return
+			}
+
+			err = tag.Close()
+			if err != nil {
+				return
+			}
+
+			// if everything goes right, we can now move it to its destination
+			err = os.Rename(tempAudio, outName)
 			if err != nil {
 				return
 			}
@@ -224,4 +240,8 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	http.ServeFile(w, r, outName)
 
 	return nil
+}
+
+func have(s *string) bool {
+	return strings.TrimSpace(*s) != ""
 }

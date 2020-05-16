@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"xarantolus/sensiblehub/store"
 	"xarantolus/sensiblehub/store/config"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,8 @@ func RunServer(cfg config.Config) (err error) {
 		return
 	}
 
+	store.M.SetEventFunc(AllSockets)
+
 	r := mux.NewRouter()
 
 	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
@@ -29,6 +32,13 @@ func RunServer(cfg config.Config) (err error) {
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "assets/fav/favicon.ico")
 	}).Methods(http.MethodGet)
+
+	// Index page
+	r.HandleFunc("/", ErrWrap(debugWrap(HandleIndex))).Methods(http.MethodGet)
+
+	// Song submit form
+	r.HandleFunc("/add", ErrWrap(debugWrap(HandleAddSong))).Methods(http.MethodGet)
+	r.HandleFunc("/add", ErrWrap(debugWrap(HandleDownloadSong))).Methods(http.MethodPost)
 
 	// Song listings
 	r.HandleFunc("/songs", ErrWrap(debugWrap(HandleTitleListing))).Methods(http.MethodGet)
@@ -44,6 +54,9 @@ func RunServer(cfg config.Config) (err error) {
 	r.HandleFunc("/song/{songID}/cover", ErrWrap(HandleCover)).Methods(http.MethodGet)
 	r.HandleFunc("/song/{songID}/audio", ErrWrap(HandleAudio)).Methods(http.MethodGet)
 	r.HandleFunc("/song/{songID}/mp3", ErrWrap(HandleMP3)).Methods(http.MethodGet)
+
+	// Websocket
+	r.HandleFunc("/api/v1/events/ws", ErrWrap(debugWrap(HandleWebsocket)))
 
 	log.Printf("Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)

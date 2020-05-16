@@ -19,7 +19,14 @@ const (
 )
 
 // Download downloads the song from the given URL using youtube-dl and saves it to the appropriate directory
-func (m *Manager) Download(url string) (err error) {
+func (m *Manager) download(url string) (err error) {
+	log.Println("Start downloading", url)
+	defer func() {
+		if err != nil {
+			log.Printf("Error while downloading %s: %s\n", url, err.Error())
+		}
+	}()
+
 	tmpDir, err := ioutil.TempDir("", "shub")
 	if err != nil {
 		return
@@ -70,7 +77,9 @@ func (m *Manager) Download(url string) (err error) {
 				// There is only a problem if audioPath == "", but that is handeled below
 			}
 		default:
-			// Assume this is the audio file
+			// Assume this is the audio file.
+			// Having only a whitelist of audio file formats would not be great as there are quite many
+			// As long as it is supported by ffmpeg, we support it
 			audioPath = path
 			audioSize = info.Size()
 		}
@@ -86,9 +95,14 @@ func (m *Manager) Download(url string) (err error) {
 		return fmt.Errorf("invalid empty audio path, it seems like no audio was downloaded")
 	}
 
+	// the bad part about this is that still images also have a duration of 0
 	dur, err := getAudioDuration(audioPath)
 	if err != nil {
 		return fmt.Errorf("cannot get audio duration: %w", err)
+	}
+
+	if dur < 1 {
+		return fmt.Errorf("invalid audio (%s): duration too short", filepath.Base(audioPath))
 	}
 
 	minfo, jsonErr := readInfoFile(jsonPath)
@@ -173,7 +187,14 @@ func (m *Manager) Download(url string) (err error) {
 		return
 	}
 
-	return m.Add(e)
+	err = m.Add(e)
+	if err != nil {
+		return
+	}
+
+	log.Println("Download finished successfully")
+
+	return nil
 }
 
 // info is the struct that stores data that can be read from a typical youtube-dl `.info.json` file

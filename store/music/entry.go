@@ -39,6 +39,10 @@ type Entry struct {
 
 // CoverPath returns the path of the cover
 func (e *Entry) CoverPath() string {
+	if e.PictureData.Filename == "" {
+		return ""
+	}
+
 	return filepath.Join("data", "songs", e.ID, e.PictureData.Filename)
 }
 

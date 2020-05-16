@@ -1,0 +1,24 @@
+{{ template "head.html" . }}
+<form class="form-horizontal add-form" method="POST" action="/add">
+    <fieldset>
+        <div id="add-notif" class="notification is-danger add-notif"></div>
+
+        <div class="field">
+            <label class="label" for="url">Link</label>
+            <div class="control">
+                <input autofocus="" id="url" name="url" type="url" placeholder="Link to song" class="input" required="">
+                <p class="help">Can be any website <a href="https://ytdl-org.github.io/youtube-dl/supportedsites.html" rel="noopener noreferrer">supported by youtube-dl</a>. Does not work for playlists.</p>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit" id="submit-button" name="submit-button">Download</button>
+            </div>
+        </div>
+
+    </fieldset>
+</form>
+
+
+{{ template "foot.html" . }}

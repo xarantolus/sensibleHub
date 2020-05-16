@@ -3,12 +3,16 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 	"xarantolus/sensiblehub/store/music"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -21,6 +25,10 @@ type Manager struct {
 	Songs     map[string]music.Entry `json:"songs"`
 	SongsLock *sync.RWMutex          `json:"-"`
 
+	enqueuedURLs chan string
+
+	evtFunc func(f func(c *websocket.Conn) error)
+
 	OnEvent func(ManagerEvent) `json:"-"`
 }
 
@@ -31,9 +39,12 @@ var M *Manager
 func InitializeManager() (err error) {
 	// Initialize an empty manager
 	M = &Manager{
-		Songs:     make(map[string]music.Entry),
-		SongsLock: new(sync.RWMutex),
+		Songs:        make(map[string]music.Entry),
+		SongsLock:    new(sync.RWMutex),
+		enqueuedURLs: make(chan string, 25),
 	}
+
+	go M.serve()
 
 	// Try reading from file
 	f, err := os.Open(managerDataFile)
@@ -110,7 +121,17 @@ func (m *Manager) Add(e *music.Entry) (err error) {
 
 	m.Songs[e.ID] = *e
 
-	return m.Save(false)
+	err = m.Save(false)
+	if err != nil {
+		return
+	}
+
+	m.event("song-add", map[string]interface{}{
+		"id":   e.ID,
+		"song": *e,
+	})
+
+	return
 }
 
 // GetEntry returns the entry with the given ID
@@ -119,6 +140,21 @@ func (m *Manager) GetEntry(id string) (e music.Entry, ok bool) {
 	e, ok = m.Songs[id]
 	m.SongsLock.RUnlock()
 	return
+}
+
+// Enqueue adds a new url to the queue of songs that should be downloaded
+func (m *Manager) Enqueue(u string) (err error) {
+	_, err = url.ParseRequestURI(u)
+	if err != nil {
+		return
+	}
+
+	select {
+	case m.enqueuedURLs <- u:
+		return nil
+	default:
+		return fmt.Errorf("Cannot enqueue more songs at this time")
+	}
 }
 
 // generateID generates a new, unique ID.
@@ -151,4 +187,13 @@ func randSeq(n int) string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+}
+
+func (m *Manager) serve() {
+	for newURL := range m.enqueuedURLs {
+		err := m.download(newURL)
+		if err != nil {
+			log.Printf("[Downloader]: %s\n", err.Error())
+		}
+	}
 }
