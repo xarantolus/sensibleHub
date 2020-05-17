@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"xarantolus/sensiblehub/ftp"
 	"xarantolus/sensiblehub/store"
 	"xarantolus/sensiblehub/store/config"
 	"xarantolus/sensiblehub/web"
@@ -33,6 +34,14 @@ func main() {
 			log.Println("Finished cleaning up", n, "songs")
 		}
 	}
+
+	go func() {
+		err := ftp.RunServer(cfg)
+		if err != nil {
+			panic("while running ftp server: " + err.Error())
+		}
+	}()
+
 	err = web.RunServer(cfg)
 	if err != nil {
 		panic("while running web server: " + err.Error())

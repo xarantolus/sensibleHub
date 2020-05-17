@@ -7,6 +7,13 @@ import (
 
 type Config struct {
 	Port int
+
+	FTP struct {
+		Port int
+
+		User   string
+		Passwd string
+	}
 }
 
 const (
