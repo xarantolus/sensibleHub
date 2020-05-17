@@ -2,6 +2,7 @@ package store
 
 import (
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"xarantolus/sensiblehub/store/music"
@@ -124,6 +125,45 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 	// Sort artists alphabetically
 	sort.Slice(groups, func(i, j int) bool {
 		return strings.ToUpper(groups[i].Title) < strings.ToUpper(groups[j].Title)
+	})
+
+	return
+}
+
+// GroupByYear groups songs by their year
+func (m *Manager) GroupByYear() (groups []Group) {
+	m.SongsLock.RLock()
+	defer m.SongsLock.RUnlock()
+
+	var yMap = map[string][]music.Entry{}
+
+	for _, song := range m.AllEntries() {
+		var yearName string
+		if song.MusicData.Year == nil {
+			yearName = "#"
+		} else {
+			yearName = strconv.Itoa(*song.MusicData.Year)
+		}
+
+		yMap[yearName] = append(yMap[yearName], song)
+	}
+
+	for year, songs := range yMap {
+		// Sort songs in year listing by title
+		sort.Slice(songs, func(i, j int) bool {
+			return strings.ToUpper(songs[i].MusicData.Title) < strings.ToUpper(songs[j].MusicData.Title)
+		})
+
+		// since every len(songs) > 0
+		groups = append(groups, Group{
+			Title: year,
+			Songs: songs,
+		})
+	}
+
+	// Sort years alphabetically, newest year at the top, unknown years at the bottom
+	sort.Slice(groups, func(i, j int) bool {
+		return strings.ToUpper(groups[i].Title) > strings.ToUpper(groups[j].Title)
 	})
 
 	return

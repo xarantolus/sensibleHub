@@ -1,8 +1,8 @@
 {{ template "head.html" . }}
 {{range .Groups}}
 <div class="listing">
-    <h4 class="title is-4">{{.Title}}</h4>
-    {{range .Songs}}
+    {{with .Title}}<h4 class="title is-4">{{.}}</h4>
+    {{end}}{{range .Songs}}
         {{ template "song-item.html" . }}
     {{end}}
 </div>

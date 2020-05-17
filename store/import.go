@@ -45,7 +45,7 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 		md.Album = tag.Album()
 
 		y, nerr := strconv.Atoi(tag.Year())
-		if nerr != nil {
+		if nerr == nil {
 			md.Year = &y
 		}
 
@@ -76,7 +76,6 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 	// try to extract image from the file
 	cmd := exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
 	cmd.Stdout = &picBuf
-	cmd.Stderr = os.Stderr
 	ffmpegErr := cmd.Run()
 	if ffmpegErr != nil {
 		picBuf.Reset()

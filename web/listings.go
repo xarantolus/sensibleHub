@@ -28,3 +28,11 @@ func HandleArtistListing(w http.ResponseWriter, r *http.Request) (err error) {
 		Groups: store.M.GroupByArtist(),
 	})
 }
+
+// HandleYearListing returns the year listing
+func HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return renderTemplate(w, r, "listing.html", Listing{
+		Title:  "Years",
+		Groups: store.M.GroupByYear(),
+	})
+}

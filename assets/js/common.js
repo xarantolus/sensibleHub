@@ -87,5 +87,5 @@ function trimChar(string, charToRemove) {
 
 
 function isListingPage() {
-    return ["/", "/songs", "/artists"].indexOf(location.pathname) !== -1;
+    return ["/", "/songs", "/artists", "/years"].indexOf(location.pathname) !== -1;
 }
