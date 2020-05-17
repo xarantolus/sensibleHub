@@ -25,7 +25,6 @@ function reload() {
     } catch (e) {
         isReload = false;
     }
-
 }
 
 var lastProgress = "progress-end"; // default: don't show

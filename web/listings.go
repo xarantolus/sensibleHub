@@ -53,9 +53,15 @@ func HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
 		return fmt.Errorf("Empty query")
 	}
 
+	res := store.M.Search(query)
+	if len(res) == 1 {
+		http.Redirect(w, r, "/song/"+res[0].ID, http.StatusTemporaryRedirect)
+		return
+	}
+
 	return renderTemplate(w, r, "search.html", searchListing{
 		Title: "Search results",
-		Songs: store.M.Search(query),
+		Songs: res,
 		Query: query,
 	})
 }

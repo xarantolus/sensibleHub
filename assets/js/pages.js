@@ -9,4 +9,6 @@ InstantClick.on('change', function () {
         default:
             break;
     }
+
+    initSearch();
 })

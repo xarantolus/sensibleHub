@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 	"xarantolus/sensiblehub/store/music"
@@ -150,9 +151,13 @@ func (m *Manager) GetEntry(id string) (e music.Entry, ok bool) {
 
 // Enqueue adds a new url to the queue of songs that should be downloaded
 func (m *Manager) Enqueue(u string) (err error) {
-	_, err = url.ParseRequestURI(u)
+	parsed, err := url.ParseRequestURI(u)
 	if err != nil {
 		return
+	}
+
+	if e, ok := m.hasLink(parsed); ok {
+		return fmt.Errorf("%s has already been downloaded", e.SongName())
 	}
 
 	select {
@@ -161,6 +166,45 @@ func (m *Manager) Enqueue(u string) (err error) {
 	default:
 		return fmt.Errorf("Cannot enqueue more songs at this time")
 	}
+}
+
+func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
+	u.Host = strings.TrimPrefix(u.Host, "www.")
+
+	// make sure that resolved links are recognized
+	if u.Host == "youtu.be" {
+		u.Host = "youtube.com"
+		u.Path = "/watch"
+
+		u.Query().Set("v", strings.TrimPrefix(u.Path, "/"))
+	}
+
+	// clean other url parameters
+	if u.Host == "youtube.com" {
+		for key := range u.Query() {
+			if key != "v" {
+				u.Query().Del(key)
+			}
+		}
+	}
+
+	u.Scheme = ""
+
+	s := u.String()
+	for _, e := range m.AllEntries() {
+		if e.SourceURL == "Imported" {
+			continue
+		}
+
+		// This check is actually flawed.
+		// If we have a song with the SourceURL `youtube.com/watch?v=000`, it will also match `youtube.com/watch?v=00`
+		// This is however quite unlikely to be annoying in practice
+		if strings.Contains(strings.Replace(e.SourceURL, "www.", "", 1), s) {
+			return e, true
+		}
+	}
+
+	return me, false
 }
 
 // generateID generates a new, unique ID.

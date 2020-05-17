@@ -3,6 +3,10 @@
     margin: 0 auto;
 }
 
+.hidden {
+    display: none;
+}
+
 .listing {
     width: 70%;
     margin: 0 auto;
@@ -36,7 +40,9 @@
 }
 
 #song-note {
-    min-height: 100px;
+    min-height: 60px;
+    resize:vertical;
+    overflow-y: hidden;
 }
 
 .notif:empty {

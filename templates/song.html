@@ -1,6 +1,8 @@
 {{ template "head.html" . }}
 
 <div class="song-container">
+    <input class="hidden" id="song-id" value="{{.ID}}">
+    
     <form class="form-horizontal" action="/song/{{.ID}}" method="POST" enctype="multipart/form-data">
         <div class="columns">
             <!-- Left Side: Image -->
