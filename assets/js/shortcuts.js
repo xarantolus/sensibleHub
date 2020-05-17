@@ -14,6 +14,12 @@ window.addEventListener('keydown', function (ev) {
     if (ev.keyCode === 78 && location.pathname != "/add") {
         ev.preventDefault();
         InstantClick.go("/add");
-        return true;
+        return;
+    }
+
+    if (ev.key == "/") {
+        ev.preventDefault();
+        focusSearch();
+        return;
     }
 });

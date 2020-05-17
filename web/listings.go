@@ -1,8 +1,10 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"xarantolus/sensiblehub/store"
+	"xarantolus/sensiblehub/store/music"
 )
 
 // Listing defines a listing of grouped songs
@@ -34,5 +36,26 @@ func HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Years",
 		Groups: store.M.GroupByYear(),
+	})
+}
+
+type searchListing struct {
+	Title string
+	Songs []music.Entry
+
+	Query string
+}
+
+// HandleSearchListing returns a search listing
+func HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		return fmt.Errorf("Empty query")
+	}
+
+	return renderTemplate(w, r, "search.html", searchListing{
+		Title: "Search results",
+		Songs: store.M.Search(query),
+		Query: query,
 	})
 }

@@ -6,7 +6,16 @@ import (
 )
 
 var (
-	funcMap   = map[string]interface{}{}
+	funcMap = map[string]interface{}{
+		"query": func(struc interface{}) string {
+			v, ok := struc.(searchListing)
+			if !ok {
+				return ""
+			}
+
+			return v.Query
+		},
+	}
 	templates *template.Template
 )
 

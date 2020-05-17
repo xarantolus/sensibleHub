@@ -1,0 +1,7 @@
+{{ template "head.html" . }}
+<div class="listing search">
+{{range .Songs}}
+    {{ template "song-item.html" . }}
+{{end}}
+</div>
+{{ template "foot.html" . }}

@@ -40,8 +40,14 @@
                 <span data-no-instant class="navbar-item">
                     <progress id="main-progress" class="progress is-small is-primary"></progress>
                 </span>
+                <form id="search-form" class="navbar-item" action="/search">
+                    <div id="search-container" class="control has-icons-left has-icons-right is-small">
+                        <input id="search-bar" value="{{ query . }}" name="q" class="input is-small is-rounded" type="text" placeholder="Search">
+                        <span class="icon is-small is-left">🔍</span>
+                    </div>
+                </form>
                 <a class="navbar-item" href="/add">
-                    <span class="bd-emoji">🔍</span> &nbsp;Add
+                    <span class="bd-emoji"></span> &nbsp;Add
                 </a>
             </div>
         </div>

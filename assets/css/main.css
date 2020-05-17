@@ -13,6 +13,13 @@
     display: none;
     animation-timing-function: cubic-bezier(.65,.05,.36,1);
 }
+.listing.search {
+    padding-top: 3.5%;
+}
+
+.song-link {
+    overflow-y: hidden;
+}
 
 #instantclick-bar {
     background: red;
