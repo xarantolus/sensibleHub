@@ -1,6 +1,6 @@
 window.addEventListener('keydown', function (ev) {
     // Prevent the events below this from firing if the user is focusing an input element (e.g. while typing)
-    if (ev.target.tagName === "INPUT") {
+    if (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA") {
         return false;
     }
 

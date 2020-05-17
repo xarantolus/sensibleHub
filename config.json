@@ -1,3 +1,8 @@
 {
-    "port": 128
+    "port": 128,
+    "ftp": {
+        "port": 1280,
+        "user": "phil",
+        "passwd": "test"
+    }
 }

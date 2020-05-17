@@ -14,6 +14,9 @@ type Entry struct {
 	LastEdit time.Time `json:"last_edit"`
 	Added    time.Time `json:"added"`
 
+	// Note is a user-defined note
+	Note string `json:"note"`
+
 	// SourceURL is either the source input url where the audio file was downloaded from or
 	// the `webpage_url` field from the youtube-dl info file. Both point to the website where one might listen to the song
 	SourceURL string `json:"source_url"`
@@ -63,7 +66,18 @@ func (e *Entry) SongName() (out string) {
 		out = e.MusicData.Artist + " - "
 	}
 
-	return out + e.MusicData.Title
+	out = out + e.MusicData.Title
+	if out == "" {
+		return "Unknown"
+	}
+	return out
+}
+
+func (e *Entry) AlbumName() string {
+	if e.MusicData.Album == "" {
+		return "Unknown"
+	}
+	return e.MusicData.Album
 }
 
 func (e Entry) FormatDuration() string {
@@ -113,7 +127,7 @@ type MusicData struct {
 	Title  string `json:"title"`
 	Artist string `json:"artist"`
 	Album  string `json:"album"`
-	Year   int    `json:"year"`
+	Year   *int   `json:"year,omitempty"` // optional, may be nil
 
 	// Duration is the duration of the original file in seconds
 	Duration float64 `json:"duration"`

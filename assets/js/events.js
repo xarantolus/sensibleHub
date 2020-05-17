@@ -49,7 +49,7 @@ ws.onmessage = function (evt) {
     }
 
     if (e.type.startsWith("progress-")) {
-        setProgressbar(e.type)
+        setProgressbar(e.type, e.data)
         lastProgress = e.type;
 
         if (location.pathname === "/add" && document.getElementById("url").value.trim() === "") {
@@ -58,7 +58,7 @@ ws.onmessage = function (evt) {
     }
 }
 
-function setProgressbar(event) {
+function setProgressbar(event, data) {
     var progressBar = document.getElementById("main-progress");
     switch (event) {
         case "progress-start":

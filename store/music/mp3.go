@@ -87,8 +87,8 @@ func (e *Entry) MP3Path() (p string, err error) {
 			tag.SetAlbum(e.MusicData.Album)
 		}
 
-		if e.MusicData.Year != 0 {
-			tag.SetYear(strconv.Itoa(e.MusicData.Year))
+		if e.MusicData.Year != nil {
+			tag.SetYear(strconv.Itoa(*e.MusicData.Year))
 		}
 
 		// Set artwork

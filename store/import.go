@@ -43,7 +43,11 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 		md.Title = tag.Title()
 		md.Artist = tag.Artist()
 		md.Album = tag.Album()
-		md.Year, _ = strconv.Atoi(tag.Year())
+
+		y, nerr := strconv.Atoi(tag.Year())
+		if nerr != nil {
+			md.Year = &y
+		}
 
 		// Extracting the image doesn't really seem to work.
 		// We'll do it with ffmpeg after this file is closed
@@ -70,7 +74,7 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 	var picBuf bytes.Buffer
 
 	// try to extract image from the file
-	cmd := exec.Command("ffmpeg", "-i", musicFile, "-f", "image2pipe", "-")
+	cmd := exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
 	cmd.Stdout = &picBuf
 	cmd.Stderr = os.Stderr
 	ffmpegErr := cmd.Run()
@@ -122,8 +126,10 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 
 	if picBuf.Len() > 0 {
 		err = CropCover(ioutil.NopCloser(&picBuf), "", e.CoverPath())
+	} else {
+		e.PictureData.Filename = ""
 	}
-	if ffmpegErr != nil || err != nil || picBuf.Len() == 0 {
+	if ffmpegErr != nil || err != nil {
 		e.PictureData.Filename = ""
 	}
 

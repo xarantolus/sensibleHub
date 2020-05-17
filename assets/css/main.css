@@ -1,7 +1,6 @@
 .song-container {
     width: 70%;
     margin: 0 auto;
-    padding-top: 2.5%;
 }
 
 .listing {
@@ -27,6 +26,10 @@
     padding-top: 5%;
     width: 80%;
     margin: 0 auto;
+}
+
+#song-note {
+    min-height: 100px;
 }
 
 .notif:empty {
@@ -85,9 +88,26 @@ pre {
  }
  
 .song-listing-meta {
-    width: 100%;
+    width: 80%;
     display: table-caption;
+    padding-left: 2%;
 }
+
+.title.is-5 {
+    margin-bottom: 0;
+}
+
+.content > * {
+    margin-bottom: 0 !important;
+}
+.content {
+    line-height: 1rem;
+}
+
+.listing > a {
+    padding-top: 30px;
+}
+
 
 #song-cover {
     object-fit: cover;

@@ -19,6 +19,8 @@ type EditEntryData struct {
 	Album  string
 	Year   string
 
+	Note string
+
 	Start string
 	End   string
 
@@ -48,9 +50,14 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	entry.MusicData.Artist = strings.TrimSpace(data.Artist)
 	entry.MusicData.Album = strings.TrimSpace(data.Album)
 
+	entry.Note = strings.TrimSpace(data.Note)
+
 	year, err := strconv.Atoi(data.Year)
 	if err == nil {
-		entry.MusicData.Year = year
+		entry.MusicData.Year = &year
+	} else {
+		// allow clearing year value after it has been set
+		entry.MusicData.Year = nil
 	}
 
 	// these floats must have a valid value that is between 0 and the length of the audio

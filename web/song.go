@@ -91,6 +91,8 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		Album:  r.FormValue("song-album"),
 		Year:   r.FormValue("song-year"),
 
+		Note: r.FormValue("song-note"),
+
 		Start: r.FormValue("audio-start"),
 		End:   r.FormValue("audio-end"),
 

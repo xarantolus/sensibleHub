@@ -2,11 +2,9 @@
 {{range .Groups}}
 <div class="listing">
     <h4 class="title is-4">{{.Title}}</h4>
-    <ul>
     {{range .Songs}}
         {{ template "song-item.html" . }}
     {{end}}
-    </ul>
 </div>
 {{end}}
 {{ template "foot.html" . }}

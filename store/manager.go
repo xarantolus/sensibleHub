@@ -144,6 +144,7 @@ func (m *Manager) GetEntry(id string) (e music.Entry, ok bool) {
 	m.SongsLock.RLock()
 	e, ok = m.Songs[id]
 	m.SongsLock.RUnlock()
+
 	return
 }
 
@@ -217,7 +218,11 @@ func (m *Manager) setIsWorking(state bool) {
 	if state {
 		m.event("progress-start", nil)
 	} else {
-		m.event("progress-end", nil)
+		data := map[string]string{}
+		if m.lastErr != nil {
+			data["error"] = m.lastErr.Error()
+		}
+		m.event("progress-end", data)
 	}
 }
 

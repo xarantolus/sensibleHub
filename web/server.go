@@ -58,7 +58,7 @@ func RunServer(cfg config.Config) (err error) {
 	// Websocket
 	r.HandleFunc("/api/v1/events/ws", ErrWrap(debugWrap(HandleWebsocket)))
 
-	log.Printf("Server listening on port %d\n", cfg.Port)
+	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)
 }
 

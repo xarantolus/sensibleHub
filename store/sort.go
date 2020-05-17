@@ -54,6 +54,17 @@ func (m *Manager) GroupByTitle() (groups []Group) {
 
 		// Same start? Same group
 		if rune(title[0]) == lastTitleStart || !isLetter(rune(title[0])) {
+			if g == nil {
+				groupTitle := rune(title[0])
+				if !isLetter(groupTitle) {
+					groupTitle = '#' // Special characters and numbers
+				}
+
+				g = &Group{
+					Title: string(groupTitle),
+					Songs: []music.Entry{song},
+				}
+			}
 			g.Songs = append(g.Songs, song)
 			continue
 		}

@@ -230,9 +230,9 @@ func (i *info) Webpage(originalURL string) string {
 }
 
 // Year returns the year recorded in the `.info.json` file
-func (i *info) Year() int {
+func (i *info) Year() *int {
 	if i.ReleaseYear != 0 {
-		return i.ReleaseYear
+		return &i.ReleaseYear
 	}
 
 	// this date format is typically used in the info file: YYYYMMDD
@@ -240,14 +240,16 @@ func (i *info) Year() int {
 
 	d, err := time.Parse(dFormat, i.ReleaseDate)
 	if err == nil {
-		return d.Year()
+		y := d.Year()
+		return &y
 	}
 
 	d, err = time.Parse(dFormat, i.UploadDate)
 	if err == nil {
-		return d.Year()
+		y := d.Year()
+		return &y
 	}
-	return 0
+	return nil
 }
 
 // readInfoFile reads a youtube-dl `.info.json` file and extracts some information

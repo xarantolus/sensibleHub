@@ -36,7 +36,7 @@ func CropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 		return
 	}
 
-	img, _, err := exiffix.Decode(bytes.NewReader(data))
+	img, format, err := exiffix.Decode(bytes.NewReader(data))
 	if err != nil {
 		f.Close()
 		return
@@ -49,44 +49,58 @@ func CropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 
 	bounds := img.Bounds()
 
+	var croppedImg image.Image
+
 	// If we already have a square, we can just use the source file
 	if bounds.Max.X == bounds.Max.Y {
-		if sourceFile == "" {
-			return ioutil.WriteFile(destination, data, 0644)
+		// Now we have a square - but is it the same file type as the one for the desired extension?
+		var desiredExtension = strings.ToUpper(filepath.Ext(destination))
+
+		if (desiredExtension == ".JPG" || desiredExtension == ".JPEG") && (format == "jpeg" || format == "jpg") || desiredExtension == ".PNG" && format == "png" {
+			// If yes, we don't need to worry about anything
+			if sourceFile == "" {
+				return ioutil.WriteFile(destination, data, 0644)
+			}
+
+			return os.Rename(sourceFile, destination)
 		}
 
-		return os.Rename(sourceFile, destination)
+		croppedImg = img // work with the normal image
+		goto noNeedToCrop
 	}
 
-	// Use the smaller dimension for cutting off
-	smallerOne := bounds.Max.X
-	if bounds.Max.Y < smallerOne {
-		smallerOne = bounds.Max.Y
+	{
+		// Use the smaller dimension for cutting off
+		smallerOne := bounds.Max.X
+		if bounds.Max.Y < smallerOne {
+			smallerOne = bounds.Max.Y
+		}
+
+		// Basically take the middle square. This works e.g. with youtube music video thumbnails
+		var defaultCrop image.Rectangle
+
+		if bounds.Max.X > smallerOne {
+			// Width is larger than height
+			defaultCrop = image.Rect(bounds.Max.X/2-smallerOne/2, 0, bounds.Max.X/2+smallerOne/2, bounds.Max.Y)
+		} else {
+			// Height ist larger than width
+			defaultCrop = image.Rect(0, bounds.Max.Y/2-smallerOne/2, bounds.Max.X, bounds.Max.Y/2+smallerOne/2)
+		}
+
+		type SubImager interface {
+			SubImage(r image.Rectangle) image.Image
+		}
+		subImg, ok := img.(SubImager)
+
+		// if we cannot crop, we won't use an image at all
+		if !ok {
+			return fmt.Errorf("cannot crop image")
+		}
+
+		croppedImg = subImg.SubImage(defaultCrop)
 	}
 
-	// Basically take the middle square. This works e.g. with youtube music video thumbnails
-	var defaultCrop image.Rectangle
-
-	if bounds.Max.X > smallerOne {
-		// Width is larger than height
-		defaultCrop = image.Rect(bounds.Max.X/2-smallerOne/2, 0, bounds.Max.X/2+smallerOne/2, bounds.Max.Y)
-	} else {
-		// Height ist larger than width
-		defaultCrop = image.Rect(0, bounds.Max.Y/2-smallerOne/2, bounds.Max.X, bounds.Max.Y/2+smallerOne/2)
-	}
-
-	type SubImager interface {
-		SubImage(r image.Rectangle) image.Image
-	}
-	subImg, ok := img.(SubImager)
-
-	// if we cannot crop, we won't use an image at all
-	if !ok {
-		return fmt.Errorf("cannot crop image")
-	}
-
-	croppedImg := subImg.SubImage(defaultCrop)
-
+noNeedToCrop:
 	ext := strings.ToUpper(strings.TrimPrefix(filepath.Ext(destination), "."))
 
 	file, err := ioutil.TempFile("", "shub-")
