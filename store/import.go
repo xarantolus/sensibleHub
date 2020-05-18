@@ -73,13 +73,31 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 
 	var picBuf bytes.Buffer
 
+	ex := filepath.Ext(musicFile)
+	var f = strings.TrimSuffix(musicFile, ex) + ".temp" + ex
+
+	// Try to remove metadata, mostly the cover image, as it will take space and will never be needed
+	cmd := exec.Command("ffmpeg", "-i", musicFile, "-y", "-map_metadata", "-1", "-c:a", "copy", "-map", "a", f)
+	err = cmd.Run()
+	if err != nil {
+		return
+	}
+
 	// try to extract image from the file
-	cmd := exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
+	cmd = exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
 	cmd.Stdout = &picBuf
 	ffmpegErr := cmd.Run()
 	if ffmpegErr != nil {
 		picBuf.Reset()
 	}
+	var oldmfile = musicFile
+	defer func() {
+		if err == nil {
+			err = os.Remove(oldmfile)
+		}
+	}()
+
+	musicFile = f
 
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()

@@ -210,8 +210,8 @@ div.field.has-addons {
 /* Phone Screen */
 
 @media screen and (max-width: 800px) {
-    .listing, .song-container, .abort-form {
+    .listing, .song-container, .abort-form, .add-form {
         width: 90%;
-        padding-top: 10%;
+        margin-top: 10%;
     }
 }
