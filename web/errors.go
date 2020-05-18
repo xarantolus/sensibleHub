@@ -23,13 +23,17 @@ func ErrWrap(f func(http.ResponseWriter, *http.Request) error) http.HandlerFunc 
 			return
 		}
 
-		log.Printf("[Web] %s %s: %s\n", r.Method, r.URL.Path, err.Error())
-
 		// is it an http error?
 		if h, ok := err.(HttpError); ok {
+			// Log all errors that aren't caused by the client directly
+			if h.StatusCode < 400 || h.StatusCode >= 500 {
+				log.Printf("[Web] %s %s: %s\n", r.Method, r.URL.Path, err.Error())
+			}
 			http.Error(w, h.Message, h.StatusCode)
 			return
 		}
+
+		log.Printf("[Web] %s %s: %s\n", r.Method, r.URL.Path, err.Error())
 
 		// some other error
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

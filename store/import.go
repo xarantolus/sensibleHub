@@ -57,8 +57,17 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 			return
 		}
 	}
+
 	if strings.TrimSpace(md.Title) == "" {
-		md.Title = filepath.Base(musicFile)
+		b := filepath.Base(musicFile)
+		if strings.Contains(b, " - ") {
+			split := strings.Split(strings.TrimSuffix(b, filepath.Ext(b)), " - ")
+			if len(split) == 2 {
+				md.Artist, md.Title = split[0], split[1]
+			}
+		} else {
+			md.Title = b
+		}
 	}
 
 	// extract duration
@@ -90,6 +99,7 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 	if ffmpegErr != nil {
 		picBuf.Reset()
 	}
+
 	var oldmfile = musicFile
 	defer func() {
 		if err == nil {

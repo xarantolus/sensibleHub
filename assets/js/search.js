@@ -67,6 +67,10 @@ function initSearch() {
 function focusSearch() {
     var sb = document.getElementById("search-bar");
     if (sb) {
+        // If the search bar is hidden, we show it
+        document.querySelector('.navbar-burger').classList.toggle('is-active');
+        document.querySelector('.navbar-menu').classList.toggle('is-active');
+
         if (!sb.value.endsWith(" ") && sb.value.length !== 0) {
             sb.value += " "
         }

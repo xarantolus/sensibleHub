@@ -46,6 +46,7 @@ func RunServer(cfg config.Config) (err error) {
 	r.HandleFunc("/songs", ErrWrap(debugWrap(HandleTitleListing))).Methods(http.MethodGet)
 	r.HandleFunc("/artists", ErrWrap(debugWrap(HandleArtistListing))).Methods(http.MethodGet)
 	r.HandleFunc("/years", ErrWrap(debugWrap(HandleYearListing))).Methods(http.MethodGet)
+	r.HandleFunc("/incomplete", ErrWrap(debugWrap(HandleIncompleteListing))).Methods(http.MethodGet)
 
 	// Search listing
 	r.HandleFunc("/search", ErrWrap(debugWrap(HandleSearchListing))).Methods(http.MethodGet)

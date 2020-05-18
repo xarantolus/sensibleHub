@@ -39,6 +39,14 @@ func HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
 	})
 }
 
+// HandleIncompleteListing returns all items with incomplete data
+func HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return renderTemplate(w, r, "listing.html", Listing{
+		Title:  "Incomplete",
+		Groups: store.M.Incomplete(),
+	})
+}
+
 type searchListing struct {
 	Title string
 	Songs []music.Entry

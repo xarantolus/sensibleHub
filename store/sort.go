@@ -221,6 +221,51 @@ func (m *Manager) Newest() (list []music.Entry, today bool) {
 	return entries[:limit], false
 }
 
+// Incomplete returns all entries with incomplete data
+func (m *Manager) Incomplete() (groups []Group) {
+	var noArtist = Group{Title: "No Artist"}
+	var noAlbum = Group{Title: "No Album"}
+	var noImage = Group{Title: "No Cover"}
+	var noYear = Group{Title: "No Year"}
+	var weirdTitle = Group{Title: "Weird Title"}
+
+	for _, e := range m.AllEntries() {
+		if strings.TrimSpace(e.MusicData.Artist) == "" {
+			noArtist.Songs = append(noArtist.Songs, e)
+			continue
+		}
+
+		if strings.TrimSpace(e.MusicData.Album) == "" {
+			noAlbum.Songs = append(noAlbum.Songs, e)
+			continue
+		}
+
+		if strings.TrimSpace(e.PictureData.Filename) == "" {
+			noImage.Songs = append(noImage.Songs, e)
+			continue
+		}
+
+		if e.MusicData.Year == nil || *e.MusicData.Year == 0 {
+			noYear.Songs = append(noYear.Songs, e)
+			continue
+		}
+
+		if strings.Contains(strings.ToUpper(e.MusicData.Title), ".MP3") {
+			weirdTitle.Songs = append(weirdTitle.Songs, e)
+			continue
+		}
+	}
+
+	for _, g := range []Group{noArtist, noAlbum, noImage, noYear, weirdTitle} {
+		if len(g.Songs) == 0 {
+			continue
+		}
+		groups = append(groups, g)
+	}
+
+	return
+}
+
 // NewestSong returns the most recently added song
 func (m *Manager) NewestSong() (e music.Entry, ok bool) {
 	m.SongsLock.RLock()
