@@ -1,9 +1,15 @@
+# github.com/bogem/id3v2 v1.1.3
+github.com/bogem/id3v2
 # github.com/disintegration/imaging v1.6.2
 github.com/disintegration/imaging
 # github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 github.com/edwvee/exiffix
+# github.com/goftp/server v0.0.0-20190712054601-1149070ae46b
+github.com/goftp/server
 # github.com/gorilla/mux v1.7.4
 github.com/gorilla/mux
+# github.com/gorilla/websocket v1.4.2
+github.com/gorilla/websocket
 # github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 github.com/nfnt/resize
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
@@ -16,3 +22,12 @@ golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 golang.org/x/sync/singleflight
+# golang.org/x/text v0.3.2
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/runes
+golang.org/x/text/transform
