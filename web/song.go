@@ -102,9 +102,6 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	// cover preview must be re-generated
-	coverGroup.Forget(songID + "-small")
-
 	if isAjax {
 		http.Error(w, `{"message": "Updated"}`, http.StatusOK)
 		return

@@ -9,13 +9,6 @@ import (
 	"xarantolus/sensiblehub/store"
 
 	"github.com/gorilla/mux"
-	"golang.org/x/sync/singleflight"
-)
-
-var (
-	// coverGroup manages the functions that generate cover previews.
-	// They are started in HandleCover, and forgotten in HandleEditSong
-	coverGroup singleflight.Group
 )
 
 func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
@@ -41,10 +34,6 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Expires", "0")
-
 	sizeParam := r.URL.Query().Get("size")
 	switch strings.ToUpper(sizeParam) {
 	case "SMALL":
@@ -60,25 +49,16 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 			return
 		}
 
-		// Since we never call
-		coverBytes, err, _ := coverGroup.Do(e.ID+"-small", func() (res interface{}, err error) {
-			var b bytes.Buffer
-			err = store.ResizeCover(cp, 60, &b)
-			if err != nil {
-				return
-			}
-
-			return b.Bytes(), nil
-		})
+		coverBytes, format, err := e.CoverPreview()
 		if err != nil {
 			return err
 		}
+
 		w.Header().Set("Last-Modified", le)
-		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Type", format)
 
-		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes.([]byte)))
+		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes))
 		return nil
-
 	default:
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
 		http.ServeFile(w, r, cp)

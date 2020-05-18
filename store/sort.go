@@ -63,7 +63,6 @@ func (m *Manager) GroupByTitle() (groups []Group) {
 
 				g = &Group{
 					Title: string(groupTitle),
-					Songs: []music.Entry{song},
 				}
 			}
 			g.Songs = append(g.Songs, song)

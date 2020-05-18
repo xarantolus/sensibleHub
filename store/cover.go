@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/edwvee/exiffix"
-	"github.com/nfnt/resize"
 )
 
 // cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
@@ -129,21 +128,4 @@ noNeedToCrop:
 	}
 
 	return os.Rename(file.Name(), destination)
-}
-
-func ResizeCover(coverPath string, width uint, out io.Writer) (err error) {
-	f, err := os.Open(coverPath)
-	if err != nil {
-		return
-	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		return
-	}
-
-	resized := resize.Resize(width, 0, img, resize.Lanczos3)
-
-	return png.Encode(out, resized)
 }

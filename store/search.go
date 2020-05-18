@@ -24,11 +24,14 @@ func (m *Manager) Search(query string) (list []music.Entry) {
 		sc += score(qs, item.MusicData.Artist, 4)
 
 		// Only use album if it's not the same as other fields
-		if item.MusicData.Album != item.MusicData.Title && item.MusicData.Album != item.MusicData.Artist {
+		if doublePrefix(item.MusicData.Album, item.MusicData.Title) ||
+			doublePrefix(item.MusicData.Album, item.MusicData.Artist) {
+			sc += score(qs, item.MusicData.Album, 1)
+		} else {
 			sc += score(qs, item.MusicData.Album, 3)
 		}
 
-		if sc != 0 {
+		if sc > 0 {
 			res = append(res, result{sc, item})
 		}
 	}
@@ -64,6 +67,8 @@ func score(query []string, title string, multiplier int) (out int) {
 			out += 2
 			continue
 		}
+
+		out -= 2
 	}
 
 	out *= multiplier
@@ -77,4 +82,11 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func doublePrefix(s1, s2 string) bool {
+	if strings.HasPrefix(s1, s2) {
+		return true
+	}
+	return strings.HasPrefix(s2, s1)
 }
