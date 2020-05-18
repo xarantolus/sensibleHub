@@ -27,6 +27,18 @@
 
     </fieldset>
 </form>
-
+{{if .Running}}
+<form class="form-horizontal abort-form" method="POST" action="/abort">
+    <fieldset>
+        <h4 class="title is-6">Current download</h4>
+        <pre>{{.DownloadURL}}</pre>
+        <div class="field">
+            <div class="control">
+                <button class="button is-danger" type="submit" id="abort-button" name="abort-button">Abort download</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+{{end}}
 
 {{ template "foot.html" . }}

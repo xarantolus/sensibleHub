@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -35,6 +36,11 @@ type Manager struct {
 	isWorkingMut sync.RWMutex
 
 	lastErr error
+
+	downloadContextLock sync.Mutex
+	currentDownload     string
+	downloadContext     context.Context
+	downloadCancelFunc  context.CancelFunc
 
 	OnEvent func(ManagerEvent) `json:"-"`
 }
@@ -184,11 +190,9 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 
 	// clean other url parameters
 	if u.Host == "youtube.com" {
-		for key := range u.Query() {
-			if key != "v" {
-				u.Query().Del(key)
-			}
-		}
+		var q = make(url.Values)
+		q.Set("v", u.Query().Get("v"))
+		u.RawQuery = q.Encode()
 	}
 
 	u.Scheme = ""

@@ -53,6 +53,15 @@ a.box:focus, a.box:hover {
     width: 80%;
     margin: 0 auto;
 }
+.abort-form {
+    padding-top: .2%;
+    width: 50%;
+    margin: 0 auto;
+}
+
+#abort-button {
+    margin: 0 auto;
+}
 
 #song-note {
     min-height: 60px;

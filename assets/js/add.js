@@ -16,7 +16,7 @@ function addPage() {
         evt.preventDefault();
 
         if (link.trim() == "") {
-            return setError;
+            return setError("Link must not be empty");
         }
 
         ajax("/add?format=json", {
@@ -30,4 +30,25 @@ function addPage() {
             setError(obj.message || "Unknown error");
         });
     })
+
+    var abortForm = document.querySelector(".abort-form");
+    if (abortForm) {
+        abortForm.addEventListener('submit', function (evt) {
+            evt.preventDefault();
+
+            if (!confirm("Are you sure you want stop this download?")) {
+                return false;
+            }
+
+            ajax("/abort?format=json", {}).post(function (status, obj) {
+                if (status === 200) {
+                    InstantClick.go("/add");
+                    return;
+                }
+
+
+                setError(obj.message || "Unknown error");
+            });
+        })
+    }
 }

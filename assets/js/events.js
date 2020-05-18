@@ -57,7 +57,7 @@ ws.onmessage = function (evt) {
         setProgressbar(e.type, e.data)
         lastProgress = e.type;
 
-        if (location.pathname === "/add" && document.getElementById("url").value.trim() === "") {
+        if (location.pathname === "/add" && document.getElementById("searchTerm").value.trim() === "") {
             reload();
         }
     }

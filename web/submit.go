@@ -51,3 +51,32 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	return
 }
+
+// HandleAbortDownload aborts a currently running download
+func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
+	// For AJAX requests
+	if strings.ToUpper(r.URL.Query().Get("format")) == "JSON" {
+
+		err = store.M.AbortDownload()
+		if err == nil {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{}`))
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			err = json.NewEncoder(w).Encode(map[string]string{
+				"message": err.Error(),
+			})
+		}
+
+		return err
+	}
+
+	err = store.M.AbortDownload()
+	if err != nil {
+		return
+	}
+
+	http.Redirect(w, r, "/add", http.StatusSeeOther)
+
+	return
+}

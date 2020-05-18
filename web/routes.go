@@ -25,13 +25,18 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 type NewPage struct {
-	Title     string
-	LastError error
+	Title       string
+	LastError   error
+	Running     bool
+	DownloadURL string
 }
 
 func HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
+	dl, ok := store.M.IsDownloading()
 	return renderTemplate(w, r, "add.html", NewPage{
-		Title:     "Add a new song",
-		LastError: store.M.LastError(),
+		Title:       "Add a new song",
+		LastError:   store.M.LastError(),
+		Running:     ok,
+		DownloadURL: dl,
 	})
 }

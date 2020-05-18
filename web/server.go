@@ -40,6 +40,8 @@ func RunServer(cfg config.Config) (err error) {
 	r.HandleFunc("/add", ErrWrap(debugWrap(HandleAddSong))).Methods(http.MethodGet)
 	r.HandleFunc("/add", ErrWrap(debugWrap(HandleDownloadSong))).Methods(http.MethodPost)
 
+	r.HandleFunc("/abort", ErrWrap(debugWrap(HandleAbortDownload))).Methods(http.MethodPost)
+
 	// Song listings
 	r.HandleFunc("/songs", ErrWrap(debugWrap(HandleTitleListing))).Methods(http.MethodGet)
 	r.HandleFunc("/artists", ErrWrap(debugWrap(HandleArtistListing))).Methods(http.MethodGet)

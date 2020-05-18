@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -39,8 +40,16 @@ func (m *Manager) download(url string) (err error) {
 		}
 	}()
 
+	var cmdCtx, cancel = context.WithCancel(context.Background())
+
+	m.downloadContextLock.Lock()
+	m.downloadContext = cmdCtx
+	m.downloadCancelFunc = cancel
+	m.currentDownload = url
+	m.downloadContextLock.Unlock()
+
 	// Setup youtube-dl command and run it
-	cmd := exec.Command("youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "%(id)s.%(ext)s")
+	cmd := exec.CommandContext(cmdCtx, "youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "%(id)s.%(ext)s")
 	cmd.Dir = tmpDir
 
 	// when searching for a specific song, we want to reject Instrumental versions.
@@ -53,6 +62,12 @@ func (m *Manager) download(url string) (err error) {
 	cmd.Args = append(cmd.Args, url)
 
 	out, err := cmd.CombinedOutput()
+
+	m.downloadContextLock.Lock()
+	m.downloadContext = nil
+	m.downloadCancelFunc = nil
+	m.currentDownload = ""
+	m.downloadContextLock.Unlock()
 
 	// "exit status 101" means that the download limit has been reached (because of --max-downloads). We should just take this one song then, it's fine
 	if err != nil && err.Error() != "exit status 101" {
@@ -207,6 +222,28 @@ func (m *Manager) download(url string) (err error) {
 	log.Println("Download finished successfully")
 
 	return nil
+}
+
+// AbortDownload cancels the currently running download, returning an error if no download is running
+func (m *Manager) AbortDownload() (err error) {
+	m.downloadContextLock.Lock()
+	defer m.downloadContextLock.Unlock()
+
+	if m.downloadCancelFunc == nil {
+		return fmt.Errorf("Cannot cancel downloading as no download is running")
+	}
+
+	m.downloadCancelFunc()
+
+	return nil
+}
+
+// IsDownloading returns true if a download is running
+func (m *Manager) IsDownloading() (string, bool) {
+	m.downloadContextLock.Lock()
+	defer m.downloadContextLock.Unlock()
+
+	return m.currentDownload, m.downloadCancelFunc != nil
 }
 
 // info is the struct that stores data that can be read from a typical youtube-dl `.info.json` file

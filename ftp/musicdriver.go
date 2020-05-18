@@ -45,6 +45,20 @@ func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
 		return &artistAlbumInfo{
 			Album: split[1],
 		}, nil
+	case 3:
+		{
+			// Stat the actual mp3 files
+			a, ok := m.Artists[split[0]]
+			if ok {
+				if files, ok := a[split[1]]; ok {
+					for _, fi := range files {
+						if fi.Name() == split[2] {
+							return fi, nil
+						}
+					}
+				}
+			}
+		}
 	default:
 		err = errNotFound
 	}
