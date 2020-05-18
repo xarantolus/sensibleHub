@@ -220,3 +220,18 @@ func (m *Manager) Newest() (list []music.Entry, today bool) {
 
 	return entries[:limit], false
 }
+
+// NewestSong returns the most recently added song
+func (m *Manager) NewestSong() (e music.Entry, ok bool) {
+	m.SongsLock.RLock()
+	defer m.SongsLock.RUnlock()
+
+	for _, en := range m.Songs {
+		if en.Added.After(e.Added) {
+			e = en
+			ok = true
+		}
+	}
+
+	return
+}

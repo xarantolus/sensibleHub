@@ -29,14 +29,25 @@ type NewPage struct {
 	LastError   error
 	Running     bool
 	DownloadURL string
+
+	NewestSong *music.Entry
 }
 
+// HandleAddSong displays the form for adding a song
 func HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
-	dl, ok := store.M.IsDownloading()
+	dl, okr := store.M.IsDownloading()
+
+	var nsp *music.Entry
+	ns, ok := store.M.NewestSong()
+	if ok {
+		nsp = &ns
+	}
+
 	return renderTemplate(w, r, "add.html", NewPage{
 		Title:       "Add a new song",
 		LastError:   store.M.LastError(),
-		Running:     ok,
+		Running:     okr,
 		DownloadURL: dl,
+		NewestSong:  nsp,
 	})
 }

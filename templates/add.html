@@ -40,5 +40,10 @@
     </fieldset>
 </form>
 {{end}}
+{{with .NewestSong}}
+<div class="listing">
+    <h4 class="title is-4">Newest Song</h4>
 
+    {{ template "song-item.html" . }}
+</div>{{end}}
 {{ template "foot.html" . }}

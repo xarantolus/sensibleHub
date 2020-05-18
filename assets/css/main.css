@@ -7,7 +7,7 @@
     display: none;
 }
 
-.listing {
+.listing,.abort-form {
     width: 70%;
     margin: 0 auto;
     padding-top: 1%;
@@ -51,11 +51,6 @@ a.box:focus, a.box:hover {
 .add-form {
     padding-top: 5%;
     width: 80%;
-    margin: 0 auto;
-}
-.abort-form {
-    padding-top: .2%;
-    width: 50%;
     margin: 0 auto;
 }
 
@@ -212,7 +207,7 @@ div.field.has-addons {
 /* Phone Screen */
 
 @media screen and (max-width: 800px) {
-    .listing, .song-container {
+    .listing, .song-container, .abort-form {
         width: 90%;
         padding-top: 10%;
     }
