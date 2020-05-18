@@ -28,8 +28,6 @@ func (m *Manager) Search(query string) (list []music.Entry) {
 			sc += score(qs, item.MusicData.Album, 3)
 		}
 
-		sc += score(qs, item.Note, 3)
-
 		if sc != 0 {
 			res = append(res, result{sc, item})
 		}

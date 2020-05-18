@@ -19,8 +19,6 @@ type EditEntryData struct {
 	Album  string
 	Year   string
 
-	Note string
-
 	Start string
 	End   string
 
@@ -49,8 +47,6 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	// These fields may be empty
 	entry.MusicData.Artist = strings.TrimSpace(data.Artist)
 	entry.MusicData.Album = strings.TrimSpace(data.Album)
-
-	entry.Note = strings.TrimSpace(data.Note)
 
 	year, err := strconv.Atoi(data.Year)
 	if err == nil {

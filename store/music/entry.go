@@ -14,9 +14,6 @@ type Entry struct {
 	LastEdit time.Time `json:"last_edit"`
 	Added    time.Time `json:"added"`
 
-	// Note is a user-defined note
-	Note string `json:"note"`
-
 	// SourceURL is either the source input url where the audio file was downloaded from or
 	// the `webpage_url` field from the youtube-dl info file. Both point to the website where one might listen to the song
 	SourceURL string `json:"source_url"`

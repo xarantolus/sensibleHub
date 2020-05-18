@@ -58,10 +58,13 @@ a.box:focus, a.box:hover {
     margin: 0 auto;
 }
 
-#song-note {
-    min-height: 60px;
-    resize: vertical;
-    overflow-y: hidden;
+.columns.notfound{
+    width: 60%;
+    margin: 0 auto;
+}
+
+.column.notfound-text {
+    padding-top: 10%;
 }
 
 .notif:empty {
