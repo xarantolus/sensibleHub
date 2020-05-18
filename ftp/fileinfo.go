@@ -25,7 +25,7 @@ func (f *fileInfo) Owner() string {
 
 func (f *fileInfo) Name() string {
 	// base name
-	return f.Entry.SongName() + ".mp3"
+	return cleanName(f.Entry.SongName() + ".mp3")
 }
 
 func (f *fileInfo) Size() int64 {
