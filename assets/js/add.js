@@ -1,5 +1,5 @@
 function addPage() {
-    var linkInput = document.getElementById("url");
+    var linkInput = document.getElementById("searchTerm");
     linkInput.focus();
 
     var notification = document.getElementById("add-notif");
@@ -20,7 +20,7 @@ function addPage() {
         }
 
         ajax("/add?format=json", {
-            "url": link,
+            "searchTerm": link,
         }).post(function (status, obj) {
             if (status === 200) {
                 InstantClick.go("/");

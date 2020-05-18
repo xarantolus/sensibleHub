@@ -42,10 +42,11 @@ func (e *Entry) MP3Path() (p string, err error) {
 
 		var cmd *exec.Cmd
 		if strings.ToUpper(filepath.Ext(ap)) == ".MP3" {
+			// remove existing metadata, keep mp3 stream
 			cmd = exec.Command("ffmpeg", "-i", ap, "-map_metadata", "-1", "-c:a", "copy", "-map", "a")
 		} else {
 			// Convert the given audio to mp3
-			cmd = exec.Command("ffmpeg", "-i", ap, "-f", "mp3")
+			cmd = exec.Command("ffmpeg", "-i", ap, "-map_metadata", "-1", "-f", "mp3")
 		}
 
 		// Audio settings: start and end

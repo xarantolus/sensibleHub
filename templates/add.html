@@ -2,12 +2,12 @@
 <form class="form-horizontal add-form" method="POST" action="/add">
     <fieldset>
         <div id="add-notif" class="notification is-danger notif"></div>
-
+        
         <div class="field">
-            <label class="label" for="url">Link</label>
+            <label class="label" for="searchTerm">Search</label>
             <div class="control">
-                <input autofocus="" id="url" name="url" type="url" placeholder="Link to song" class="input" required="">
-                <p class="help">Can be any website <a tabindex="-1" href="https://ytdl-org.github.io/youtube-dl/supportedsites.html" rel="noopener noreferrer">supported by youtube-dl</a>. Does not work for playlists.</p>
+                <input autofocus="" id="searchTerm" name="searchTerm" type="searchTerm" placeholder="Link to song or search query" class="input" required="">
+                <p class="help">Can be any website <a tabindex="-1" href="https://ytdl-org.github.io/youtube-dl/supportedsites.html" rel="noopener noreferrer">supported by youtube-dl</a>. Downloads only the first song in a playlists. If you give a search term, it will be searched on YouTube Music.</p>
             </div>
         </div>
 

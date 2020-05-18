@@ -40,12 +40,23 @@ func (m *Manager) download(url string) (err error) {
 	}()
 
 	// Setup youtube-dl command and run it
-	cmd := exec.Command("youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "%(id)s.%(ext)s", url)
+	cmd := exec.Command("youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "%(id)s.%(ext)s")
 	cmd.Dir = tmpDir
 
+	// when searching for a specific song, we want to reject Instrumental versions.
+	// This leads to youtube-dl selecting the second search result if the instrumental is first
+	// Don't add it when we explicitly want them though
+	if strings.Contains(url, "youtube.com/results?search_query") && !strings.Contains(strings.ToUpper(url), "INSTRUMENTAL") {
+		cmd.Args = append(cmd.Args, "--reject-title", "(Instrumental)")
+	}
+
+	cmd.Args = append(cmd.Args, url)
+
 	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("while running youtube-dl: %s\nOutput: %s", err.Error(), string(out))
+
+	// "exit status 101" means that the download limit has been reached (because of --max-downloads). We should just take this one song then, it's fine
+	if err != nil && err.Error() != "exit status 101" {
+		return fmt.Errorf("Error while running youtube-dl: %s\nOutput: %s", err.Error(), string(out))
 	}
 
 	var (

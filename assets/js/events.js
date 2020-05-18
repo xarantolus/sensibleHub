@@ -27,6 +27,8 @@ function reload() {
     }
 }
 
+var changedItems = {};
+
 var lastProgress = "progress-end"; // default: don't show
 ws.onmessage = function (evt) {
     var e = JSON.parse(evt.data)
@@ -45,6 +47,10 @@ ws.onmessage = function (evt) {
                 reload();
             }
         }
+        
+        if (e.type !== "song-delete") {
+            changedItems[e.data.id] = Math.random();
+        }
     }
 
     if (e.type.startsWith("progress-")) {
@@ -56,6 +62,37 @@ ws.onmessage = function (evt) {
         }
     }
 }
+
+InstantClick.on('receive', function (url, body, title) {
+    // Replace all image references to the last changed song - they would not be updated otherwise
+
+    var selem = null;
+
+    // For song page
+    var sid = body.querySelector("#song-id")
+
+    // If it has been changed before we have reloaded
+    if (sid && changedItems.hasOwnProperty(sid.value)) {
+        selem = body.querySelector("#song-cover");
+        if (selem) {
+            selem.src = selem.src + "#" + changedItems[sid.value];
+        }
+    }
+
+    // In listings. We need to do this every time
+    Object.keys(changedItems).forEach(function(id){
+        var i = body.querySelector("#img-" + id)
+        if (i) {
+            i.src = i.src + "#" + changedItems[id];
+            return;
+        }
+    })
+
+    return {
+        body: body,
+        title: title
+    }
+})
 
 function setProgressbar(event, data) {
     var progressBar = document.getElementById("main-progress");
@@ -71,6 +108,6 @@ function setProgressbar(event, data) {
     }
 }
 
-InstantClick.on('change', function() {
+InstantClick.on('change', function () {
     setProgressbar(lastProgress)
 })

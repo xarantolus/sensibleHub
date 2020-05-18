@@ -8,7 +8,7 @@ import (
 )
 
 type addAccept struct {
-	URL string `json:"url"`
+	SearchTerm string `json:"searchTerm"`
 }
 
 // HandleDownloadSong handles a song download request. This kind of request is done
@@ -23,7 +23,7 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 			return
 		}
 
-		err = store.M.Enqueue(acc.URL)
+		err = store.M.Enqueue(acc.SearchTerm)
 		if err == nil {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`{}`))
@@ -42,7 +42,7 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	err = store.M.Enqueue(r.FormValue("url"))
+	err = store.M.Enqueue(r.FormValue("searchTerm"))
 	if err != nil {
 		return
 	}

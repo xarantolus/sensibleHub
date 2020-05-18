@@ -18,6 +18,7 @@ import (
 
 const (
 	managerDataFile = "data/manager.json"
+	searchURL       = "https://www.youtube.com/results?search_query=%s"
 )
 
 // Manager is the struct that contains the application's data. It is only present *once* in the instance named `M`
@@ -152,12 +153,14 @@ func (m *Manager) GetEntry(id string) (e music.Entry, ok bool) {
 // Enqueue adds a new url to the queue of songs that should be downloaded
 func (m *Manager) Enqueue(u string) (err error) {
 	parsed, err := url.ParseRequestURI(u)
-	if err != nil {
-		return
-	}
-
-	if e, ok := m.hasLink(parsed); ok {
-		return fmt.Errorf("%s has already been downloaded", e.SongName())
+	if err == nil {
+		if e, ok := m.hasLink(parsed); ok {
+			return fmt.Errorf("%s has already been downloaded", e.SongName())
+		}
+	} else {
+		// Search youtube music - these are auto generated videos that exist for *some* artists
+		// Only the first item will be downloaded by m.download because of options passed to youtube-dl
+		u = fmt.Sprintf(searchURL, url.QueryEscape(strings.TrimSpace(u)+" \"auto generated\""))
 	}
 
 	select {

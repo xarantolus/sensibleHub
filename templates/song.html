@@ -8,11 +8,11 @@
             <!-- Left Side: Image -->
             <div class="column image-column">
                 <figure class="image is-square song-image-container">
-                    <img id="song-cover" src="/song/{{.ID}}/cover" alt="Cover">
+                    <img id="song-cover" id="img-{{.ID}}" src="/song/{{.ID}}/cover" alt="Cover">
                     <div class="middle">
                         <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
                         <div class="file">
-                            <label class="file-label">
+                            <span class="file-label">
                                 <input id="song-cover-input" class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button">
                                 <span class="file-cta">
                                     <span class="file-icon">
@@ -24,7 +24,7 @@
                                         Choose a cover image…
                                     </span>
                                 </span>
-                            </label>
+                            </span>
                         </div>
                     </div>
                 </figure>
@@ -138,7 +138,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="field">
                         <div class="control">
                             <audio preload="none" class="audio-controls" controls="">
