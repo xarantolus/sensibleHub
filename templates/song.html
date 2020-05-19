@@ -61,7 +61,7 @@
 
                     <div class="field has-addons">
                         <div class="control control-label">
-                            <a class="button is-static link-button" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">
+                            {{if have .MusicData.Artist .MusicData.Album}}<a class="button is-static link-button" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{else}}<a class="button is-static">{{end}}
                                 Album
                             </a>
                         </div>

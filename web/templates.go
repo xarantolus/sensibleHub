@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"strings"
 	"xarantolus/sensiblehub/store"
 )
 
@@ -20,6 +21,14 @@ var (
 			return i + 1
 		},
 		"clean": store.CleanName,
+		"have": func(s ...string) bool {
+			for _, e := range s {
+				if strings.TrimSpace(e) == "" {
+					return false
+				}
+			}
+			return true
+		},
 	}
 	templates *template.Template
 )

@@ -1,12 +1,12 @@
 <a class="song-link box" id="song-{{.ID}}" href="/song/{{.ID}}">
     <article class="media">
-        <div class="media-left"><img loading="lazy" id="img-{{.ID}}" src="/song/{{.ID}}/cover?size=small" width="60" height="60"></div>
+        <div class="media-left"><img data-no-instant loading="lazy" id="img-{{.ID}}" src="/song/{{.ID}}/cover?size=small" width="60" height="60"></div>
         <div class="media-content song-media">
             <div class="content">
                     <strong>{{.MusicData.Title}}</strong>  
-
+                    {{if have .MusicData.Artist .MusicData.Album}}
                     <p><object><a class="inline-album-link" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{.MusicData.Album}}</a></object></p>
-                    <p>{{.MusicData.Artist}}</p>
+                    {{end}}<p>{{.MusicData.Artist}}</p>
             </div>
         </div>
     </article>

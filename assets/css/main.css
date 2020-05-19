@@ -23,11 +23,13 @@
 
 .album-songs {
     width: 100%;
+    margin: 0 auto;
 }
 
 .album-songs-container {
     display:flex;
     align-items:center;
+    margin: 0 auto;
 }
 
 #main-progress {
@@ -234,7 +236,7 @@ div.field.has-addons {
 /* Phone Screen */
 
 @media screen and (max-width: 800px) {
-    .listing, .song-container, .abort-form, .add-form {
+    .listing, .song-container, .album-container, .abort-form, .add-form {
         width: 90%;
         margin-top: 10%;
     }
