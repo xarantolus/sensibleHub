@@ -7,12 +7,12 @@
     display: none;
 }
 
-.inline-album-link {
+.inline-link {
     /* Inherits from .box */
     color: inherit !important;    
     
     /* Make it easier to click */
-    padding: 20px 20px 20px 0;
+    padding: 10px 10px 10px 0;
 }
 
 .listing,.abort-form {
@@ -129,7 +129,8 @@ a.button.is-static {
 }
 
 .song-image-container, .album-image-container {
-    background-color: grey;
+    background: rgb(182,182,182);
+    background: linear-gradient(45deg, rgba(182,182,182,1) 0%, rgba(101,101,101,1) 100%); 
     border-radius: 10px;
 }
 

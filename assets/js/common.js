@@ -85,7 +85,7 @@ function trimChar(string, charToRemove) {
     return string;
 }
 
-
+// must this page be reloaded after
 function isListingPage() {
-    return ["/", "/songs", "/artists", "/years", "/incomplete", "/search"].indexOf(location.pathname) !== -1;
+    return location.pathname.startsWith("/album/") || location.pathname.startsWith("/artist/") || ["/", "/songs", "/artists", "/years", "/incomplete", "/search"].indexOf(location.pathname) !== -1;
 }

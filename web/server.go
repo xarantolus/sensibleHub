@@ -66,6 +66,9 @@ func RunServer(cfg config.Config) (err error) {
 	// r.HandleFunc("/albums")
 	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(HandleShowAlbum))).Methods(http.MethodGet)
 
+	// Artist listing
+	r.HandleFunc("/artist/{artist}", ErrWrap(debugWrap(HandleShowArtist))).Methods(http.MethodGet)
+
 	// Websocket
 	r.HandleFunc("/api/v1/events/ws", ErrWrap(debugWrap(HandleWebsocket)))
 

@@ -1,0 +1,20 @@
+{{ template "head.html" . }}
+{{with .Info }}
+<section class="hero is-primary">
+    <div class="hero-body">
+        <h1 class="title">
+            {{.Name}}
+        </h1>
+        {{if haveI .YearStart .YearEnd }}
+        <h2 class="subtitle">
+            {{.YearStart}}-{{.YearEnd}}
+        </h2>{{end}}
+    </div>
+</section>
+
+{{range .Albums}}
+{{template "album-item.html" . }}
+{{end}}
+
+{{end}}
+{{ template "foot.html" . }}

@@ -31,6 +31,8 @@ func (m *Manager) AllEntries() (list []music.Entry) {
 type Group struct {
 	Title string
 
+	Link string
+
 	Songs []music.Entry
 }
 
@@ -118,6 +120,7 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 		groups = append(groups, Group{
 			Title: songs[0].MusicData.Artist, // don't use the upper-case artist
 			Songs: songs,
+			Link:  "/artist/" + CleanName(songs[0].Artist()),
 		})
 	}
 

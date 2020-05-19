@@ -99,8 +99,38 @@ func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
+	al.Title = al.Artist + " - " + al.Title
 	return renderTemplate(w, r, "album.html", albumPage{
-		Title: al.Artist + " - " + al.Title,
+		Title: al.Title,
 		A:     al,
+	})
+}
+
+type artistPage struct {
+	Title string
+
+	Info store.ArtistInfo
+}
+
+func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
+	v := mux.Vars(r)
+	if v == nil || v["artist"] == "" {
+		return HttpError{
+			StatusCode: http.StatusPreconditionFailed,
+			Message:    "Need an artist",
+		}
+	}
+
+	artistInfo, ok := store.M.Artist(v["artist"])
+	if !ok {
+		return HttpError{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("Cannot find any albums for %s", v["artist"]),
+		}
+	}
+
+	return renderTemplate(w, r, "artist.html", artistPage{
+		Title: artistInfo.Name,
+		Info:  artistInfo,
 	})
 }

@@ -29,6 +29,14 @@ var (
 			}
 			return true
 		},
+		"haveI": func(i ...int) bool {
+			for _, e := range i {
+				if e == 0 {
+					return false
+				}
+			}
+			return true
+		},
 	}
 	templates *template.Template
 )

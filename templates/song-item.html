@@ -5,8 +5,10 @@
             <div class="content">
                     <strong>{{.MusicData.Title}}</strong>  
                     {{if have .MusicData.Artist .MusicData.Album}}
-                    <p><object><a class="inline-album-link" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{.MusicData.Album}}</a></object></p>
-                    {{end}}<p>{{.MusicData.Artist}}</p>
+                    <p><object><a class="inline-link" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{.MusicData.Album}}</a></object></p>
+                    {{end}}
+                    {{if have .MusicData.Artist}}
+                    <p><object><a class="inline-link" href="/artist/{{.MusicData.Artist | clean}}">{{.MusicData.Artist}}</a></object></p>{{end}}
             </div>
         </div>
     </article>
