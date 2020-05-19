@@ -2,11 +2,11 @@ package store
 
 import "github.com/gorilla/websocket"
 
+// EventType is an event type for the Manager
 type EventType string
 
+// Event types that are possible
 const (
-	ETIdle EventType = "Idle"
-
 	ETStartDownload    EventType = "StartDownload"
 	ETFinishedDownload EventType = "FinishedDownload"
 )

@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// EditEntryData is used for editing an entry.
+// Not all fields must be set, most are optional
 type EditEntryData struct {
 	CoverImage    io.ReadCloser
 	CoverFilename string

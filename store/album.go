@@ -41,6 +41,7 @@ func (m *Manager) GetAlbum(artist, albumName string) (a Album, ok bool) {
 	return a, true
 }
 
+// ArtistInfo contains a summary of an artist and all albums
 type ArtistInfo struct {
 	Name     string
 	PlayTime float64
