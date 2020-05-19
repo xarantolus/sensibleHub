@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"xarantolus/sensiblehub/store"
 )
 
 var (
@@ -15,6 +16,10 @@ var (
 
 			return v.Query
 		},
+		"count": func(i int) int {
+			return i + 1
+		},
+		"clean": store.CleanName,
 	}
 	templates *template.Template
 )

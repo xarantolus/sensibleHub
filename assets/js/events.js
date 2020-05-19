@@ -45,6 +45,10 @@ ws.onmessage = function (evt) {
             // If we are on a song page, we reload it on edit
             if (trimChar(location.pathname, "/") === "song/" + e.data.id) {
                 reload();
+            } else if (location.pathname.startsWith("/album/")) {
+                // If this album contains this song
+                // or: it was added to *this* album
+                reload();
             }
         }
         

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"xarantolus/sensiblehub/store"
 	"xarantolus/sensiblehub/store/music"
+
+	"github.com/gorilla/mux"
 )
 
 // Listing defines a listing of grouped songs
@@ -71,5 +73,34 @@ func HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
 		Title: "Search results",
 		Songs: res,
 		Query: query,
+	})
+}
+
+type albumPage struct {
+	Title string
+
+	A store.Album
+}
+
+func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
+	v := mux.Vars(r)
+	if v == nil || v["artist"] == "" || v["album"] == "" {
+		return HttpError{
+			StatusCode: http.StatusPreconditionFailed,
+			Message:    "Need an artist and album",
+		}
+	}
+
+	al, ok := store.M.GetAlbum(v["artist"], v["album"])
+	if !ok {
+		return HttpError{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("Cannot find album %s for artist %s", v["album"], v["artist"]),
+		}
+	}
+
+	return renderTemplate(w, r, "album.html", albumPage{
+		Title: al.Artist + " - " + al.Title,
+		A:     al,
 	})
 }

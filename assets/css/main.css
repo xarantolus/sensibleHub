@@ -1,4 +1,4 @@
-.song-container {
+.song-container, .album-container {
     width: 70%;
     margin: 0 auto;
 }
@@ -7,10 +7,27 @@
     display: none;
 }
 
+.inline-album-link {
+    /* Inherits from .box */
+    color: inherit !important;    
+    
+    /* Make it easier to click */
+    padding: 20px 20px 20px 0;
+}
+
 .listing,.abort-form {
     width: 70%;
     margin: 0 auto;
     padding-top: 1%;
+}
+
+.album-songs {
+    width: 100%;
+}
+
+.album-songs-container {
+    display:flex;
+    align-items:center;
 }
 
 #main-progress {
@@ -44,8 +61,15 @@ a.box:focus, a.box:hover {
     background: red;
 }
 
+.link-button {
+    pointer-events: initial !important;
+}
+
 .image-column {
     padding-top: 6.5%;
+}
+.album-image-column {
+    padding-top: 2%;
 }
 
 .add-form {
@@ -102,7 +126,7 @@ a.button.is-static {
     width: 80px;
 }
 
-.song-image-container {
+.song-image-container, .album-image-container {
     background-color: grey;
     border-radius: 10px;
 }

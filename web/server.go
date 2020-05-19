@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	debug = true
+var (
+	Debug = false
 )
 
 // RunServer runs the web server on the port specified in `cfg`
@@ -62,6 +62,10 @@ func RunServer(cfg config.Config) (err error) {
 	r.HandleFunc("/song/{songID}/audio", ErrWrap(HandleAudio)).Methods(http.MethodGet)
 	r.HandleFunc("/song/{songID}/mp3", ErrWrap(HandleMP3)).Methods(http.MethodGet)
 
+	// Album Listing
+	// r.HandleFunc("/albums")
+	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(HandleShowAlbum))).Methods(http.MethodGet)
+
 	// Websocket
 	r.HandleFunc("/api/v1/events/ws", ErrWrap(debugWrap(HandleWebsocket)))
 
@@ -71,7 +75,7 @@ func RunServer(cfg config.Config) (err error) {
 
 // debugWrap parses templates every time they are requested if the debug mode is enabled
 func debugWrap(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
-	if !debug {
+	if !Debug {
 		return f
 	}
 

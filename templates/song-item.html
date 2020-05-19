@@ -5,7 +5,7 @@
             <div class="content">
                     <strong>{{.MusicData.Title}}</strong>  
 
-                    <p>{{.MusicData.Album}}</p>
+                    <p><object><a class="inline-album-link" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{.MusicData.Album}}</a></object></p>
                     <p>{{.MusicData.Artist}}</p>
             </div>
         </div>

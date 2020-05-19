@@ -1,0 +1,32 @@
+{{ template "head.html" . }}
+
+<div class="album-container">
+    <h2 class="title is-2 has-text-centered">{{.Title}}</h2>
+    <div class="columns album-columns">
+        {{$x := index .A.Songs 0 }}
+        <input class="hidden" id="song-id" value="{{$x.ID}}">
+        <!-- Left Side: Image -->
+
+        <div class="column album-image-column">
+            <figure class="image is-square album-image-container">
+                <img id="song-cover" id="img-{{$x.ID}}" src="/song/{{$x.ID}}/cover" alt="Cover">
+            </figure>
+        </div>
+
+        <!-- Right Side: Album Songs -->
+        <div class="column album-songs-container"><div class="album-songs">
+            {{range $n,$i := .A.Songs}}
+            <a class="song-link box" id="song-{{.ID}}" href="/song/{{.ID}}">
+                <article class="media">
+                    <div class="media-content song-media">
+                        <div class="content">
+                            <strong>{{count $n}}. {{.MusicData.Title}}</strong>
+                        </div>
+                    </div>
+                </article>
+            </a>
+            {{end}}</div>
+        </div>
+    </div>
+</div>
+{{ template "foot.html" . }}
