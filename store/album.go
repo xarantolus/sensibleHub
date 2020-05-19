@@ -74,6 +74,18 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 		album.Songs = append(album.Songs, e)
 
 		am[combined] = album
+
+		ai.PlayTime += e.MusicData.Duration
+
+		if e.MusicData.Year != nil {
+			y := *e.MusicData.Year
+
+			if y < ai.YearStart || ai.YearStart == 0 {
+				ai.YearStart = y
+			} else if y > ai.YearEnd || ai.YearEnd == 0 {
+				ai.YearEnd = y
+			}
+		}
 	}
 
 	if len(am) == 0 {
@@ -84,19 +96,6 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 		a.Title = a.Songs[0].AlbumName()
 		a.Artist = a.Songs[0].Artist()
 		res = append(res, a)
-
-		for _, song := range a.Songs {
-			ai.PlayTime += song.MusicData.Duration
-
-			if song.MusicData.Year != nil {
-				y := *song.MusicData.Year
-				if y < ai.YearStart || ai.YearStart == 0 {
-					ai.YearStart = y
-				} else if y > ai.YearEnd || ai.YearEnd == 0 {
-					ai.YearEnd = y
-				}
-			}
-		}
 	}
 
 	ai.Albums = res

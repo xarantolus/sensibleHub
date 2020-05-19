@@ -241,4 +241,8 @@ div.field.has-addons {
         width: 90%;
         margin-top: 10%;
     }
+
+    .subtitle {
+        padding-top: 5%;
+    }
 }
