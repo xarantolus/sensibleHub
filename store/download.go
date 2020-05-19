@@ -141,6 +141,21 @@ func (m *Manager) download(url string) (err error) {
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
 
+	// For songs with multiple artists, there is a comma-separated list
+	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader)
+
+	// Split artists so we only have *one* in the artist field
+	artists := strings.Split(artist, ", ")
+	if len(artists) > 1 {
+		artist = artists[0]
+
+		feats := generateFeats(artists[1:])
+
+		if !strings.HasSuffix(title, feats) {
+			title += " " + feats
+		}
+	}
+
 	now := time.Now()
 	var e = &music.Entry{
 		ID:        m.generateID(),
@@ -165,8 +180,8 @@ func (m *Manager) download(url string) (err error) {
 			End:   -1,
 		},
 		MusicData: music.MusicData{
-			Title:    cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)),
-			Artist:   cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader),
+			Title:    title,
+			Artist:   artist,
 			Album:    cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle),
 			Year:     minfo.Year(),
 			Duration: dur,
@@ -323,4 +338,17 @@ func cascadeStrings(s ...string) string {
 	}
 
 	return ""
+}
+
+func generateFeats(artists []string) (out string) {
+	switch len(artists) {
+	case 1:
+		return fmt.Sprintf("(feat. %s)", artists[0])
+	case 2:
+		return fmt.Sprintf("(feat. %s & %s)", artists[0], artists[1])
+	case 3:
+		return fmt.Sprintf("(feat. %s, %s & %s)", artists[0], artists[1], artists[2])
+	default:
+		return
+	}
 }
