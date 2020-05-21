@@ -4,24 +4,44 @@ github.com/bogem/id3v2
 github.com/disintegration/imaging
 # github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 github.com/edwvee/exiffix
-# github.com/goftp/server v0.0.0-20190712054601-1149070ae46b
-github.com/goftp/server
 # github.com/gorilla/mux v1.7.4
 github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 github.com/gorilla/websocket
+# github.com/minio/minio-go/v6 v6.0.46
+github.com/minio/minio-go/v6
+github.com/minio/minio-go/v6/pkg/credentials
+github.com/minio/minio-go/v6/pkg/encrypt
+github.com/minio/minio-go/v6/pkg/s3signer
+github.com/minio/minio-go/v6/pkg/s3utils
+github.com/minio/minio-go/v6/pkg/set
+# github.com/minio/sha256-simd v0.1.1
+github.com/minio/sha256-simd
+# github.com/mitchellh/go-homedir v1.1.0
+github.com/mitchellh/go-homedir
 # github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 github.com/nfnt/resize
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
+# goftp.io/server v0.3.4
+goftp.io/server
+# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+golang.org/x/crypto/argon2
+golang.org/x/crypto/blake2b
 # golang.org/x/image v0.0.0-20200119044424-58c23975cae1
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
+# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+golang.org/x/net/http/httpguts
+golang.org/x/net/idna
+golang.org/x/net/publicsuffix
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 golang.org/x/sync/singleflight
+# golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e
+golang.org/x/sys/cpu
 # golang.org/x/text v0.3.2
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
@@ -30,4 +50,9 @@ golang.org/x/text/encoding/internal/identifier
 golang.org/x/text/encoding/unicode
 golang.org/x/text/internal/utf8internal
 golang.org/x/text/runes
+golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+# gopkg.in/ini.v1 v1.42.0
+gopkg.in/ini.v1

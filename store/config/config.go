@@ -11,8 +11,10 @@ type Config struct {
 	FTP struct {
 		Port int
 
-		User   string
-		Passwd string
+		Users []struct {
+			Name   string
+			Passwd string
+		}
 	}
 }
 

@@ -2,7 +2,15 @@
     "port": 128,
     "ftp": {
         "port": 1280,
-        "user": "phil",
-        "passwd": "test"
+        "users": [
+            {
+                "name": "user1",
+                "passwd": "user1pw"
+            },
+            {
+                "name": "user2",
+                "passwd": "user2pw"
+            }
+        ]
     }
 }

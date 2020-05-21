@@ -5,9 +5,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
-	"github.com/goftp/server"
+	"goftp.io/server"
 )
 
 var (
@@ -23,7 +24,7 @@ type musicDriver struct {
 type Album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
-	log.Println("Connected client from", c.PublicIp())
+	log.Println("Connected client from", c.PublicIP())
 	return
 }
 
@@ -144,8 +145,15 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 	switch len(split) {
 	case 1:
 		if split[0] == "" {
+			// We want them in alphabetical order
+			var keys []string
+			for k := range m.Artists {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+
 			// List all artists in root directory
-			for artist := range m.Artists {
+			for _, artist := range keys {
 				err = f(&artistAlbumInfo{
 					Artist:   artist,
 					isArtist: true,
@@ -155,8 +163,14 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 				}
 			}
 		} else {
+			var keys []string
+			for k := range m.Artists[split[0]] {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+
 			// List all albums in artist directory
-			for album := range m.Artists[split[0]] {
+			for _, album := range keys {
 				err = f(&artistAlbumInfo{
 					Album: album,
 				})

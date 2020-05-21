@@ -4,7 +4,7 @@ import (
 	"strings"
 	"xarantolus/sensiblehub/store"
 
-	"github.com/goftp/server"
+	"goftp.io/server"
 )
 
 // musicDriverFactory is the ftp driver factory for this program.
@@ -19,8 +19,11 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		Artists: make(map[string]Album),
 	}
 
+	var uniquePaths = make(map[string]bool)
+
 	// Create the virutal file system
 	var normalizedArtists = make(map[string]string)
+	var normalizedAlbums = make(map[string]string)
 
 	for _, e := range entries {
 		// Entries that should not be synced will not appear in the listing
@@ -31,7 +34,7 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		art := store.CleanName(e.Artist())
 		artistName, ok := normalizedArtists[strings.ToUpper(art)]
 		if !ok {
-			normalizedArtists[strings.ToUpper(e.Artist())] = e.Artist()
+			normalizedArtists[strings.ToUpper(e.Artist())] = art
 			artistName = art
 		}
 
@@ -41,8 +44,23 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		}
 
 		aname := store.CleanName(e.AlbumName())
+		if a, ok := normalizedAlbums[strings.ToUpper(aname)]; !ok {
+			normalizedAlbums[strings.ToUpper(aname)] = aname
+		} else {
+			aname = a
+		}
 
-		d.Artists[artistName][aname] = append(d.Artists[artistName][aname], fileInfoFromEntry(e))
+		f := fileInfoFromEntry(e)
+
+		upath := strings.ToUpper(artistName + "/" + aname + "/" + f.Name())
+		// Don't allow duplicate paths
+		if uniquePaths[upath] {
+			continue
+		}
+
+		d.Artists[artistName][aname] = append(d.Artists[artistName][aname], f)
+
+		uniquePaths[upath] = true
 	}
 
 	return d, nil
