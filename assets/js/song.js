@@ -1,28 +1,5 @@
 function songPage() {
-    // Show the cover image by putting it into the image container
-    function renderImagePreview(evt) {
-        var files = evt.target.files;
-        if (files.length != 1) {
-            return;
-        }
-
-        document.getElementById('cover-upload-button').innerHTML = files[0].name;
-
-        var img = document.getElementById('song-cover');
-        img.src = window.URL.createObjectURL(files[0]);
-    }
-
-    document.getElementById("song-cover-input").addEventListener("change", renderImagePreview);
-
-    // Make clicking easier, allow clicking on image to select a file
-    function selectCover(evt) {
-        if (evt.target.tagName === "LABEL") {
-            return;
-        }
-        document.querySelector(".file-input").click()
-    }
-    document.querySelector(".song-image-container").addEventListener('click', selectCover);
-
+   registerCover();
 
     // Confirm submitting if 
     function confirmSubmit(evt) {

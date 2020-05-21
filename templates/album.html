@@ -1,5 +1,54 @@
 {{ template "head.html" . }}
+{{with .A}}
+<div class="album-container">
+    <h2 class="title is-2 has-text-centered">{{.Title}}</h2>
+    <div class="columns album-columns">
+        {{$x := index .Songs 0 }}
+        <input class="hidden" id="song-id" value="{{$x.ID}}">
+        <!-- Left Side: Image -->
 
-{{template "album-item.html" .A }}
+        <div class="column album-image-column">
+            <figure class="image is-square album-image-container">
+                <img id="song-cover" id="img-{{$x.ID}}" src="/song/{{$x.ID}}/cover" alt="Cover">
+                <form class="middle" enctype="multipart/form-data" method="POST" action="/album/{{$x.MusicData.Artist | clean}}/{{$x.MusicData.Album | clean}}">
+                    <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
+                    <div class="file">
+                        <span class="file-label">
+                            <input id="song-cover-input" class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path d="M403.002 217.001C388.998 148.002 328.998 96 256 96c-57.998 0-107.998 32.998-132.998 81.001C63.002 183.002 16 233.998 16 296c0 65.996 53.999 120 120 120h260c55 0 100-45 100-100 0-52.998-40.996-96.001-92.998-98.999zM288 276v76h-64v-76h-68l100-100 100 100h-68z"></path>
+                                    </svg>
+                                </span>
+                                <span class="file-label" id="cover-upload-button">
+                                    Choose a cover image…
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                    <br>
+                    <button class="button is-primary" type="submit">Save for all songs in this album</button>
+                </form>
+            </figure>
+        </div>
 
+        <!-- Right Side: Album Songs -->
+        <div class="column album-songs-container">
+            <div class="album-songs">
+                {{range $n,$i := .Songs}}
+                <a class="song-link box" id="song-{{.ID}}" href="/song/{{.ID}}">
+                    <article class="media">
+                        <div class="media-content song-media">
+                            <div class="content">
+                                <strong>{{count $n}}. {{.MusicData.Title}}</strong>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+                {{end}}</div>
+        </div>
+    </div>
+</div>
+{{end}}
 {{ template "foot.html" . }}

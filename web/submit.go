@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"xarantolus/sensiblehub/store"
+
+	"github.com/gorilla/mux"
 )
 
 type addAccept struct {
@@ -77,6 +79,43 @@ func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	http.Redirect(w, r, "/add", http.StatusSeeOther)
+
+	return
+}
+
+// HandleEditAlbum edits an album, only accepts an image. This way, one image can quickly be set for all songs in one album
+func HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err error) {
+	v := mux.Vars(r)
+	if v == nil || v["artist"] == "" || v["album"] == "" {
+		return HttpError{
+			StatusCode: http.StatusPreconditionFailed,
+			Message:    "Need an artist and album",
+		}
+	}
+
+	err = r.ParseMultipartForm(10 << 20) // Limit: 10MB
+	if err != nil {
+		return
+	}
+
+	coverFile, fh, err := r.FormFile("cover-upload-button")
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return HttpError{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Must include image",
+			}
+		}
+		// Any other error
+		return err
+	}
+
+	err = store.M.EditAlbumCover(v["artist"], v["album"], fh.Filename, coverFile)
+	if err != nil {
+		return
+	}
+
+	http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
 
 	return
 }

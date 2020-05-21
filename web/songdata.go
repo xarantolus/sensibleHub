@@ -35,19 +35,22 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	sizeParam := r.URL.Query().Get("size")
+	le := e.LastEdit.UTC().Format(http.TimeFormat)
+
+	r.Header.Set("Cache-Control", "max-age=0, must-revalidate")
+
+	// While ServeContent checks this too, the calls to coverGroup.Do are quite expensive and take long.
+	// So if we are able to abort before getting to that point because the browser already has that image,
+	// we can save some resources and make this request *a lot* faster
+	lm := r.Header.Get("If-Modified-Since")
+
+	if lm != "" && lm == le {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
 	switch strings.ToUpper(sizeParam) {
 	case "SMALL":
-
-		// While ServeContent checks this too, the calls to coverGroup.Do are quite expensive and take long.
-		// So if we are able to abort before getting to that point because the browser already has that image,
-		// we can save some resources and make this request *a lot* faster
-		lm := r.Header.Get("If-Modified-Since")
-		le := e.LastEdit.UTC().Format(http.TimeFormat)
-
-		if lm != "" && lm == le {
-			w.WriteHeader(http.StatusNotModified)
-			return
-		}
 
 		coverBytes, format, err := e.CoverPreview()
 		if err != nil {
@@ -60,6 +63,8 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes))
 		return nil
 	default:
+
+		w.Header().Set("Last-Modified", le)
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
 		http.ServeFile(w, r, cp)
 

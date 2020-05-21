@@ -9,13 +9,12 @@
 
 .inline-link {
     /* Inherits from .box */
-    color: inherit !important;    
-    
+    color: inherit !important;
     /* Make it easier to click */
     padding: 10px 10px 10px 0;
 }
 
-.listing,.abort-form {
+.listing, .abort-form {
     width: 70%;
     margin: 0 auto;
     padding-top: 1%;
@@ -27,8 +26,8 @@
 }
 
 .album-songs-container {
-    display:flex;
-    align-items:center;
+    display: flex;
+    align-items: center;
     margin: 0 auto;
 }
 
@@ -67,9 +66,15 @@ a.box:focus, a.box:hover {
     pointer-events: initial !important;
 }
 
+.file-label {
+    display: block !important;
+    width: 100%;
+}
+
 .image-column {
     padding-top: 6.5%;
 }
+
 .album-image-column {
     padding-top: 2%;
 }
@@ -84,7 +89,7 @@ a.box:focus, a.box:hover {
     margin: 0 auto;
 }
 
-.columns.notfound{
+.columns.notfound {
     width: 60%;
     margin: 0 auto;
 }
@@ -129,8 +134,8 @@ a.button.is-static {
 }
 
 .song-image-container, .album-image-container {
-    background: rgb(182,182,182);
-    background: linear-gradient(45deg, rgba(182,182,182,1) 0%, rgba(101,101,101,1) 100%); 
+    background: rgb(182, 182, 182);
+    background: linear-gradient(45deg, rgba(182, 182, 182, 1) 0%, rgba(101, 101, 101, 1) 100%);
     border-radius: 10px;
 }
 
@@ -199,11 +204,11 @@ pre {
     text-align: center;
 }
 
-.song-image-container:hover img {
+.song-image-container:hover img, .album-image-container:hover img {
     opacity: .1;
 }
 
-.song-image-container:hover .middle {
+.song-image-container:hover .middle, .album-image-container:hover .middle {
     opacity: 1;
 }
 
@@ -241,7 +246,6 @@ div.field.has-addons {
         width: 90%;
         margin-top: 10%;
     }
-
     .subtitle {
         padding-top: 5%;
     }

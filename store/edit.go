@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -119,6 +120,74 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	return nil
 }
 
+// EditAlbumCover edits all songs in the album identified by `artist` and `album` to
+// have the cover given by `coverImage`
+func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverImage io.ReadCloser) (err error) {
+	artist, album = CleanName(artist), CleanName(album)
+
+	ext := filepath.Ext(coverName)
+	if ext == "" {
+		ext = ".jpg"
+	}
+	coverFN := "cover" + strings.ToLower(ext)
+
+	tmpDir, err := ioutil.TempDir("", "shub-")
+	if err != nil {
+		return
+	}
+	tmpCoverPath := filepath.Join(tmpDir, coverFN)
+
+	err = CropCover(coverImage, "", tmpCoverPath)
+	if err != nil {
+		return
+	}
+
+	m.SongsLock.Lock()
+	defer m.SongsLock.Unlock()
+
+	for sid, e := range m.Songs {
+		// Wrong artist?
+		if !strings.EqualFold(CleanName(e.Artist()), artist) {
+			continue
+		}
+
+		// Wrong album?
+		if !strings.EqualFold(CleanName(e.AlbumName()), album) {
+			continue
+		}
+
+		var oldCover, oldCoverPath = e.PictureData.Filename, e.CoverPath()
+		newPath := filepath.Join(e.DirPath(), coverFN)
+
+		// Move the new cover to its place
+		err = copyOverwrite(tmpCoverPath, newPath)
+		if err != nil {
+			return
+		}
+
+		// and delete the old cover if it wasn't overwritten anyways
+		if oldCover != coverFN && oldCover != "" {
+			err = os.Remove(oldCoverPath)
+			if err != nil {
+				return
+			}
+		}
+
+		// Update song info
+		e.PictureData.Filename = coverFN
+		e.LastEdit = time.Now()
+
+		m.Songs[sid] = e
+
+		m.event("song-edit", map[string]interface{}{
+			"id":   sid,
+			"song": e,
+		})
+	}
+
+	return m.Save(false)
+}
+
 func setValidS(target *string, value string) {
 	value = strings.TrimSpace(value)
 	if value != "" {
@@ -142,4 +211,22 @@ func setValidB(target *bool, value string) {
 		// HTML checkboxes are either "on" or "", which is quite a bad design in my book
 		*target = false
 	}
+}
+
+func copyOverwrite(src, dest string) (err error) {
+	f, err := os.Open(src)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	d, err := os.Create(dest)
+	if err != nil {
+		return
+	}
+	defer d.Close()
+
+	_, err = io.Copy(d, f)
+
+	return
 }

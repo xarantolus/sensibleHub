@@ -6,6 +6,8 @@ InstantClick.on('change', function () {
         case "add":
             addPage();
             break;
+        case "album":
+            albumPage();
         default:
             break;
     }

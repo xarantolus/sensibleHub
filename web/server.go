@@ -3,6 +3,7 @@ package web
 import (
 	"log"
 	"net/http"
+	"runtime"
 	"strconv"
 	"xarantolus/sensiblehub/store"
 	"xarantolus/sensiblehub/store/config"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	Debug = false
+	Debug = runtime.GOOS == "windows"
 )
 
 // RunServer runs the web server on the port specified in `cfg`
@@ -65,6 +66,7 @@ func RunServer(cfg config.Config) (err error) {
 	// Album Listing
 	// r.HandleFunc("/albums")
 	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(HandleShowAlbum))).Methods(http.MethodGet)
+	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(HandleEditAlbum))).Methods(http.MethodPost)
 
 	// Artist listing
 	r.HandleFunc("/artist/{artist}", ErrWrap(debugWrap(HandleShowArtist))).Methods(http.MethodGet)

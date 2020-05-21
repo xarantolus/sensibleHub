@@ -89,3 +89,31 @@ function trimChar(string, charToRemove) {
 function isListingPage() {
     return location.pathname.startsWith("/album/") || location.pathname.startsWith("/artist/") || ["/", "/songs", "/artists", "/years", "/incomplete", "/search"].indexOf(location.pathname) !== -1;
 }
+
+function registerCover() {
+    // Show the cover image by putting it into the image container
+    function renderImagePreview(evt) {
+        var files = evt.target.files;
+        if (files.length != 1) {
+            return;
+        }
+
+        document.getElementById('cover-upload-button').innerHTML = files[0].name;
+
+
+        var img = document.getElementById('song-cover');
+        img.src = window.URL.createObjectURL(files[0]);
+    }
+
+    document.getElementById("song-cover-input").addEventListener("change", renderImagePreview);
+
+    // Make clicking easier, allow clicking on image to select a file
+    function selectCover(evt) {
+        if (evt.target.tagName == "input" || evt.target.tagName === "LABEL" || evt.target.tagName == "BUTTON") {
+            return;
+        }
+        document.querySelector(".file-input").click()
+    }
+
+    (document.querySelector(".song-image-container") || document.querySelector(".album-image-container")).addEventListener('click', selectCover);
+}

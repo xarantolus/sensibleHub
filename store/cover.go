@@ -35,13 +35,12 @@ func CropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 		return
 	}
 
-	img, format, err := exiffix.Decode(bytes.NewReader(data))
+	err = f.Close()
 	if err != nil {
-		f.Close()
 		return
 	}
 
-	err = f.Close()
+	img, format, err := exiffix.Decode(bytes.NewReader(data))
 	if err != nil {
 		return
 	}
