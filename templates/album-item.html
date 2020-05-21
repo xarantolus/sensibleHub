@@ -4,13 +4,13 @@
         {{$x := index .Songs 0 }}
         <input class="hidden" id="song-id" value="{{$x.ID}}">
         <!-- Left Side: Image -->
-
+        {{$link := have $x.MusicData.Artist $x.MusicData.Album}}
         <div class="column album-image-column">
-            <a href="/album/{{$x.MusicData.Artist | clean}}/{{$x.MusicData.Album | clean}}">
+            {{if $link}}<a href="/album/{{$x.MusicData.Artist | clean}}/{{$x.MusicData.Album | clean}}">{{end}}
                 <figure class="image is-square album-image-container">
                     <img id="song-cover" id="img-{{$x.ID}}" src="/song/{{$x.ID}}/cover" alt="Cover">
                 </figure>
-            </a>
+            {{if $link}}</a>{{end}}
         </div>
 
         <!-- Right Side: Album Songs -->
