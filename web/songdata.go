@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"xarantolus/sensiblehub/store"
+	"xarantolus/sensibleHub/store"
 
 	"github.com/gorilla/mux"
 )

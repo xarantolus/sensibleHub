@@ -2,8 +2,8 @@ package web
 
 import (
 	"net/http"
-	"xarantolus/sensiblehub/store"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/mux"
 )

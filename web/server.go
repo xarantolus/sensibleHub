@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
-	"xarantolus/sensiblehub/store"
-	"xarantolus/sensiblehub/store/config"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
 
 	"github.com/gorilla/mux"
 )

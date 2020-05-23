@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/websocket"
 )

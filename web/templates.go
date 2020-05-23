@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
-	"xarantolus/sensiblehub/store"
+	"xarantolus/sensibleHub/store"
 )
 
 var (

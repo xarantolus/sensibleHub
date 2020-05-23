@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"xarantolus/sensiblehub/ftp"
-	"xarantolus/sensiblehub/store"
-	"xarantolus/sensiblehub/store/config"
-	"xarantolus/sensiblehub/web"
+	"xarantolus/sensibleHub/ftp"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
+	"xarantolus/sensibleHub/web"
 )
 
 func main() {

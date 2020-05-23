@@ -3,7 +3,7 @@ package store
 import (
 	"sort"
 	"strings"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // Search offers search functionality

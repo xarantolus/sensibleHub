@@ -2,7 +2,7 @@ package ftp
 
 import (
 	"strings"
-	"xarantolus/sensiblehub/store"
+	"xarantolus/sensibleHub/store"
 
 	"goftp.io/server"
 )

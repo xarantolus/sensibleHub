@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"xarantolus/sensiblehub/store"
+	"xarantolus/sensibleHub/store"
 
 	"github.com/gorilla/mux"
 )

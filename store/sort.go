@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // AllEntries returns an alphabetically sorted list of entries.

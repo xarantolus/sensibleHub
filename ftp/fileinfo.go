@@ -3,8 +3,8 @@ package ftp
 import (
 	"os"
 	"time"
-	"xarantolus/sensiblehub/store"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // implements server.FileInfo

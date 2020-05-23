@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 	"sync"
-	"xarantolus/sensiblehub/store"
+	"xarantolus/sensibleHub/store"
 
 	"github.com/gorilla/websocket"
 )

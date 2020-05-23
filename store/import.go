@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/bogem/id3v2"
 )

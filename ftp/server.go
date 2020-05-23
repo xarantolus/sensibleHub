@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"xarantolus/sensiblehub/store/config"
+	"xarantolus/sensibleHub/store/config"
 
 	"goftp.io/server"
 )

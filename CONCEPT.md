@@ -1,4 +1,4 @@
-# SensibleHub
+# sensibleHub
 Music Management Server
 
 

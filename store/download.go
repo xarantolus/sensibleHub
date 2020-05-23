@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 )
 
 const (

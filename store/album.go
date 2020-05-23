@@ -3,7 +3,7 @@ package store
 import (
 	"sort"
 	"strings"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // Album represents a music album. Songs is gurranteed to have one or more items

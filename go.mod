@@ -1,4 +1,4 @@
-module xarantolus/sensiblehub
+module xarantolus/sensibleHub
 
 go 1.13
 

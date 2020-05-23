@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"xarantolus/sensiblehub/store/music"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // EditEntryData is used for editing an entry.
