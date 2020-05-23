@@ -178,6 +178,7 @@ pre {
 #song-cover {
     object-fit: cover;
     border-radius: 10px;
+    border: 2px solid #ddd;
 }
 
 .control.wide {

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"xarantolus/sensiblehub/store/music"
 )
 
 // EditEntryData is used for editing an entry.
@@ -179,10 +180,12 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 
 		m.Songs[sid] = e
 
-		m.event("song-edit", map[string]interface{}{
-			"id":   sid,
-			"song": e,
-		})
+		defer func(id string, s music.Entry) {
+			m.event("song-edit", map[string]interface{}{
+				"id":   id,
+				"song": s,
+			})
+		}(sid, e)
 	}
 
 	return m.Save(false)

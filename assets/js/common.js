@@ -109,7 +109,8 @@ function registerCover() {
 
     // Make clicking easier, allow clicking on image to select a file
     function selectCover(evt) {
-        if (evt.target.tagName == "input" || evt.target.tagName === "LABEL" || evt.target.tagName == "BUTTON") {
+        if (evt.target.tagName == "INPUT" || evt.target.tagName === "LABEL" || evt.target.tagName == "BUTTON") {
+            // Ignore other clicked elements as they will trigger it again. That's not good
             return;
         }
         document.querySelector(".file-input").click()
