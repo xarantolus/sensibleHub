@@ -149,6 +149,9 @@ This program would not be possible without work done by many others. For that, I
 - [exiffix](https://github.com/edwvee/exiffix), [imaging](https://github.com/disintegration/imaging), [resize](https://github.com/nfnt/resize) and [goexif](https://github.com/rwcarlsen/goexif) for handling cover images *correctly*
 - [FTP server library](https://goftp.io/server) for creating a virtual filesystem accessible over FTP
 - [gorilla/mux](https://github.com/gorilla/mux) and [gorilla/websocket](https://github.com/gorilla/websocket) for nice HTTP server improvements, including live events over WebSockets
+- [InstantClick](https://instantclick.io/): Makes the website feel significantly faster
+- [Bulma](https://bulma.io): CSS framework used for designing the website
+- [ReconnectingWebSocket](https://github.com/joewalnes/reconnecting-websocket): makes working with WebSockets easier
 
 ### Issues & Contributing
 If you have any ideas, a pull request or something just doesn't work please feel free to get in contact.
