@@ -12,6 +12,10 @@ import (
 	"xarantolus/sensibleHub/store/music"
 )
 
+var (
+	ErrAudioSameDuration = fmt.Errorf("Audio start/end must not be the same")
+)
+
 // EditEntryData is used for editing an entry.
 // Not all fields must be set, most are optional
 type EditEntryData struct {
@@ -67,6 +71,10 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	// Swap if end is before start
 	if entry.AudioSettings.Start > entry.AudioSettings.End {
 		entry.AudioSettings.Start, entry.AudioSettings.End = entry.AudioSettings.End, entry.AudioSettings.Start
+	}
+
+	if entry.AudioSettings.Start == entry.AudioSettings.End {
+		return ErrAudioSameDuration
 	}
 
 	// Sync must be a valid bool

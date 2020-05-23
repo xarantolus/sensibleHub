@@ -1,6 +1,8 @@
 package music
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -40,6 +42,8 @@ func (e *Entry) MP3Path() (p string, err error) {
 
 		tempAudio := filepath.Join(td, "temp.mp3")
 
+		var outbuf bytes.Buffer
+
 		var cmd *exec.Cmd
 		if strings.ToUpper(filepath.Ext(ap)) == ".MP3" {
 			// remove existing metadata, keep mp3 stream
@@ -59,10 +63,12 @@ func (e *Entry) MP3Path() (p string, err error) {
 		}
 
 		// Set output file
-		cmd.Args = append(cmd.Args, tempAudio)
+		cmd.Args = append(cmd.Args, "-hide_banner", tempAudio)
+		cmd.Stderr = &outbuf
 
 		err = cmd.Run()
 		if err != nil {
+			err = fmt.Errorf("%s\n\nStderr:%s", err.Error(), outbuf.String())
 			return
 		}
 

@@ -99,6 +99,12 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	err = store.M.EditEntry(songID, newData)
 	if err != nil {
+		if err == store.ErrAudioSameDuration {
+			return HttpError{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    err.Error(),
+			}
+		}
 		return
 	}
 
