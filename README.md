@@ -5,7 +5,7 @@ and syncing using external programs.
 ### Features
  * Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
  * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
- * Set up FTP clients to sync your music to all your devices
+ * Set up FTP clients to [sync](#Syncing) your music to all your devices
  * List and search your songs by title, artist, album or year
  * Keyboard shortcuts allow faster navigation
    - `n` for loading the page where you can add new songs
@@ -113,13 +113,20 @@ Expected output:
 After that, you can visit the website at `http://yourserver:128/`. You can also connect using FTP at `http://yourserver:1280/`, the account must be set in the config file.
 
 ### Importing 
-This program can import songs that should be included in its library:
+This program can import songs that should be included in its library in a few different ways. 
+
+##### From disk
 
 1. Create a directory called `import` that is at the same location as the executable.
 2. Move songs in there and start the server. 
 3. Songs will be imported, existing metadata embedded in files is extracted.
 
-Please note that imports will only happen on startup, not while the software is running.
+Please note that these imports will only happen on startup, not while the software is running.
+
+##### Over network/FTP
+You can also import files by putting them in *any* directory over FTP. On windows, you can [create a FTP network connection](https://superuser.com/a/88572) quite nicely.
+
+Now any music file that is moved there will be imported. It seems like import errors are **not** shown, so you might need to watch the log file if anything went wrong.
 
 Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup. 
 

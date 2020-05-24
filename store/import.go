@@ -23,18 +23,24 @@ func (m *Manager) ImportFiles(directory string) (err error) {
 			return err
 		}
 
-		e, err := m.importFile(path, info)
+		_, err = m.ImportFile(path, info)
 		if err != nil {
 			log.Printf("Error while importing %s: %s\n", path, err.Error())
 			return nil
 		}
 
-		log.Printf("[Import] Added %s\n", e.SongName())
 		return nil
 	})
 }
 
-func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry, err error) {
+// ImportFile imports a file from the given path. `info` is optional
+func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry, err error) {
+	if info == nil {
+		info, err = os.Stat(musicFile)
+		if err != nil {
+			return
+		}
+	}
 
 	var md = music.MusicData{}
 
@@ -92,6 +98,14 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 		return
 	}
 
+	var oldmfile = musicFile
+	defer func() {
+		if err == nil {
+			err = os.Remove(oldmfile)
+		}
+	}()
+	musicFile = f
+
 	// try to extract image from the file
 	cmd = exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
 	cmd.Stdout = &picBuf
@@ -99,15 +113,6 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 	if ffmpegErr != nil {
 		picBuf.Reset()
 	}
-
-	var oldmfile = musicFile
-	defer func() {
-		if err == nil {
-			err = os.Remove(oldmfile)
-		}
-	}()
-
-	musicFile = f
 
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
@@ -169,5 +174,8 @@ func (m *Manager) importFile(musicFile string, info os.FileInfo) (e *music.Entry
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("[Import] Added %s\n", e.SongName())
+
 	return e, nil
 }

@@ -5,8 +5,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
 	"sort"
 	"strings"
+	"xarantolus/sensibleHub/store"
 
 	"goftp.io/server"
 )
@@ -199,7 +202,35 @@ func splitPath(p string) []string {
 	return strings.Split(strings.Trim(p, "/"), "/")
 }
 
-// Methods that are not implemented as the server is supposed to be read-only:
+// PutFile implements putting files on the server while also importing them. That way, you can use FTP to import your music library
+func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, err error) {
+	dest := filepath.Join("import", store.CleanName(path.Base(strings.ReplaceAll(p, "\\", "/"))))
+
+	d, err := os.Create(dest)
+	if err != nil {
+		return
+	}
+
+	n, err = io.Copy(d, f)
+	if err != nil {
+		d.Close()
+
+		os.Remove(d.Name())
+
+		return
+	}
+
+	err = d.Close()
+	if err != nil {
+		return
+	}
+
+	_, err = store.M.ImportFile(d.Name(), nil)
+
+	return
+}
+
+// Methods that are not implemented as the server is supposed to be mostly read-only:
 
 func (m *musicDriver) DeleteDir(path string) (err error) {
 	return errReadOnly
@@ -215,8 +246,4 @@ func (m *musicDriver) Rename(src string, dest string) (err error) {
 
 func (m *musicDriver) MakeDir(path string) (err error) {
 	return errReadOnly
-}
-
-func (m *musicDriver) PutFile(path string, f io.Reader, overwrite bool) (n int64, err error) {
-	return 0, errReadOnly
 }
