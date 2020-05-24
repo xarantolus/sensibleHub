@@ -91,8 +91,17 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	ex := filepath.Ext(musicFile)
 	var f = strings.TrimSuffix(musicFile, ex) + ".temp" + ex
 
+	// try to extract image from the file: https://superuser.com/a/1328212
+	cmd := exec.Command("ffmpeg", "-i", musicFile, "-map", "0:v", "-map", "-0:V", "-c", "copy", "-f", "image2pipe", "pipe:1")
+	cmd.Stdout = &picBuf
+	ffmpegErr := cmd.Run()
+	if ffmpegErr != nil {
+		picBuf.Reset()
+	}
+
+
 	// Try to remove metadata, mostly the cover image, as it will take space and will never be needed
-	cmd := exec.Command("ffmpeg", "-i", musicFile, "-y", "-map_metadata", "-1", "-c:a", "copy", "-map", "a", f)
+	cmd = exec.Command("ffmpeg", "-i", musicFile, "-y", "-map_metadata", "-1", "-vn", "-acodec", "copy", f)
 	err = cmd.Run()
 	if err != nil {
 		return
@@ -105,14 +114,6 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		}
 	}()
 	musicFile = f
-
-	// try to extract image from the file
-	cmd = exec.Command("ffmpeg", "-i", musicFile, "-an", "-vcodec", "copy", "-f", "image2pipe", "pipe:1")
-	cmd.Stdout = &picBuf
-	ffmpegErr := cmd.Run()
-	if ffmpegErr != nil {
-		picBuf.Reset()
-	}
 
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()

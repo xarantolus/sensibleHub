@@ -206,6 +206,8 @@ func splitPath(p string) []string {
 func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, err error) {
 	dest := filepath.Join("import", store.CleanName(path.Base(strings.ReplaceAll(p, "\\", "/"))))
 
+	os.MkdirAll(filepath.Dir(dest), os.ModePerm)
+
 	d, err := os.Create(dest)
 	if err != nil {
 		return
