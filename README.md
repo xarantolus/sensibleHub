@@ -123,6 +123,46 @@ Please note that imports will only happen on startup, not while the software is 
 
 Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup. 
 
+### Syncing
+Obviously one wants to have their music with them on all devices, even when they are offline. Here's a guide on how to achieve that.
+
+##### Desktop
+On a PC or Laptop, you can create recurring sync jobs (on all platforms) that use [rclone](https://github.com/rclone/rclone) (which you need to install before continuing).
+
+First, [set up a new rclone FTP remote](https://rclone.org/ftp/) with `rclone config`. After setup, it should look similar to this:
+
+```
+[MyMusic]
+type = ftp
+host = yourserver
+user = myusername
+port = 1280
+pass = *** ENCRYPTED ***
+```
+
+Now you can use rclone sync like this to sync it to your music directory:
+
+```
+rclone sync --update --ignore-size -v MyMusic:/ %USERPROFILE%\Music
+```
+
+The `--ignore-size` flag is very important as the server doesn't always know the correct file size if the file hasn't been generated yet.
+
+If you want to, you can set this up as a cron job or use windows task scheduler to run the command automatically.
+
+##### Android
+On Android, you can use any FTP app that doesn't look at the file size or lets you disable that. One of them is [FolderSync](https://play.google.com/store/apps/details?id=dk.tacit.android.foldersync.lite).
+
+Add a new "account" (in-app, there's no registration) with the following attributes:
+ * **Server address**: `ftp://yourserver:1280`
+ * **Login**: Your login credentials from one of the FTP users set in the [config file](#Configuration)
+
+Now you can create a new *Folder pair* with these settings:
+ * **Account**: The one created above
+ * **Local Folder**: Your music folder, might be `/storage/emulated/0/Music`
+ * **Scheduling**: Here you can set *when* it should sync your files
+ * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. Disable *Only resync source files if modified (ignore target deletion)*. Set *Overwrite old files* to *Always* and set *If conflicting modifications* to *Use remote file*. Now the most important part, **you must enable _Disable file-size check_** or it will not work. You can also enable *Rescan media library* to make sure new files are recognized.
+
 ### Resources
 This program tries not to need *too much* memory or processing power, but some things are necessary. The biggest memory hog is an in-memory cache of 60x60 preview cover images.
 
