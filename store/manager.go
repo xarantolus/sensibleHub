@@ -182,10 +182,9 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 
 	// make sure that resolved links are recognized
 	if u.Host == "youtu.be" {
+		u.Query().Set("v", strings.TrimPrefix(u.Path, "/"))
 		u.Host = "youtube.com"
 		u.Path = "/watch"
-
-		u.Query().Set("v", strings.TrimPrefix(u.Path, "/"))
 	}
 
 	// clean other url parameters
