@@ -49,7 +49,7 @@ func (m *Manager) download(url string) (err error) {
 	m.downloadContextLock.Unlock()
 
 	// Setup youtube-dl command and run it
-	cmd := exec.CommandContext(cmdCtx, "youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "%(id)s.%(ext)s")
+	cmd := exec.CommandContext(cmdCtx, "youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "song.%(ext)s")
 	cmd.Dir = tmpDir
 
 	// when searching for a specific song, we want to reject Instrumental versions.
