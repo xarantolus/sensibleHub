@@ -198,7 +198,7 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 
 	s := u.String()
 	for _, e := range m.AllEntries() {
-		if e.SourceURL == "Imported" {
+		if e.IsImported() {
 			continue
 		}
 
