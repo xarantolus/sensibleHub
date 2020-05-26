@@ -18,6 +18,7 @@ var (
 	csl              sync.Mutex
 )
 
+// AllSockets runs `f` on all connected websockets, disconnecting any websockets for which `f` returns an non-nil error
 func AllSockets(f func(c *websocket.Conn) error) {
 	csl.Lock()
 	defer csl.Unlock()
@@ -32,6 +33,7 @@ func AllSockets(f func(c *websocket.Conn) error) {
 	}
 }
 
+// HandleWebsocket connects/upgrades a websocket request. It runs until the websocket is disconnected.
 func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

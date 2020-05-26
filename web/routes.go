@@ -6,7 +6,7 @@ import (
 	"xarantolus/sensibleHub/store/music"
 )
 
-type IndexPage struct {
+type indexPage struct {
 	Title string
 
 	NewEntries []music.Entry
@@ -14,17 +14,18 @@ type IndexPage struct {
 	NewEntriesToday bool
 }
 
+// HandleIndex shows the main/index page. It shows new songs from today or the most recently added songs
 func HandleIndex(w http.ResponseWriter, r *http.Request) (err error) {
 	entries, today := store.M.Newest()
 
-	return renderTemplate(w, r, "index.html", IndexPage{
+	return renderTemplate(w, r, "index.html", indexPage{
 		Title:           "Sensible Hub",
 		NewEntries:      entries,
 		NewEntriesToday: today,
 	})
 }
 
-type NewPage struct {
+type newPage struct {
 	Title       string
 	LastError   error
 	Running     bool
@@ -43,7 +44,7 @@ func HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
 		nsp = &ns
 	}
 
-	return renderTemplate(w, r, "add.html", NewPage{
+	return renderTemplate(w, r, "add.html", newPage{
 		Title:       "Add a new song",
 		LastError:   store.M.LastError(),
 		Running:     okr,

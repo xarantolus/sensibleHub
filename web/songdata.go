@@ -11,10 +11,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// HandleCover displays the cover image for the song with the `songID` given in the URL.
+// If the song doesn't have a cover image, it will serve a placeholder image (svg) with an 404 status code.
+// If the URL parameter `size` is "small", a cover preview image will be generated and sent.
 func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -22,7 +25,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 	e, ok := store.M.GetEntry(v["songID"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -30,6 +33,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 	cp := e.CoverPath()
 	if cp == "" {
+		w.WriteHeader(http.StatusNotFound)
 		http.ServeFile(w, r, "assets/image-missing.svg")
 		return
 	}
@@ -72,10 +76,12 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 }
 
+// HandleAudio serves the default audio for the song with the `songID` specified in the URL.
+// This is different from the MP3 download handler.
 func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -83,7 +89,7 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 
 	e, ok := store.M.GetEntry(v["songID"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -98,11 +104,11 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // HandleMP3 returns the requested songs' audio as an MP3 stream.
-// It creates the mp3 file from the associated data and caches the result
+// It creates the mp3 file from its associated data and caches the result until the song is edited
 func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -110,7 +116,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 
 	e, ok := store.M.GetEntry(v["songID"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}

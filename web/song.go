@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type SongPage struct {
+type songPage struct {
 	Title string
 
 	*music.Entry
@@ -20,7 +20,7 @@ type SongPage struct {
 func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -28,7 +28,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	e, ok := store.M.GetEntry(v["songID"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -36,7 +36,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	similar := store.M.GetRelatedSongs(e)
 
-	return renderTemplate(w, r, "song.html", SongPage{
+	return renderTemplate(w, r, "song.html", songPage{
 		e.SongName(),
 		&e,
 		similar,
@@ -47,7 +47,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -104,8 +104,8 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	err = store.M.EditEntry(songID, newData)
 	if err != nil {
-		if err == store.ErrAudioSameDuration {
-			return HttpError{
+		if err == store.ErrAudioSameStartEnd {
+			return HTTPError{
 				StatusCode: http.StatusPreconditionFailed,
 				Message:    err.Error(),
 			}

@@ -82,10 +82,11 @@ type albumPage struct {
 	A store.Album
 }
 
+// HandleShowAlbum shows the album page for the artist and album that's given in the url
 func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need an artist and album",
 		}
@@ -93,7 +94,7 @@ func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 
 	al, ok := store.M.GetAlbum(v["artist"], v["album"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    fmt.Sprintf("Cannot find album %s for artist %s", v["album"], v["artist"]),
 		}
@@ -112,10 +113,11 @@ type artistPage struct {
 	Info store.ArtistInfo
 }
 
+// HandleShowArtist shows the artist page for the artist given in the url
 func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need an artist",
 		}
@@ -123,7 +125,7 @@ func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 
 	artistInfo, ok := store.M.Artist(v["artist"])
 	if !ok {
-		return HttpError{
+		return HTTPError{
 			StatusCode: http.StatusNotFound,
 			Message:    fmt.Sprintf("Cannot find any albums for %s", v["artist"]),
 		}

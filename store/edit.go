@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrAudioSameDuration = fmt.Errorf("Audio start/end must not be the same")
+	ErrAudioSameStartEnd = fmt.Errorf("Audio start/end must not be the same")
 )
 
 // EditEntryData is used for editing an entry.
@@ -74,7 +74,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	}
 
 	if entry.AudioSettings.Start == entry.AudioSettings.End {
-		return ErrAudioSameDuration
+		return ErrAudioSameStartEnd
 	}
 
 	// Sync must be a valid bool
