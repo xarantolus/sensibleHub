@@ -12,6 +12,8 @@ type SongPage struct {
 	Title string
 
 	*music.Entry
+
+	SimilarSongs []music.Entry
 }
 
 // HandleShowSong shows information about a song
@@ -32,9 +34,12 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
+	similar := store.M.GetRelatedSongs(e)
+
 	return renderTemplate(w, r, "song.html", SongPage{
 		e.SongName(),
 		&e,
+		similar,
 	})
 }
 

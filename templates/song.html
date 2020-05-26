@@ -168,4 +168,11 @@
         </div>
     </form>
 </div>
+{{with .SimilarSongs}}
+<div class="listing similar">
+    <h4 class="title is-4">Similar</h4>
+    {{range .}}
+        {{ template "song-item.html" . }}
+    {{end}}
+</div>{{end}}
 {{ template "foot.html" . }}

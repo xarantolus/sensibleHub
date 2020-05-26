@@ -20,6 +20,12 @@
     padding-top: 1%;
 }
 
+.similar {
+    width: 50%;
+    padding-bottom: 2.5%;
+    padding-top: 5%;
+}
+
 .album-songs {
     width: 100%;
     margin: 0 auto;
