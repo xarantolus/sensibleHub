@@ -109,7 +109,8 @@ Expected output:
 2020/05/26 20:01:48 [Web] Server listening on port 128
 ```
 
-After that, you can visit the website at `http://yourserver:128/`. You can also connect using FTP at `http://yourserver:1280/`, the account must be set in the config file.
+After that, you can visit the website at `http://yourserver:128/`.
+You can also connect via FTP at `ftp://yourserver:1280/` using one of the accounts set in the config file.
 
 ### Importing 
 This program can import songs that should be included in its library in a few different ways. 
