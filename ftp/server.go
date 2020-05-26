@@ -16,6 +16,7 @@ func RunServer(cfg config.Config) (err error) {
 		Factory: &musicDriverFactory{},
 		Port:    cfg.FTP.Port,
 		Auth:    &configAuth{cfg: cfg},
+		Logger:  &server.DiscardLogger{},
 	}
 
 	server := server.NewServer(opts)
@@ -33,7 +34,7 @@ type configAuth struct {
 func (a *configAuth) CheckPasswd(name, pass string) (bool, error) {
 	for _, user := range a.cfg.FTP.Users {
 		if constantTimeEquals(name, user.Name) && constantTimeEquals(pass, user.Passwd) {
-			log.Printf("Logged in %s\n", user.Name)
+			log.Printf("[FTP] Logged in %s\n", user.Name)
 			return true, nil
 		}
 	}

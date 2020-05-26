@@ -21,10 +21,10 @@ const (
 
 // Download downloads the song from the given URL using youtube-dl and saves it to the appropriate directory
 func (m *Manager) download(url string) (err error) {
-	log.Println("Start downloading", url)
+	log.Println("[Download] Start downloading", url)
 	defer func() {
 		if err != nil {
-			log.Printf("Error while downloading %s: %s\n", url, err.Error())
+			log.Printf("[Download] Error while downloading %s: %s\n", url, err.Error())
 		}
 	}()
 
@@ -134,7 +134,7 @@ func (m *Manager) download(url string) (err error) {
 
 	minfo, jsonErr := readInfoFile(jsonPath)
 	if jsonErr != nil {
-		log.Println("Error while reading info file: ", jsonErr.Error())
+		log.Println("[Download] Error while reading info file: ", jsonErr.Error())
 		// Continue without data
 	}
 
@@ -234,7 +234,7 @@ func (m *Manager) download(url string) (err error) {
 		return
 	}
 
-	log.Println("Download finished successfully")
+	log.Printf("[Download] Added %s\n", e.SongName())
 
 	return nil
 }

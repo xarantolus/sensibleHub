@@ -3,7 +3,6 @@ package web
 import (
 	"log"
 	"net/http"
-	"runtime"
 	"strconv"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
@@ -11,16 +10,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var (
-	Debug = runtime.GOOS == "windows"
-)
+var debug bool
 
-// RunServer runs the web server on the port specified in `cfg`
-func RunServer(cfg config.Config) (err error) {
+// RunServer runs the web server on the port specified in `cfg`.
+// `enableDebug` sets whether to start the server in debug mode
+func RunServer(cfg config.Config, enableDebug bool) (err error) {
 	err = parseTemplates()
 	if err != nil {
 		return
 	}
+
+	debug = enableDebug
 
 	store.M.SetEventFunc(AllSockets)
 
@@ -80,7 +80,7 @@ func RunServer(cfg config.Config) (err error) {
 
 // debugWrap parses templates every time they are requested if the debug mode is enabled
 func debugWrap(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
-	if !Debug {
+	if !debug {
 		return f
 	}
 

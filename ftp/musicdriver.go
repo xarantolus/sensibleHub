@@ -27,7 +27,7 @@ type musicDriver struct {
 type Album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
-	log.Println("Connected client from", c.PublicIP())
+	log.Println("[FTP] Connected client from", c.PublicIP())
 	return
 }
 

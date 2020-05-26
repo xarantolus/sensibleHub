@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
@@ -8,7 +9,17 @@ import (
 	"xarantolus/sensibleHub/web"
 )
 
+var (
+	flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
+)
+
 func main() {
+	flag.Parse()
+
+	if *flagDebug {
+		log.Println("[Debug] Debug mode enabled")
+	}
+
 	cfg, err := config.Parse()
 	if err != nil {
 		panic("while parsing config: " + err.Error())
@@ -26,12 +37,12 @@ func main() {
 
 	n := store.M.CleanUp()
 	if n == 0 {
-		log.Println("No cleanup necessary")
+		log.Println("[Cleanup] No cleanup necessary")
 	} else {
 		if n == 1 {
-			log.Println("Finished cleaning up", n, "song")
+			log.Println("[Cleanup] Finished cleaning up", n, "song")
 		} else {
-			log.Println("Finished cleaning up", n, "songs")
+			log.Println("[Cleanup] Finished cleaning up", n, "songs")
 		}
 	}
 
@@ -42,7 +53,7 @@ func main() {
 		}
 	}()
 
-	err = web.RunServer(cfg)
+	err = web.RunServer(cfg, *flagDebug)
 	if err != nil {
 		panic("while running web server: " + err.Error())
 	}

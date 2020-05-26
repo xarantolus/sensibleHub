@@ -104,10 +104,9 @@ After that, you are ready to start the server.
 Expected output:
 
 ```
-2020/05/21 19:49:29 No cleanup necessary
-2020/05/21 19:49:29 [FTP] Server listening on port 1280
-2020/05/21 19:49:29   Go FTP Server listening on 1280
-2020/05/21 19:49:29 [Web] Server listening on port 128
+2020/05/26 20:01:48 [Cleanup] No cleanup necessary
+2020/05/26 20:01:48 [FTP] Server listening on port 1280
+2020/05/26 20:01:48 [Web] Server listening on port 128
 ```
 
 After that, you can visit the website at `http://yourserver:128/`. You can also connect using FTP at `http://yourserver:1280/`, the account must be set in the config file.

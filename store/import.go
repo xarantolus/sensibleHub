@@ -18,19 +18,26 @@ import (
 
 // ImportFiles imports files from the given directory. It tries to get as much metadata as possible
 func (m *Manager) ImportFiles(directory string) (err error) {
-	return filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
 		}
 
 		_, err = m.ImportFile(path, info)
 		if err != nil {
-			log.Printf("Error while importing %s: %s\n", path, err.Error())
+			log.Printf("[Import] Error while importing %s: %s\n", path, err.Error())
 			return nil
 		}
 
 		return nil
 	})
+
+	// If "directory" doesn't exist, we don't care
+	if err != nil && os.IsNotExist(err) {
+		err = nil
+	}
+
+	return
 }
 
 // ImportFile imports a file from the given path. `info` is optional
@@ -98,7 +105,6 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	if ffmpegErr != nil {
 		picBuf.Reset()
 	}
-
 
 	// Try to remove metadata, mostly the cover image, as it will take space and will never be needed
 	cmd = exec.Command("ffmpeg", "-i", musicFile, "-y", "-map_metadata", "-1", "-vn", "-acodec", "copy", f)
