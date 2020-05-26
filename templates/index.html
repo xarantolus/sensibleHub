@@ -1,12 +1,29 @@
 {{ template "head.html" . }}
+{{if .NewEntries}}
 <div class="listing">
     <h4 class="title is-4">{{if .NewEntriesToday}}Songs from today{{else}}Newest Songs{{end}}</h4>
     <ul>
-    {{range .NewEntries}}
+        {{range .NewEntries}}
         {{ template "song-item.html" . }}
-    {{end}}
+        {{end}}
     </ul>
 </div>
+{{else}}
+<article class="welcome message is-info">
+    <div class="message-header">
+        <p>Welcome</p>
+    </div>
+    <div class="message-body">
+        <p>Thank you for installing this software. There are several things you can do now:</p>
 
+        <h5 class="title is-5">Add songs</h5>
+        <p>Usually when starting out, one would <a href="https://github.com/xarantolus/sensibleHub#importing" rel="noopener noreferrer">import their music collection</a>.
+            You can either do it via FTP or using the local file system, choose whichever works better for you.</p>
+        <p>Alternatively, you can also <a href="/add">add new songs</a> from the internet.</p>
+
+        <h5 class="title is-5">Set up sync</h5>
+        <p>The next step is <a href="https://github.com/xarantolus/sensibleHub#syncing" rel="noopener noreferrer">setting up a synchronization solution</a> over FTP.</p>
+    </div>
+</article>
+{{end}}
 {{ template "foot.html" . }}
-
