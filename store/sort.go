@@ -1,6 +1,7 @@
 package store
 
 import (
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -223,6 +224,55 @@ func (m *Manager) Newest() (list []music.Entry, today bool) {
 	return entries[:limit], false
 }
 
+// musicExtensions is a list of music extensions that *should not* be at the end of a song title, see https://en.wikipedia.org/wiki/Audio_file_format#List_of_formats
+var musicExtensions = map[string]bool{
+	"3gp":  true,
+	"aa":   true,
+	"aac":  true,
+	"aax":  true,
+	"act":  true,
+	"aiff": true,
+	"alac": true,
+	"amr":  true,
+	"ape":  true,
+	"au":   true,
+	"awb":  true,
+	"dct":  true,
+	"dss":  true,
+	"dvf":  true,
+	"flac": true,
+	"gsm":  true,
+	"ikla": true,
+	"ivs":  true,
+	"m4a":  true,
+	"m4b":  true,
+	"m4p":  true,
+	"mmf":  true,
+	"mp3":  true,
+	"mpc":  true,
+	"msv":  true,
+	"nmf":  true,
+	"nsf":  true,
+	"ogg":  true,
+	"oga":  true,
+	"mogg": true,
+	"opus": true,
+	"ra":   true,
+	"rm":   true,
+	"raw":  true,
+	"rf64": true,
+	"sln":  true,
+	"tta":  true,
+	"voc":  true,
+	"vox":  true,
+	"wav":  true,
+	"wma":  true,
+	"wv":   true,
+	"webm": true,
+	"8svx": true,
+	"cda":  true,
+}
+
 // Incomplete returns all entries with incomplete data
 func (m *Manager) Incomplete() (groups []Group) {
 	var noArtist = Group{Title: "No Artist"}
@@ -231,14 +281,17 @@ func (m *Manager) Incomplete() (groups []Group) {
 	var noYear = Group{Title: "No Year"}
 	var weirdTitle = Group{Title: "Weird Title"}
 
+	// The conditions inside this loop must have the same order as the
+	// lists in the for below it. That way, songs can cascade through these categories
 	for _, e := range m.AllEntries() {
-		if strings.TrimSpace(e.MusicData.Artist) == "" {
-			noArtist.Songs = append(noArtist.Songs, e)
+		// Maybe an import happened here and nothing has been done to the title yet
+		if musicExtensions[strings.ToLower(strings.TrimPrefix(filepath.Ext(e.MusicData.Title), "."))] {
+			weirdTitle.Songs = append(weirdTitle.Songs, e)
 			continue
 		}
 
-		if strings.TrimSpace(e.MusicData.Album) == "" {
-			noAlbum.Songs = append(noAlbum.Songs, e)
+		if strings.TrimSpace(e.MusicData.Artist) == "" {
+			noArtist.Songs = append(noArtist.Songs, e)
 			continue
 		}
 
@@ -247,18 +300,18 @@ func (m *Manager) Incomplete() (groups []Group) {
 			continue
 		}
 
+		if strings.TrimSpace(e.MusicData.Album) == "" {
+			noAlbum.Songs = append(noAlbum.Songs, e)
+			continue
+		}
+
 		if e.MusicData.Year == nil || *e.MusicData.Year == 0 {
 			noYear.Songs = append(noYear.Songs, e)
 			continue
 		}
-
-		if strings.Contains(strings.ToUpper(e.MusicData.Title), ".MP3") {
-			weirdTitle.Songs = append(weirdTitle.Songs, e)
-			continue
-		}
 	}
 
-	for _, g := range []Group{noArtist, noAlbum, noImage, noYear, weirdTitle} {
+	for _, g := range []Group{weirdTitle, noArtist, noImage, noAlbum, noYear} {
 		if len(g.Songs) == 0 {
 			continue
 		}
