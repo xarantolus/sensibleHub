@@ -262,6 +262,9 @@ func (m *Manager) Incomplete() (groups []Group) {
 		if len(g.Songs) == 0 {
 			continue
 		}
+		sort.Slice(g.Songs, func(i, j int) bool {
+			return g.Songs[i].Added.After(g.Songs[j].Added)
+		})
 		groups = append(groups, g)
 	}
 

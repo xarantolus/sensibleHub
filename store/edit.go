@@ -13,6 +13,8 @@ import (
 )
 
 var (
+	// ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are
+	// the same because having a zero-second song doesn't make sense
 	ErrAudioSameStartEnd = fmt.Errorf("Audio start/end must not be the same")
 )
 

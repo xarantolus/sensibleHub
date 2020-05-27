@@ -5,17 +5,6 @@
             {{ template "song-item.html" . }}
         {{end}}
     {{else}}
-    <span class="song-link box">
-        <article class="media">
-            <div class="media-left"><img id="img-wvEL" src="/assets/image-missing.svg" width="60" height="60"></div>
-            <div class="media-content song-media">
-                <div class="content">
-                        <strong>Not found</strong>  
-    
-                        <p>Could not find any items matching your query</p>
-                </div>
-            </div>
-        </article>
-    </span>
-{{end}}
+        {{template "notfound.html"}}
+    {{end}}
 {{ template "foot.html" . }}

@@ -14,7 +14,7 @@
     padding: 10px 10px 10px 0;
 }
 
-.welcome {
+.welcome, .notfound-box {
     margin-top: 2.5% !important;
     width: 50%;
     margin: 0 auto;

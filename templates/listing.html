@@ -1,5 +1,6 @@
 {{ template "head.html" . }}
-{{range .Groups}}
+{{with .Groups}}
+{{range .}}
 <div class="listing">
     {{if have .Link .Title}}
         <a href="{{.Link}}"><h4 class="title is-4">{{.Title}}</h4></a>
@@ -11,5 +12,7 @@
         {{ template "song-item.html" . }}
     {{end}}
 </div>
+{{end}}{{else}}
+    {{template "notfound.html"}}
 {{end}}
 {{ template "foot.html" . }}

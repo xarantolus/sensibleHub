@@ -24,7 +24,7 @@
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
-              </a>
+            </a>
         </div>
 
         <div class="navbar-menu">
@@ -44,6 +44,26 @@
                 <span data-no-instant class="navbar-item">
                     <progress id="main-progress" class="progress is-small is-primary"></progress>
                 </span>
+
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        More
+                    </a>
+
+                    <div class="navbar-dropdown">
+                        <a href="/incomplete" class="navbar-item">
+                            <span class="bd-emoji">🏷️</span> &nbsp;Incomplete Songs
+                        </a>
+                        <div class="is-hidden-mobile">
+                        <hr class="navbar-divider">
+                        <span class="help navbar-item">External links</span>
+                        <a href="https://github.com/xarantolus/sensibleHub" rel="noopener noreferrer" class="navbar-item">
+                            <span class="bd-emoji">⭐</span> &nbsp;GitHub
+                        </a>
+                        </div>
+                    </div>
+                </div>
+
                 <form id="search-form" class="navbar-item" action="/search">
                     <div id="search-container" class="control has-icons-left has-icons-right is-small">
                         <input id="search-bar" value="{{ query . }}" name="q" class="input is-small is-rounded" type="text" placeholder="Search">
