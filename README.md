@@ -53,6 +53,18 @@ If you want to move this executable elsewhere on your system, make sure to move 
  * `config.json`
  * `sensibleHub` (the executable)
 
+To do this, you can also use the [`pack.sh`](pack.sh) script, it will create a zip file with all required assets:
+
+```
+./pack.sh
+```
+
+If you want to build for another operating system, it's quite easy. Search the correct `$GOOS` and `$GOARCH` values from [here](https://golang.org/doc/install/source#environment) and add them to the command. For the Raspberry Pi, the following values can be used:
+
+```
+GOOS=linux GOARCH=arm GOARM=7 ./pack.sh
+```
+
 #### Additional requirements
 This program relies on some other programs that need to be installed and be available in your $PATH:
 - [youtube-dl](https://github.com/ytdl-org/youtube-dl): Used for downloading files from [all kinds of sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html). Since websites change frequently and break youtube-dl, you should update it from time to time or set up an automatic update (e.g. using a cron job)
