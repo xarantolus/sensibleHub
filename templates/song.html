@@ -2,8 +2,10 @@
 
 <div class="song-container">
     <input class="hidden" id="song-id" value="{{.ID}}">
-
     <form class="form-horizontal" action="/song/{{.ID}}" method="POST" enctype="multipart/form-data">
+        <!-- The first button in a form will be used for submitting. Since that would be the delete cover button, we prevent it here -->
+        <input class="hidden" type="submit" value="Save">
+
         <div class="columns">
             <!-- Left Side: Image -->
             <div class="column image-column">

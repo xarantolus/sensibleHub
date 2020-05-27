@@ -43,7 +43,11 @@ function songPage() {
         })
         return false;
     }
-    document.getElementById("delete-cover").addEventListener("click", confirmDeleteCover)
+    // This one is rendered conditionally
+    var dc = document.getElementById("delete-cover");
+    if (dc) {
+        dc.addEventListener("click", confirmDeleteCover);
+    }
 
     // Store and restore audio volume
     function saveVolumeChange(evt) {
