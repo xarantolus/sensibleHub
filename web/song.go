@@ -62,6 +62,19 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
+	if r.FormValue("delete-cover") == "delete-cover" {
+		err = store.M.DeleteCoverImage(songID)
+		if err != nil {
+			return err
+		}
+
+		if isAjax {
+			http.Error(w, `{"message": "Deleted"}`, http.StatusOK)
+		} else {
+			http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
+		}
+		return nil
+	}
 	// If the delete button was clicked
 	if r.FormValue("delete") == "delete" {
 		err = store.M.DeleteEntry(songID)

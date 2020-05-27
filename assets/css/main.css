@@ -20,6 +20,10 @@
     margin: 0 auto;
 }
 
+.delete-cover {
+    margin-top: 3%;
+}
+
 .listing, .abort-form {
     width: 70%;
     margin: 0 auto;

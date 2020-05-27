@@ -1,8 +1,8 @@
 function songPage() {
    registerCover();
 
-    // Confirm submitting if 
-    function confirmSubmit(evt) {
+    // Confirm submitting when deleting song
+    function confirmDelete(evt) {
         evt.preventDefault();
 
         if (!confirm("Are you sure you want to delete this song?")) {
@@ -22,8 +22,28 @@ function songPage() {
         })
         return false;
     }
+    document.getElementById("delete-button").addEventListener("click", confirmDelete);
 
-    document.getElementById("delete-button").addEventListener("click", confirmSubmit);
+    
+    function confirmDeleteCover(evt) {
+        evt.preventDefault();
+
+        if (!confirm("Are you sure you want to delete the cover?")) {
+            return false;
+        }
+
+        var formData = new FormData();
+        formData.set("delete-cover", "delete-cover");
+
+        ajax(location.pathname, formData).post(function (status, obj) {
+            // If successful, a reload will be done from events.js (song-edit event)
+            if (status !== 200) {
+                document.getElementById("song-notif").innerText = obj.message || "Unknown error";
+            }
+        })
+        return false;
+    }
+    document.getElementById("delete-cover").addEventListener("click", confirmDeleteCover)
 
     // Store and restore audio volume
     function saveVolumeChange(evt) {

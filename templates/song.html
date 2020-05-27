@@ -26,7 +26,9 @@
                                 </span>
                             </span>
                         </div>
-                    </div>
+                        {{if have .PictureData.Filename}}
+                        <button id="delete-cover" name="delete-cover" class="delete-cover button is-small is-danger" value="delete-cover">Delete current cover</button>
+                    {{end}}</div>
                 </figure>
             </div>
 
