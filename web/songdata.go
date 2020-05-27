@@ -3,7 +3,9 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"xarantolus/sensibleHub/store"
@@ -31,17 +33,11 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	cp := e.CoverPath()
-	if cp == "" {
-		w.WriteHeader(http.StatusNotFound)
-		http.ServeFile(w, r, "assets/image-missing.svg")
-		return
-	}
+	// Store the response, but always re-validate. That way, edited images will be seen
+	w.Header().Set("Cache-Control", "no-cache, max-age=0, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
 
-	sizeParam := r.URL.Query().Get("size")
 	le := e.LastEdit.UTC().Format(http.TimeFormat)
-
-	r.Header.Set("Cache-Control", "max-age=0, must-revalidate")
 
 	// While ServeContent checks this too, the calls to coverGroup.Do are quite expensive and take long.
 	// So if we are able to abort before getting to that point because the browser already has that image,
@@ -53,9 +49,17 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	switch strings.ToUpper(sizeParam) {
-	case "SMALL":
+	var isMissing bool
+	cp := e.CoverPath()
+	if cp == "" {
+		cp = "assets/image-missing.svg"
+		isMissing = true
+	}
 
+	sizeParam := r.URL.Query().Get("size")
+
+	switch {
+	case strings.ToUpper(sizeParam) == "SMALL" && !isMissing:
 		coverBytes, format, err := e.CoverPreview()
 		if err != nil {
 			return err
@@ -67,10 +71,28 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes))
 		return nil
 	default:
+		// WARNING: Using ServeContent is REQUIRED here, ServeFile does NOT work
+		// This is because ServeFile overwrites the last-modified header to the last time the file has been edited and sends 304 Not modified
+		// The browser will continue to use an old/cached and already deleted image if we use ServeFile, at least until
+		// the website has been reloaded. Since that isn't good, we need to do it manually and correctly
+
+		coF, err := os.Open(cp)
+		if err != nil {
+			return err
+		}
+		defer coF.Close()
+
+		mtype := mime.TypeByExtension(strings.TrimPrefix(filepath.Ext(e.PictureData.Filename), "."))
+		if mtype != "" {
+			w.Header().Set("Content-Type", mtype)
+		}
 
 		w.Header().Set("Last-Modified", le)
-		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", e.MusicData.Artist+" - "+e.MusicData.Title+filepath.Ext(cp)))
-		http.ServeFile(w, r, cp)
+
+		fn := e.MusicData.Artist + " - " + e.MusicData.Title + filepath.Ext(cp)
+		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", fn))
+
+		http.ServeContent(w, r, fn, e.LastEdit, coF)
 
 		return nil
 	}
