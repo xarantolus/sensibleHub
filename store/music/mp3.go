@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,13 +63,22 @@ func (e *Entry) MP3Path() (p string, err error) {
 			cmd.Args = append(cmd.Args, "-to", strconv.FormatFloat(e.AudioSettings.End, 'f', 3, 64))
 		}
 
-		// Set output file
-		cmd.Args = append(cmd.Args, "-hide_banner", tempAudio)
+		// Set some options and output file
+		cmd.Args = append(cmd.Args,
+			"-hide_banner",
+
+			// Don't write a duration header to the output file.
+			// This causes media players to display the correct duration.
+			// https://superuser.com/questions/607703/wrong-audio-duration-with-ffmpeg
+			"-write_xing", "0",
+
+			tempAudio)
 		cmd.Stderr = &outbuf
 
 		err = cmd.Run()
 		if err != nil {
 			err = fmt.Errorf("%s\n\nStderr:%s", err.Error(), outbuf.String())
+			log.Println("Error while running ffmpeg for mp3 generation:", err.Error())
 			return
 		}
 
