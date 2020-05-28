@@ -56,6 +56,18 @@
     padding-top: 3.5%;
 }
 
+.save-all-button {
+    margin-top: .5em;
+}
+
+.song-link.box {
+    margin-bottom: 3em !important;
+}
+
+.album-songs > a.song-link.box {
+    margin-bottom: 2em !important;
+}
+
 .song-link {
     overflow-y: hidden;
     background-color: #eee;
