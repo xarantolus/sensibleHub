@@ -324,6 +324,27 @@ func (m *Manager) Incomplete() (groups []Group) {
 	return
 }
 
+// Unsynced returns all songs that have syncing disabled
+func (m *Manager) Unsynced() (groups []Group) {
+	var g = Group{
+		Title: "Unsynced",
+	}
+
+	for _, song := range m.AllEntries() {
+		if song.SyncSettings.Should {
+			continue
+		}
+
+		g.Songs = append(g.Songs, song)
+	}
+
+	if len(g.Songs) > 0 {
+		groups = []Group{g}
+	}
+
+	return
+}
+
 // NewestSong returns the most recently added song
 func (m *Manager) NewestSong() (e music.Entry, ok bool) {
 	m.SongsLock.RLock()

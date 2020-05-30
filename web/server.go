@@ -48,6 +48,7 @@ func RunServer(cfg config.Config, enableDebug bool) (err error) {
 	r.HandleFunc("/artists", ErrWrap(debugWrap(HandleArtistListing))).Methods(http.MethodGet)
 	r.HandleFunc("/years", ErrWrap(debugWrap(HandleYearListing))).Methods(http.MethodGet)
 	r.HandleFunc("/incomplete", ErrWrap(debugWrap(HandleIncompleteListing))).Methods(http.MethodGet)
+	r.HandleFunc("/unsynced", ErrWrap(debugWrap(HandleUnsyncedListing))).Methods(http.MethodGet)
 
 	// Search listing
 	r.HandleFunc("/search", ErrWrap(debugWrap(HandleSearchListing))).Methods(http.MethodGet)

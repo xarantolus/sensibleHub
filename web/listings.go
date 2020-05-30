@@ -49,6 +49,14 @@ func HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error)
 	})
 }
 
+// HandleUnsyncedListing returns all items with that are not synced
+func HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return renderTemplate(w, r, "listing.html", Listing{
+		Title:  "Unsynced",
+		Groups: store.M.Unsynced(),
+	})
+}
+
 type searchListing struct {
 	Title string
 	Songs []music.Entry
