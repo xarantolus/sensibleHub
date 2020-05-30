@@ -33,6 +33,7 @@ func TestManager_hasLink(t *testing.T) {
 		"https://youtube.com/watch?v=videoidno":  false,
 		"https://example.com":                    false,
 		"https:/soundcloud.com/some-artist/song": false,
+		"https://youtu.be/otherid":               false,
 	}
 
 	for turl, tok := range tests {
