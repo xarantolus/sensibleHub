@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os/exec"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
@@ -19,6 +20,16 @@ func main() {
 	if *flagDebug {
 		log.Println("[Debug] Debug mode enabled")
 	}
+
+	var checkInstalledCommand = func(cmd string) {
+		_, err := exec.LookPath(cmd)
+		if err != nil {
+			log.Printf("[Warning] Cannot find %s (%s). Please make sure to install it.\n", cmd, err.Error())
+		}
+	}
+	// Check all external commands that are used by this program in order to warn the user if they aren't accessible
+	checkInstalledCommand("ffmpeg")
+	checkInstalledCommand("youtube-dl")
 
 	cfg, err := config.Parse()
 	if err != nil {
