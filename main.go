@@ -35,7 +35,7 @@ func main() {
 		log.Printf("Error while importing: %s\n", err.Error())
 	}
 
-	n := store.M.CleanUp()
+	n := store.M.CleanUp(cfg)
 	if n == 0 {
 		log.Println("[Cleanup] No cleanup necessary")
 	} else {

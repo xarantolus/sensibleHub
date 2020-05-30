@@ -6,16 +6,18 @@ import (
 )
 
 type Config struct {
-	Port int
+	Port int `json:"port"`
 
 	FTP struct {
-		Port int
+		Port int `json:"port"`
 
 		Users []struct {
-			Name   string
-			Passwd string
-		}
-	}
+			Name   string `json:"name"`
+			Passwd string `json:"passwd"`
+		} `json:"users"`
+	} `json:"ftp"`
+
+	KeepGeneratedDays int `json:"keep_generated_days"`
 }
 
 const (

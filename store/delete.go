@@ -19,9 +19,11 @@ func (m *Manager) DeleteEntry(id string) (err error) {
 
 	delete(m.Songs, id)
 
-	err = os.RemoveAll(entry.DirPath())
-	if err != nil && !os.IsNotExist(err) {
-		return
+	if entry.ID != "" {
+		err = os.RemoveAll(entry.DirPath())
+		if err != nil && !os.IsNotExist(err) {
+			return
+		}
 	}
 
 	err = m.Save(false)

@@ -12,5 +12,6 @@
                 "passwd": "user2pw"
             }
         ]
-    }
+    },
+    "keep_generated_days": 3
 }

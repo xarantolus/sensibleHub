@@ -101,7 +101,14 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
                 "passwd": "user2-password"
             }
         ]
-    }
+    },
+
+    // How long generated files are kept, in days.
+    // A small number means that less storage is used in general, but files will be generated with every sync/download (if there are changes).
+    // If negative, they will be kept forever, if zero they will not be kept.
+    // Files are checked every day at 0:00.
+    // If you use multiple devices that sync at different intervals, it is recommended to keep files for a few days.
+    "keep_generated_days": 3
 }
 ```
 
