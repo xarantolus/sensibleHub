@@ -36,9 +36,8 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 		}
 	}
 
-	m.SongsLock.RLock()
-	defer m.SongsLock.RUnlock()
-
+	// We don't lock here as it is only run during startup when no concurrent access happens
+	// Also, we would have a deadlock on m.DeleteEntry
 	for _, e := range m.Songs {
 		if existingSongs[e.ID] {
 			continue

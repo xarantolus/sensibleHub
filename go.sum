@@ -9,6 +9,7 @@ github.com/disintegration/imaging v1.6.2/go.mod h1:44/5580QXChDfwIclfc/PCwrr44am
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23 h1:cHT1oZQVzPQzq3Iz3CCISUA4X94kHdoOFJ/xcbwEtqs=
 github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23/go.mod h1:KoE3Ti1qbQXCb3s/XGj0yApHnbnNnn1bXTtB5Auq/Vc=
+github.com/egonelbre/diffimg-go v0.0.0-20190702084741-b1a0269d6a8d h1:I4TGzzkSfVTAj1eXye0rl9I0zqpoO7C/Dq7SWVSchTU=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
@@ -50,6 +51,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1 h1:nOGnQDM7FYENwehXlg/kFVnos3rEvtKTjRvOWSzb6H4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
+github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9 h1:NySpg7JfGIQ7LbOWt6zLzAQc3I+U7Ud/HVXMrSlVYdA=
+github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9/go.mod h1:61807nZw5eGjT5Y8Ts/bsIrTsRPT7LaR0FAHGaxzhNI=
 goftp.io/server v0.3.4 h1:Sq0leWKoZFRWtbxNrHRqKpBygVg2kcRPqgbXnLIFRVU=
 goftp.io/server v0.3.4/go.mod h1:hFZeR656ErRt3ojMKt7H10vQ5nuWV1e0YeUTeorlR6k=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

@@ -138,11 +138,9 @@ func (m *Manager) download(url string) (err error) {
 		// Continue without data
 	}
 
-	m.SongsLock.Lock()
-	defer m.SongsLock.Unlock()
-
 	// For songs with multiple artists, there is a comma-separated list
 	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader)
+	album := cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle)
 
 	// Split artists so we only have *one* in the artist field
 	artists := strings.Split(artist, ", ")
@@ -157,6 +155,10 @@ func (m *Manager) download(url string) (err error) {
 	}
 
 	now := time.Now()
+
+	// Technically, we would need to lock `m.generateID`, but that doesn't play
+	// nicely with `m.betterCover` below. Not greate, but generating two
+	// IDs at the same time just doesn't happen as downloads are sequential
 	var e = &music.Entry{
 		ID:        m.generateID(),
 		SourceURL: minfo.Webpage(url),
@@ -182,12 +184,9 @@ func (m *Manager) download(url string) (err error) {
 		MusicData: music.MusicData{
 			Title:    title,
 			Artist:   artist,
-			Album:    cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle),
+			Album:    album,
 			Year:     minfo.Year(),
 			Duration: dur,
-		},
-		PictureData: music.PictureData{
-			Filename: "cover" + strings.ToLower(filepath.Ext(thumbPath)),
 		},
 	}
 
@@ -204,6 +203,25 @@ func (m *Manager) download(url string) (err error) {
 		}
 	}()
 
+	if thumbPath != "" {
+		e.PictureData.Filename = "cover" + strings.ToLower(filepath.Ext(thumbPath))
+
+		destPath := filepath.Join(songDir, e.PictureData.Filename)
+
+		err = cropMoveCover(thumbPath, destPath)
+		if err == nil {
+			// See if we already have a higher-quality version of this cover
+			better, err := m.betterCover(artist, album, destPath)
+			if err == nil {
+				// So, there is a better version.
+				// Just copy it, if it fails then we ignore it.
+				_ = copyOverwrite(better, destPath)
+			}
+		} else {
+			e.PictureData.Filename = ""
+		}
+	}
+
 	// Move all kinds of files - this may not work on all platforms as they aren't in the same directory
 	if jsonErr == nil {
 		err = os.Rename(jsonPath, filepath.Join(songDir, e.MetaFile.Filename))
@@ -214,20 +232,13 @@ func (m *Manager) download(url string) (err error) {
 		e.MetaFile.Filename = ""
 	}
 
-	if thumbPath != "" {
-		err = cropMoveCover(thumbPath, filepath.Join(songDir, e.PictureData.Filename))
-		if err != nil {
-			// reset image info
-			e.PictureData.Filename = ""
-		}
-	} else {
-		e.PictureData.Filename = ""
-	}
-
 	err = os.Rename(audioPath, filepath.Join(songDir, e.FileData.Filename))
 	if err != nil {
 		return
 	}
+
+	m.SongsLock.Lock()
+	defer m.SongsLock.Unlock()
 
 	err = m.Add(e)
 	if err != nil {

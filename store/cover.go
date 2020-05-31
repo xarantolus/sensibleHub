@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/edwvee/exiffix"
+	"github.com/vitali-fedulov/images"
 )
 
 // cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
@@ -127,4 +128,53 @@ noNeedToCrop:
 	}
 
 	return os.Rename(file.Name(), destination)
+}
+
+// BetterCover searches a better cover for a song that has artist and album information.
+// If no error is returned, it can be found at `path`. From there, it must be copied, not moved!
+func (m *Manager) betterCover(artist, album, currentPath string) (path string, err error) {
+	if artist == "" || album == "" {
+		return
+	}
+
+	coverCandidates, ok := m.GetAlbum(artist, album)
+	if !ok {
+		err = fmt.Errorf("This album doesn't exist yet")
+		return
+	}
+
+	orig, err := images.Open(currentPath)
+	if err != nil {
+		return
+	}
+
+	origHash, origSize := images.Hash(orig)
+
+	// Try every song in that album
+	for _, song := range coverCandidates.Songs {
+		// No cover, no luck
+		if song.PictureData.Filename == "" {
+			continue
+		}
+
+		// Open & hash the image we already have
+		curr, err := images.Open(song.CoverPath())
+		if err != nil {
+			return "", err
+		}
+
+		currHash, currSize := images.Hash(curr)
+
+		// if the current image is smaller than the one that should be replaced, we skip it
+		if origSize.X > currSize.X {
+			continue
+		}
+
+		if images.Similar(origHash, currHash, origSize, currSize) {
+			return song.CoverPath(), nil
+		}
+	}
+
+	err = fmt.Errorf("cannot find any matching images in albums that already exist")
+	return
 }

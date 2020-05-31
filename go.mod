@@ -13,6 +13,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9
 	goftp.io/server v0.3.4
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a

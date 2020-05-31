@@ -24,6 +24,8 @@ github.com/nfnt/resize
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
+# github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9
+github.com/vitali-fedulov/images
 # goftp.io/server v0.3.4
 goftp.io/server
 # golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
