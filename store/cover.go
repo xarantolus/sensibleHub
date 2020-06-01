@@ -115,6 +115,10 @@ noNeedToCrop:
 	case "PNG":
 		err = png.Encode(file, croppedImg)
 	default:
+		// Reject the image.
+		// Technically, we could work with the image (as it was decoded successfully), but for it to have
+		// the correct filename extension we would need to return the correct destination path,
+		// Otherwise other parts of the software would become confused.
 		err = fmt.Errorf("invalid/unsupported image file extension '%s': use jpg/jpeg or png", ext)
 	}
 	if err != nil {
