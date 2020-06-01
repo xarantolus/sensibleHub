@@ -50,17 +50,27 @@ type ArtistInfo struct {
 	YearEnd   int
 
 	Albums []Album
+
+	Featured []music.Entry
 }
 
 // Artist returns the albums for the specified artist
 func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	var res []Album
-	artist = CleanName(artist)
+
+	var cleanedArtist = CleanName(artist)
+
+	artist = strings.ToUpper(artist)
 
 	var am = make(map[string]Album)
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
-		if !strings.EqualFold(CleanName(e.Artist()), artist) {
+		if !strings.EqualFold(CleanName(e.Artist()), cleanedArtist) {
+			if !strings.Contains(strings.ToUpper(e.MusicData.Title), artist) {
+				continue
+			}
+
+			ai.Featured = append(ai.Featured, e)
 			continue
 		}
 
@@ -102,6 +112,10 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 	sort.Slice(res, func(i, j int) bool {
 		return strings.ToUpper(res[i].Title) < strings.ToUpper(res[j].Title)
+	})
+
+	sort.Slice(ai.Featured, func(i, j int) bool {
+		return strings.ToUpper(ai.Featured[i].MusicData.Title) < strings.ToUpper(ai.Featured[j].MusicData.Title)
 	})
 
 	ai.Name = ai.Albums[0].Artist

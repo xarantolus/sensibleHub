@@ -16,5 +16,13 @@
 {{template "album-item.html" . }}
 {{end}}
 
+{{with .Featured}}
+<div class="listing similar">
+    <h4 class="title is-4">Featured in</h4>
+    {{range .}}
+        {{ template "song-item.html" . }}
+    {{end}}
+</div>{{end}}
+
 {{end}}
 {{ template "foot.html" . }}
