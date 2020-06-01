@@ -35,6 +35,8 @@ func (e *Entry) MP3Path() (p string, err error) {
 	}
 
 	_, err, _ = mp3Group.Do(e.ID, func() (res interface{}, err error) {
+		defer mp3Group.Forget(e.ID)
+
 		td, err := ioutil.TempDir("", "sh-mp3")
 		if err != nil {
 			return
@@ -150,8 +152,6 @@ func (e *Entry) MP3Path() (p string, err error) {
 		if err != nil {
 			return
 		}
-
-		mp3Group.Forget(e.ID)
 
 		return outName, nil
 	})

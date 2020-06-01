@@ -37,6 +37,9 @@ func ErrWrap(f func(http.ResponseWriter, *http.Request) error) http.HandlerFunc 
 		log.Printf("[Web] %s %s: %s\n", r.Method, r.URL.Path, err.Error())
 
 		// some other error
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
+		// there is the possibility that we leak internal details here, but it doesn't really matter in this case
+		// as no http requests (with secret tokens etc.) are performed on the back-end
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 	}
 }
