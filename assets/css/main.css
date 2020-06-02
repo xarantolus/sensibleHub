@@ -24,6 +24,12 @@
     margin-top: 3%;
 }
 
+.cover-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .listing, .abort-form {
     width: 70%;
     margin: 0 auto;
@@ -64,7 +70,7 @@
     margin-bottom: 3em !important;
 }
 
-.album-songs > a.song-link.box {
+.album-songs>a.song-link.box {
     margin-bottom: 2em !important;
 }
 
