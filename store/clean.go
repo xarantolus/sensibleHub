@@ -53,6 +53,8 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 
 	m.DeleteGeneratedFiles(cfg.KeepGeneratedDays)
 
+	go m.runCleanJob(cfg.KeepGeneratedDays)
+
 	return
 }
 
