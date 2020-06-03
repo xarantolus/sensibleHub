@@ -21,16 +21,23 @@ and syncing using external programs.
 The page used for adding new songs. When a download is already running, new urls will be put in a queue. A progress bar will appear on all pages to indicate if a download is running.
   
 ##### Album page
-  ![Album page](.github/screenshots/shub-album.png?raw=true)
+  ![Album page](.github/screenshots/shub-album.jpg?raw=true)
 Show all songs that are in an album. On this page, you can also set an album image for *all* songs in it so you don't have to set it manually for every song.
   
 ##### Song page
   ![Song page](.github/screenshots/shub-song.png?raw=true)
-This page lets you see and edit metadata (including the cover image) that will be included in the MP3 files.
+This page lets you see and edit metadata (including the cover image) that will be included in the MP3 files. 
 
 ##### Song listing
   ![Listing page](.github/screenshots/shub-listing.png?raw=true)
 Listings show songs sorted by some criteria, e.g. by title, artist, year or search score. 
+
+##### Additional listings
+In the "More" menu at the upper right side, you can find other listings that can be useful for metadata editing.
+
+<p align="center">
+<img src=".github/screenshots/shub-additional-listings.png?raw=true" width="50%">
+</p>
 
 ### Installation
 
@@ -203,7 +210,11 @@ Everything also works *without JavaScript*, but the experience is *much better* 
 
 Mobile support also works great, menus are collapsed at the top right.
 
-  ![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true)
+Song listing             |  Song listing with opened menu
+:-------------------------:|:-------------------------:
+![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true) | ![Mobile Menu](.github/screenshots/shub-mobile-menu.png?raw=true)
+
+  
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:
