@@ -183,6 +183,8 @@ The `--ignore-size` flag is very important as the server doesn't always know the
 
 If you want to, you can set this up as a cron job or use windows task scheduler to run the command automatically.
 
+My recommended music player for Windows is [Dopamine](https://github.com/digimezzo/dopamine-windows), it can automatically index the music directory. You can [download it here](https://www.digimezzo.com/content/software/dopamine/).
+
 ##### Android
 On Android, you can use any FTP app that doesn't look at the file size or lets you disable that. One of them is [FolderSync](https://play.google.com/store/apps/details?id=dk.tacit.android.foldersync.lite).
 
@@ -195,6 +197,8 @@ Now you can create a new *Folder pair* with these settings:
  * **Local Folder**: Your music folder, might be `/storage/emulated/0/Music`
  * **Scheduling**: Here you can set *when* it should sync your files
  * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. Disable *Only resync source files if modified (ignore target deletion)*. Set *Overwrite old files* to *Always* and set *If conflicting modifications* to *Use remote file*. Now the most important part, **you must enable _Disable file-size check_** or it will not work. You can also enable *Rescan media library* to make sure new files are recognized.
+
+For Android, any music player will probably work. I recommend [Music](https://f-droid.org/packages/com.maxfour.music/), it is quite customizable and colorful.
 
 ### Resources
 This program tries not to need *too much* memory or processing power, but some things are necessary. The biggest memory hog is an in-memory cache of 60x60 preview cover images.
