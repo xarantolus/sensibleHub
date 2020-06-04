@@ -12,6 +12,7 @@
     color: inherit !important;
     /* Make it easier to click */
     padding: 10px 10px 10px 0;
+    position: relative;
 }
 
 .welcome, .notfound-box {
@@ -25,7 +26,7 @@
 }
 
 .song-title-link {
-    color: initial;
+    color: #222;
 }
 
 .song-title-link::after{
