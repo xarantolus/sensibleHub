@@ -24,6 +24,19 @@
     margin-top: 3%;
 }
 
+.song-title-link {
+    color: initial;
+}
+
+.song-title-link::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
 .cover-center {
     display: flex;
     justify-content: center;
@@ -68,6 +81,7 @@
 
 .song-link.box {
     margin-bottom: 3em !important;
+    position: relative;
 }
 
 .album-songs>a.song-link.box {
