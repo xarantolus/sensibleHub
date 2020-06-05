@@ -78,7 +78,7 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 		var combined = strings.ToUpper(aname)
 
-		album, _ := am[combined]
+		album := am[combined]
 
 		// Album might be zero value, but that doesn't matter
 		album.Songs = append(album.Songs, e)

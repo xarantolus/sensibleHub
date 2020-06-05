@@ -28,7 +28,6 @@ type Album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
 	log.Println("[FTP] Connected client from", c.PublicIP())
-	return
 }
 
 func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
@@ -182,7 +181,6 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 				}
 			}
 		}
-		break
 	case 2:
 		// List all albums in artist directory
 		for _, song := range m.Artists[split[0]][split[1]] {
@@ -206,7 +204,8 @@ func splitPath(p string) []string {
 func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, err error) {
 	dest := filepath.Join("import", store.CleanName(path.Base(strings.ReplaceAll(p, "\\", "/"))))
 
-	os.MkdirAll(filepath.Dir(dest), os.ModePerm)
+	// Try to create the import directory, but ignore if it doesn't work.
+	_ = os.MkdirAll(filepath.Dir(dest), os.ModePerm)
 
 	d, err := os.Create(dest)
 	if err != nil {

@@ -8,10 +8,6 @@ import (
 )
 
 func TestManager_hasLink(t *testing.T) {
-	type args struct {
-		u *url.URL
-	}
-
 	var m = Manager{
 		SongsLock:    new(sync.RWMutex),
 		enqueuedURLs: make(chan string, 25),

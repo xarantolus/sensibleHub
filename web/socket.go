@@ -19,6 +19,7 @@ var (
 )
 
 // AllSockets runs `f` on all connected websockets, disconnecting any websockets for which `f` returns an non-nil error
+// It is used as the Manager's `evtFunc`
 func AllSockets(f func(c *websocket.Conn) error) {
 	csl.Lock()
 	defer csl.Unlock()
@@ -26,6 +27,7 @@ func AllSockets(f func(c *websocket.Conn) error) {
 	for c, cc := range connectedSockets {
 		err := f(c)
 		if err != nil {
+			// If we cannot write to a socket, we disconnect it (the connection was broken anyways)
 			c.Close()
 			close(cc)
 			delete(connectedSockets, c)
@@ -43,9 +45,12 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 	closeChan := make(chan struct{})
 
 	if store.M.IsWorking() {
-		conn.WriteJSON(map[string]interface{}{
+		err = conn.WriteJSON(map[string]interface{}{
 			"type": "progress-start",
 		})
+		if err != nil {
+			return conn.Close()
+		}
 	}
 
 	csl.Lock()

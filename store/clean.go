@@ -76,7 +76,7 @@ func (m *Manager) runCleanJob(maxAgeDays int) {
 
 		deleted := m.DeleteGeneratedFiles(maxAgeDays)
 		if deleted > 0 {
-			log.Printf("[Cleanup]: Removed %d unused generated files in\n", deleted)
+			log.Printf("[Cleanup]: Removed %d unused generated files\n", deleted)
 		}
 	}
 }

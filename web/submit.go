@@ -28,7 +28,7 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 		err = store.M.Enqueue(acc.SearchTerm)
 		if err == nil {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{}`))
+			_, err = w.Write([]byte(`{}`))
 		} else {
 			w.WriteHeader(http.StatusPreconditionFailed)
 			err = json.NewEncoder(w).Encode(map[string]string{
@@ -58,11 +58,10 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
 	// For AJAX requests
 	if strings.ToUpper(r.URL.Query().Get("format")) == "JSON" {
-
 		err = store.M.AbortDownload()
 		if err == nil {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{}`))
+			_, err = w.Write([]byte(`{}`))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			err = json.NewEncoder(w).Encode(map[string]string{
