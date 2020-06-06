@@ -21,7 +21,7 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 
 	var uniquePaths = make(map[string]bool)
 
-	// Create the virutal file system
+	// Create the virtual file system
 	var normalizedArtists = make(map[string]string)
 	var normalizedAlbums = make(map[string]string)
 

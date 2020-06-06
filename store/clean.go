@@ -18,6 +18,7 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 	}
 
 	var existingSongs = make(map[string]bool)
+
 	for _, song := range songsList {
 		if !song.IsDir() {
 			log.Printf("File %s is out of place, but we're not doing anything with it\n", song.Name())

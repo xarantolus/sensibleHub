@@ -57,7 +57,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	songID := v["songID"]
 
-	err = r.ParseMultipartForm(10 << 20) // Limit: 10MB
+	err = r.ParseMultipartForm(25 << 20) // Limit: 25MB
 	if err != nil {
 		return
 	}
@@ -95,6 +95,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		// Any other error
 		return
 	}
+
 	var coverName string
 	if coverFile != nil {
 		coverName = fh.Filename

@@ -23,7 +23,7 @@ type musicDriver struct {
 	Artists map[string]Album
 }
 
-// Album is part of the virutal file system
+// Album is part of the virtual file system
 type Album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
@@ -152,6 +152,7 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 			for k := range m.Artists {
 				keys = append(keys, k)
 			}
+
 			sort.Strings(keys)
 
 			// List all artists in root directory

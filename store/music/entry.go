@@ -63,10 +63,11 @@ func (e *Entry) SongName() (out string) {
 		out = e.MusicData.Artist + " - "
 	}
 
-	out = out + e.MusicData.Title
+	out += e.MusicData.Title
 	if out == "" {
 		return "Unknown"
 	}
+
 	return out
 }
 
@@ -74,6 +75,7 @@ func (e *Entry) AlbumName() string {
 	if e.MusicData.Album == "" {
 		return "Unknown"
 	}
+
 	return e.MusicData.Album
 }
 
@@ -97,6 +99,7 @@ func (e *Entry) Artist() string {
 	if e.MusicData.Artist != "" {
 		return e.MusicData.Artist
 	}
+
 	return "Unknown"
 }
 

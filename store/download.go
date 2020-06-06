@@ -22,6 +22,7 @@ const (
 // Download downloads the song from the given URL using youtube-dl and saves it to the appropriate directory
 func (m *Manager) download(url string) (err error) {
 	log.Println("[Download] Start downloading", url)
+
 	defer func() {
 		if err != nil {
 			log.Printf("[Download] Error while downloading %s: %s\n", url, err.Error())
@@ -32,6 +33,7 @@ func (m *Manager) download(url string) (err error) {
 	if err != nil {
 		return
 	}
+
 	// Delete temporary directory after downloading
 	defer func() {
 		derr := os.RemoveAll(tmpDir)
@@ -276,19 +278,19 @@ func (m *Manager) IsDownloading() (string, bool) {
 // If some fields duplicate information, only one of them will be used;
 // however, there are clear preferences on which fields should be used
 type info struct {
-	Track    string `json:"track"`     // Prefered
+	Track    string `json:"track"`     // Preferred
 	Title    string `json:"title"`     // Fallback
 	Filename string `json:"_filename"` // Fallback
 
-	Artist   string `json:"artist"`   // Prefered
+	Artist   string `json:"artist"`   // Preferred
 	Creator  string `json:"creator"`  // Maybe
 	Uploader string `json:"uploader"` // If nothing else has info
 
-	Album         string `json:"album"`          // Prefered
+	Album         string `json:"album"`          // Preferred
 	Playlist      string `json:"playlist"`       // Might be an album playlist
 	PlaylistTitle string `json:"playlist_title"` // Same here
 
-	ReleaseYear int    `json:"release_year"` // Prefered
+	ReleaseYear int    `json:"release_year"` // Preferred
 	UploadDate  string `json:"upload_date"`  // Take year from here...
 	ReleaseDate string `json:"release_date"` // ...or from here
 

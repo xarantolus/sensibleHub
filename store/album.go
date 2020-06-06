@@ -63,6 +63,7 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	artist = strings.ToUpper(artist)
 
 	var am = make(map[string]Album)
+
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
 		if !strings.EqualFold(CleanName(e.Artist()), cleanedArtist) {

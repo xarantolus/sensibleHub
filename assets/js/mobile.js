@@ -4,7 +4,7 @@ var lastClick = 0;
 function openCloseMenu() {
     // since this event might be called twice (once because of click, once because touchstart),
     // we need to make sure it only fires once, else the menu would not be visible at all 
-    if (new Date() - lastClick < 2000) {
+    if (new Date() - lastClick < 750) {
         return;
     }
     lastClick = new Date();

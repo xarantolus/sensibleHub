@@ -41,8 +41,6 @@ type Manager struct {
 	currentDownload     string
 	downloadContext     context.Context
 	downloadCancelFunc  context.CancelFunc
-
-	OnEvent func(ManagerEvent) `json:"-"`
 }
 
 // M is the global Manager instance
@@ -54,7 +52,7 @@ func InitializeManager() (err error) {
 	M = &Manager{
 		Songs:        make(map[string]music.Entry),
 		SongsLock:    new(sync.RWMutex),
-		enqueuedURLs: make(chan string, 25),
+		enqueuedURLs: make(chan string, 25), // Allow up to 25 items to be queued
 	}
 
 	go M.serve()
@@ -217,7 +215,7 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 }
 
 // generateID generates a new, unique ID.
-// It assumes that m.SongsLock is already locked
+// It assumes that m.SongsLock is already locked for reading
 func (m *Manager) generateID() (id string) {
 	var counter int
 
@@ -240,6 +238,7 @@ var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
+
 func randSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {

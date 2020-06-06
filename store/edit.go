@@ -45,7 +45,6 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 
 	entry, ok := m.Songs[id]
 	if !ok {
-
 		return fmt.Errorf("Cannot edit entry with id %s as it doesn't exist", id)
 	}
 

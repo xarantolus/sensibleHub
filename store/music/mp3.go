@@ -21,7 +21,6 @@ var (
 
 // MP3Path returns the path for an mp3 file for this song. This might take some time
 func (e *Entry) MP3Path() (p string, err error) {
-
 	var outName = filepath.Join("data", "songs", e.ID, "latest.mp3")
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details

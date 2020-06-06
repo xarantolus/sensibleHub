@@ -12,7 +12,7 @@ import (
 // AllEntries returns an alphabetically sorted list of entries.
 // Special characters and numbers will be at the beginning
 func (m *Manager) AllEntries() (list []music.Entry) {
-	// This is usally the second lock for one operation, but I don't care
+	// This is usually the second lock for one operation, but I don't care
 	m.SongsLock.RLock()
 	defer m.SongsLock.RUnlock()
 

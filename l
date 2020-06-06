@@ -1,0 +1,1 @@
+golangci-lint run --enable-all --disable gomnd,stylecheck,goimports,gochecknoglobals,unparam,lll,nakedret,goconst,golint,wsl,gochecknoinits,scopelint,funlen,prealloc,gocognit,ineffassign,gocyclo

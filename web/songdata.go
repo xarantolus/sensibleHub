@@ -50,6 +50,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	var isMissing bool
+
 	cp := e.CoverPath()
 	if cp == "" {
 		cp = "assets/image-missing.svg"
@@ -75,7 +76,6 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		// This is because ServeFile overwrites the last-modified header to the last time the file has been edited and sends 304 Not modified
 		// The browser will continue to use an old/cached and already deleted image if we use ServeFile, at least until
 		// the website has been reloaded. Since that isn't good, we need to do it manually and correctly
-
 		coF, err := os.Open(cp)
 		if err != nil {
 			return err
