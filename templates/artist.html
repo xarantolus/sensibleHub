@@ -5,7 +5,7 @@
         <h1 class="title">
             {{.Name}}
         </h1>
-        {{if haveI .YearStart .YearEnd }}
+        {{if and (haveI .YearStart .YearEnd) (not (eq .YearStart .YearEnd))}}
         <h2 class="subtitle">
             {{.YearStart}}-{{.YearEnd}}
         </h2>{{end}}

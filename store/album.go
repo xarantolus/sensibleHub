@@ -93,7 +93,8 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 			if y < ai.YearStart || ai.YearStart == 0 {
 				ai.YearStart = y
-			} else if y > ai.YearEnd || ai.YearEnd == 0 {
+			}
+			if y > ai.YearEnd || ai.YearEnd == 0 {
 				ai.YearEnd = y
 			}
 		}
