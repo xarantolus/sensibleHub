@@ -141,7 +141,7 @@ func (m *Manager) download(url string) (err error) {
 	}
 
 	// For songs with multiple artists, there is a comma-separated list
-	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, minfo.Uploader)
+	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, strings.TrimSuffix(minfo.Uploader, " - Topic"))
 	album := cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle)
 
 	// Split artists so we only have *one* in the artist field
