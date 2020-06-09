@@ -108,7 +108,7 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 	var artMap = map[string][]music.Entry{}
 
 	for _, song := range m.AllEntries() {
-		artist := strings.ToUpper(song.MusicData.Artist)
+		artist := strings.ToUpper(CleanName(song.MusicData.Artist))
 		if strings.TrimSpace(artist) == "" {
 			artist = "???"
 		}

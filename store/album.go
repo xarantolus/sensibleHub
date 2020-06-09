@@ -17,6 +17,8 @@ type Album struct {
 // GetAlbum gets the specified album for the given artist.
 // Songs are sorted alphabetically as we don't store the title number
 func (m *Manager) GetAlbum(artist, albumName string) (a Album, ok bool) {
+	artist, albumName = CleanName(artist), CleanName(albumName)
+
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
 		if !strings.EqualFold(CleanName(e.Artist()), artist) {
