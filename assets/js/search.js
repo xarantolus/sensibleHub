@@ -13,10 +13,13 @@ InstantClick.on('change', function () {
         history.replaceState("", "", nextUrl)
         nextUrl = null;
     } else {
+        // Scroll to the top result
+        window.scrollY = 0;
+
         // only focus search bar if we have *not* been redirected
         if (isSearch) {
             focusSearch();
-        }    
+        }
     }
 })
 

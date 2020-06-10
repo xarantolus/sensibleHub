@@ -2,6 +2,7 @@
 sensibleHub is a self-hosted music management server. It allows managing your music collection from any device (that has a web browser) 
 and syncing using external programs.
 
+
 ### Features
  * Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
  * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
@@ -13,6 +14,7 @@ and syncing using external programs.
    - `esc` for going to the main page
  * [Import](#Importing) songs you already have
  * Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
+
 
 ### Screenshots
 
@@ -38,6 +40,7 @@ In the "More" menu at the upper right side, you can find other listings that can
 <p align="center">
 <img src=".github/screenshots/shub-additional-listings.png?raw=true" width="50%">
 </p>
+
 
 ### Installation
 
@@ -71,6 +74,7 @@ If you want to build for another operating system, it's quite easy. Search the c
 ```
 GOOS=linux GOARCH=arm GOARM=7 ./pack.sh
 ```
+
 
 #### Additional requirements
 This program relies on some other programs that need to be installed and be available in your $PATH:
@@ -138,6 +142,7 @@ Expected output:
 After that, you can visit the website at `http://yourserver:128/`.
 You can also connect via FTP at `ftp://yourserver:1280/` using one of the accounts set in the config file.
 
+
 ### Importing 
 This program can import songs that should be included in its library in a few different ways. 
 
@@ -156,8 +161,10 @@ Now any music file that is moved there will be imported. It seems like import er
 
 Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup. 
 
+
 ### Syncing
 Obviously one wants to have their music with them on all devices, even when they are offline. Here's a guide on how to achieve that.
+
 
 ##### Desktop
 On a PC or Laptop, you can create recurring sync jobs (on all platforms) that use [rclone](https://github.com/rclone/rclone) (which you need to install before continuing).
@@ -185,6 +192,7 @@ If you want to, you can set this up as a cron job or use windows task scheduler 
 
 My recommended music player for Windows is [Dopamine](https://github.com/digimezzo/dopamine-windows), it can automatically index the music directory. You can [download it here](https://www.digimezzo.com/content/software/dopamine/).
 
+
 ##### Android
 On Android, you can use any FTP app that doesn't look at the file size or lets you disable that. One of them is [FolderSync](https://play.google.com/store/apps/details?id=dk.tacit.android.foldersync.lite).
 
@@ -200,12 +208,22 @@ Now you can create a new *Folder pair* with these settings:
 
 For Android, any music player will probably work. I recommend [Music](https://f-droid.org/packages/com.maxfour.music/), it is quite customizable and colorful.
 
+
 ### Resources
 This program tries not to need *too much* memory or processing power, but some things are necessary. The biggest memory hog is an in-memory cache of 60x60 preview cover images.
 
 With a library of about 750 songs and a populated cache it needs about 250Mb RAM.
 
 I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster.
+
+
+### Assumptions
+There are several assumptions made so the program will work as expected in most cases.
+
+- Two songs have the same artist if the artist attribute is not empty and equal (case insensitive) after being put through the `CleanName` function in [`store/album.go`](store/album.go).
+- Two songs are in the same album if that attribute is not empty, the above applies for the artist and the same applies for the album name.
+- A song should have *one* artist, every other performer is mentioned in brackets in the song title, e.g. like `Title (feat. Artist2 & Artist3)`. If this is not done, the "Featured in" listing of the artists' page might not display all relevant songs.
+
 
 ### Browser support
 The website should work in most modern browsers. It uses [native image lazy loading](https://caniuse.com/#feat=loading-lazy-attr) which is not yet supported by all browsers, but images will load without it regardless. If you use a recent browser version, it will be just a bit snappier. 

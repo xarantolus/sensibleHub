@@ -69,11 +69,22 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
 		if !strings.EqualFold(CleanName(e.Artist()), cleanedArtist) {
-			if !strings.Contains(strings.ToUpper(e.MusicData.Title), artist) {
+			ti := strings.ToUpper(e.MusicData.Title)
+
+			// We assume that the song title is something like
+			//  Title (feat. FirstArtist & SecondArtist)
+			firstBracket, lastBracket := strings.IndexByte(ti, '('), strings.LastIndexByte(ti, ')')
+
+			// cannot find the "feat." part in brackets:
+			if firstBracket == -1 || lastBracket == -1 {
 				continue
 			}
 
-			ai.Featured = append(ai.Featured, e)
+			// Both are uppercase, check if we can find the artist in there
+			if strings.Contains(ti[firstBracket:lastBracket], artist) {
+				ai.Featured = append(ai.Featured, e)
+			}
+
 			continue
 		}
 
