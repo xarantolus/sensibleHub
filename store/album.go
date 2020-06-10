@@ -14,6 +14,51 @@ type Album struct {
 	Songs []music.Entry
 }
 
+// moveFirst moves the song with the same title as the album name to the first place
+func (a *Album) moveFirst() (ret *Album) {
+	if len(a.Songs) < 2 {
+		return a
+	}
+
+	var firstSong int = -1
+
+	if a.Title == "" {
+		a.Title = a.Songs[0].MusicData.Album
+	}
+
+	for i, s := range a.Songs {
+		title := s.MusicData.Title
+		// Title (feat. something)
+		if bi := strings.IndexRune(title, '('); bi != -1 {
+			title = strings.TrimSpace(title[:bi])
+		}
+
+		// If song title without feature artist == album title
+		if strings.EqualFold(CleanName(title), CleanName(a.Title)) {
+			firstSong = i
+			break
+		}
+	}
+
+	if firstSong == -1 || firstSong == 0 {
+		return a
+	}
+
+	newSongs := make([]music.Entry, len(a.Songs))
+	newSongs[0] = a.Songs[firstSong]
+
+	// Copy before first song
+	n := copy(newSongs[1:], a.Songs[:firstSong])
+
+	copy(newSongs[n+1:], a.Songs[firstSong+1:])
+
+	return &Album{
+		a.Songs[0].MusicData.Album,
+		a.Songs[0].MusicData.Artist,
+		newSongs,
+	}
+}
+
 // GetAlbum gets the specified album for the given artist.
 // Songs are sorted alphabetically as we don't store the title number
 func (m *Manager) GetAlbum(artist, albumName string) (a Album, ok bool) {
@@ -39,6 +84,8 @@ func (m *Manager) GetAlbum(artist, albumName string) (a Album, ok bool) {
 
 	a.Title = a.Songs[0].AlbumName()
 	a.Artist = a.Songs[0].Artist()
+
+	a = *a.moveFirst()
 
 	return a, true
 }
@@ -118,6 +165,7 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	}
 
 	for _, a := range am {
+		a = *a.moveFirst()
 		a.Title = a.Songs[0].AlbumName()
 		a.Artist = a.Songs[0].Artist()
 		res = append(res, a)
@@ -172,6 +220,7 @@ func (m *Manager) GroupByAlbum() (res []Album) {
 	}
 
 	for _, a := range am {
+		a = *a.moveFirst()
 		res = append(res, a)
 	}
 
