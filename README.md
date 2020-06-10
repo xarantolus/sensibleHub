@@ -43,6 +43,13 @@ In the "More" menu at the upper right side, you can find other listings that can
 
 
 ### Installation
+You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
+
+Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](additional-requirements).
+
+If no recent build is available, you can also build for yourself.
+
+### Build for yourself
 
 As a first step, you clone this repository (or download a zip file), then you open a terminal/command promt in the root directory of the repository:
 
