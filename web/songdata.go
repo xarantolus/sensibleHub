@@ -89,7 +89,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 		w.Header().Set("Last-Modified", le)
 
-		fn := e.SongName() + filepath.Ext(cp)
+		fn := store.CleanName(e.Filename(filepath.Ext(cp)))
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", fn))
 
 		http.ServeContent(w, r, fn, e.LastEdit, coF)
@@ -118,7 +118,7 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 	cp := e.AudioPath()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", e.SongName()+filepath.Ext(e.FileData.Filename)))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename(filepath.Ext(e.FileData.Filename)))))
 
 	http.ServeFile(w, r, cp)
 
@@ -150,7 +150,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	w.Header().Set("Content-Type", "audio/mpeg")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", e.SongName()+".mp3"))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename("mp3"))))
 
 	http.ServeFile(w, r, outName)
 

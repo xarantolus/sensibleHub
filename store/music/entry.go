@@ -3,6 +3,7 @@ package music
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -56,6 +57,10 @@ func (e *Entry) AudioPath() string {
 
 func (e *Entry) DirPath() string {
 	return filepath.Join("data", "songs", e.ID)
+}
+
+func (e *Entry) Filename(extension string) string {
+	return strings.TrimSuffix(e.SongName(), ".") + "." + strings.TrimPrefix(extension, ".")
 }
 
 func (e *Entry) SongName() (out string) {
