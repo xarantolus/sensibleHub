@@ -249,8 +249,8 @@ Song listing             |  Song listing with opened menu
 Compared to other music servers this one is very basic. Here are some things you should be aware of:
 
 * It does **not** support the [SubSonic API](http://www.subsonic.org/pages/api.jsp). You can not use this software as a back-end for SubSonic-compatible music players.
-* **Metadata will be lost** when importing: everything except for the cover image, title, artist, album and year will be **discarded**. Keep a backup of the files you import before you imported them.
-* Does not support HTTPS. It's intended to be hosted inside a local network *only*.  
+* Some **metadata will be lost** when importing: everything except for the cover image, title, artist, album and year will be **discarded**. Keep a backup of your music before importing.
+* Does not support HTTPS. The software is intended to be hosted inside a local network *only*.  
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
 * The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
