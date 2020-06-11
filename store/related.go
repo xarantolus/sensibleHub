@@ -14,41 +14,71 @@ func (m *Manager) GetRelatedSongs(e music.Entry) (out []music.Entry) {
 		return
 	}
 
+	e.MusicData.Artist = strings.ToUpper(CleanName(e.MusicData.Artist))
+
 	m.SongsLock.RLock()
 	defer m.SongsLock.RUnlock()
 
-	var items = make(map[int]music.Entry)
+	type suggestion struct {
+		score int
+		s     music.Entry
+	}
+	var suggestions []suggestion
 
 	for _, s := range m.Songs {
-		if !strings.EqualFold(s.MusicData.Artist, e.MusicData.Artist) {
-			continue
-		}
 		if s.ID == e.ID {
 			continue
 		}
+		var sc, mult int = 0, 2
 
-		sc := score(strings.Fields(s.MusicData.Title), e.MusicData.Title, 3)
-		sc += score(strings.Fields(s.MusicData.Album), e.MusicData.Album, 1)
+		// Is there a song with the same title? definitely show it
+		if strings.EqualFold(CleanName(s.MusicData.Title), CleanName(e.MusicData.Title)) {
+			sc += 10000
+		}
 
-		items[sc] = s
+		if !strings.EqualFold(strings.ToUpper(CleanName(s.MusicData.Artist)), e.MusicData.Artist) {
+			ti := strings.ToUpper(CleanName(s.MusicData.Title))
+
+			firstBracket, lastBracket := strings.IndexByte(ti, '('), strings.LastIndexByte(ti, ')')
+
+			// find the "feat." part in brackets:
+			if firstBracket != -1 && lastBracket != -1 {
+				// Both are uppercase, check if we can find the artist in there
+				if strings.Contains(ti[firstBracket:lastBracket], e.MusicData.Artist) {
+					sc += 25
+					mult = 3
+				}
+			}
+		}
+
+		sc += score(strings.Fields(strings.ToUpper(s.MusicData.Title)), e.MusicData.Title, 2)
+		sc += score(strings.Fields(strings.ToUpper(s.MusicData.Album)), e.MusicData.Album, 1)
+		sc += score(strings.Fields(strings.ToUpper(s.MusicData.Artist)), e.MusicData.Artist, 2)
+
+		// If add songs with the same artist as songs with a score of 0. Artists not featured anywhere will also get some similar songs then
+		if sc > 0 {
+			suggestions = append(suggestions, suggestion{sc * mult, s})
+		}
+
 	}
 
-	var nums []int
-	for k := range items {
-		nums = append(nums, k)
-	}
-
-	sort.Ints(nums)
-
-	if len(nums) == 0 {
+	if len(suggestions) == 0 {
 		return
 	}
 
+	sort.Slice(suggestions, func(i, j int) bool {
+		return suggestions[i].score > suggestions[j].score
+	})
+
 	// Return one
-	if len(nums) < 2 {
-		return []music.Entry{items[nums[0]]}
+	if len(suggestions) < 2 {
+		return []music.Entry{suggestions[0].s}
+	}
+
+	if len(suggestions) < 3 {
+		return []music.Entry{suggestions[0].s, suggestions[1].s}
 	}
 
 	// Or two items
-	return []music.Entry{items[nums[0]], items[nums[1]]}
+	return []music.Entry{suggestions[0].s, suggestions[1].s, suggestions[2].s}
 }

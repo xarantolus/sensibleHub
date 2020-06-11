@@ -158,7 +158,6 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 			unknownAlbum = album
 		} else {
 			am[combined] = album
-
 		}
 
 		ai.PlayTime += e.MusicData.Duration
