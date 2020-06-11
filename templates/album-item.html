@@ -1,5 +1,5 @@
 <div class="album-container">
-    <h2 class="title is-2 has-text-centered">{{.Title}}</h2>
+    <h2 class="title is-2 has-text-centered">{{.AlbumTitle}}</h2>
     <div class="columns album-columns">
         {{$x := index .Songs 0 }}
         <input class="hidden" id="song-id" value="{{$x.ID}}">
@@ -16,6 +16,17 @@
         <!-- Right Side: Album Songs -->
         <div class="column album-songs-container">
             <div class="album-songs">
+                {{if eq (len .Songs) 1}}{{with index .Songs 0}}
+                <a class="song-link box" id="song-{{.ID}}" href="/song/{{.ID}}">
+                    <article class="media">
+                        <div class="media-content song-media">
+                            <div class="content">
+                                <strong>{{.MusicData.Title}}</strong>
+                            </div>
+                        </div>
+                    </article>
+                </a>{{end}}
+                {{else}}
                 {{range $n,$i := .Songs}}
                 <a class="song-link box" id="song-{{.ID}}" href="/song/{{.ID}}">
                     <article class="media">
@@ -26,7 +37,7 @@
                         </div>
                     </article>
                 </a>
-                {{end}}</div>
+                {{end}}{{end}}</div>
         </div>
     </div>
 </div>

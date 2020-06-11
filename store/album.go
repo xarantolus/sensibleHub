@@ -14,17 +14,23 @@ type Album struct {
 	Songs []music.Entry
 }
 
-// moveFirst moves the song with the same title as the album name to the first place
-func (a *Album) moveFirst() (ret *Album) {
-	if len(a.Songs) < 2 {
+func (a *Album) AlbumTitle() string {
+	if a.Title == "" {
+		return "Unknown"
+	}
+	return a.Title
+}
+
+// setupAlbum moves the song with the same title as the album name to the first place
+func (a *Album) setupAlbum() (ret *Album) {
+	a.Title = a.Songs[0].MusicData.Album
+	a.Artist = a.Songs[0].MusicData.Artist
+
+	if len(a.Songs) < 2 || a.Title == "" {
 		return a
 	}
 
 	var firstSong int = -1
-
-	if a.Title == "" {
-		a.Title = a.Songs[0].MusicData.Album
-	}
 
 	for i, s := range a.Songs {
 		title := s.MusicData.Title
@@ -40,7 +46,9 @@ func (a *Album) moveFirst() (ret *Album) {
 		}
 	}
 
-	if firstSong == -1 || firstSong == 0 {
+	// If it is -1, we couldn't find any song that should be at the front so we ignore it
+	// If it is 0, we already have the correct order
+	if firstSong < 1 {
 		return a
 	}
 
@@ -53,8 +61,8 @@ func (a *Album) moveFirst() (ret *Album) {
 	copy(newSongs[n+1:], a.Songs[firstSong+1:])
 
 	return &Album{
-		a.Songs[0].MusicData.Album,
-		a.Songs[0].MusicData.Artist,
+		newSongs[0].MusicData.Album,
+		newSongs[0].MusicData.Artist,
 		newSongs,
 	}
 }
@@ -82,12 +90,7 @@ func (m *Manager) GetAlbum(artist, albumName string) (a Album, ok bool) {
 		return a, false
 	}
 
-	a.Title = a.Songs[0].AlbumName()
-	a.Artist = a.Songs[0].Artist()
-
-	a = *a.moveFirst()
-
-	return a, true
+	return *a.setupAlbum(), true
 }
 
 // ArtistInfo contains a summary of an artist and all albums
@@ -113,6 +116,8 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 	var am = make(map[string]Album)
 
+	var unknownAlbum = Album{}
+
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
 		if !strings.EqualFold(CleanName(e.Artist()), cleanedArtist) {
@@ -135,16 +140,26 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 			continue
 		}
 
-		aname := CleanName(e.AlbumName())
+		aname := CleanName(e.MusicData.Album)
 
 		var combined = strings.ToUpper(aname)
 
-		album := am[combined]
+		var album Album
+		if aname == "" {
+			album = unknownAlbum
+		} else {
+			album = am[combined]
+		}
 
 		// Album might be zero value, but that doesn't matter
 		album.Songs = append(album.Songs, e)
 
-		am[combined] = album
+		if aname == "" {
+			unknownAlbum = album
+		} else {
+			am[combined] = album
+
+		}
 
 		ai.PlayTime += e.MusicData.Duration
 
@@ -160,14 +175,13 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 		}
 	}
 
-	if len(am) == 0 {
+	if len(am) == 0 && len(unknownAlbum.Songs) == 0 {
 		return ai, false
 	}
 
 	for _, a := range am {
-		a = *a.moveFirst()
-		a.Title = a.Songs[0].AlbumName()
-		a.Artist = a.Songs[0].Artist()
+		a = *a.setupAlbum()
+
 		res = append(res, a)
 	}
 
@@ -180,6 +194,13 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	sort.Slice(ai.Featured, func(i, j int) bool {
 		return strings.ToUpper(ai.Featured[i].MusicData.Title) < strings.ToUpper(ai.Featured[j].MusicData.Title)
 	})
+
+	// Unknown albums should always be the last album
+	if len(unknownAlbum.Songs) > 0 {
+		unknownAlbum.Artist = unknownAlbum.Songs[0].MusicData.Artist
+
+		ai.Albums = append(ai.Albums, unknownAlbum)
+	}
 
 	ai.Name = ai.Albums[0].Artist
 
@@ -220,7 +241,7 @@ func (m *Manager) GroupByAlbum() (res []Album) {
 	}
 
 	for _, a := range am {
-		a = *a.moveFirst()
+		a = *a.setupAlbum()
 		res = append(res, a)
 	}
 
