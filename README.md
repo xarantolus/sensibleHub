@@ -232,6 +232,7 @@ There are several assumptions made so the program will work as expected in most 
 - A song should have *one* artist, every other performer is mentioned in brackets in the song title, e.g. like `Title (feat. Artist2 & Artist3)`. If this is not done, the "Featured in" listing of the artists' page might not display all relevant songs.
 
 
+
 ### Browser support
 The website should work in most modern browsers. It uses [native image lazy loading](https://caniuse.com/#feat=loading-lazy-attr) which is not yet supported by all browsers, but images will load without it regardless. If you use a recent browser version, it will be just a bit snappier. 
 
@@ -243,7 +244,17 @@ Song listing             |  Song listing with opened menu
 :-------------------------:|:-------------------------:
 ![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true) | ![Mobile Menu](.github/screenshots/shub-mobile-menu.png?raw=true)
 
-  
+
+### Limitations
+Compared to other music servers this one is very basic. Here are some things you should be aware of:
+
+* It does **not** support the [SubSonic API](http://www.subsonic.org/pages/api.jsp). You can not use this software as a back-end for SubSonic-compatible music players.
+* **Metadata will be lost** when importing: everything except for the cover image, title, artist, album and year will be **discarded**. Keep a backup of the files you import before you imported them.
+* Does not support HTTPS. It's intended to be hosted inside a local network *only*.  
+* Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
+* The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
+* As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
+
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:
@@ -259,8 +270,10 @@ This program would not be possible without work done by many others. For that, I
 - [Bulma](https://bulma.io): CSS framework used for designing the website
 - [ReconnectingWebSocket](https://github.com/joewalnes/reconnecting-websocket): makes working with WebSockets easier
 
+
 ### Issues & Contributing
 If you have any ideas, a pull request or something just doesn't work please feel free to get in contact.
+
 
 ### [License](LICENSE)
 This is free as in freedom software. Do whatever you like with it.
