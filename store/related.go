@@ -49,6 +49,20 @@ func (m *Manager) GetRelatedSongs(e music.Entry) (out []music.Entry) {
 					mult = 3
 				}
 			}
+
+			cleanedET := CleanName(e.MusicData.Title)
+			if b := strings.IndexByte(cleanedET, '('); b != -1 {
+				cleanedET = strings.TrimSpace(cleanedET[:b])
+			}
+			cleanedST := CleanName(s.MusicData.Title)
+			if b := strings.IndexByte(cleanedST, '('); b != -1 {
+				cleanedST = strings.TrimSpace(cleanedST[:b])
+			}
+
+			// It's also the same title, but one of them has an (feat. abcd) somewhere in there
+			if strings.EqualFold(cleanedST, cleanedET) {
+				sc += 10000
+			}
 		}
 
 		sc += score(strings.Fields(strings.ToUpper(s.MusicData.Title)), e.MusicData.Title, 2)
@@ -59,7 +73,6 @@ func (m *Manager) GetRelatedSongs(e music.Entry) (out []music.Entry) {
 		if sc > 0 {
 			suggestions = append(suggestions, suggestion{sc * mult, s})
 		}
-
 	}
 
 	if len(suggestions) == 0 {
