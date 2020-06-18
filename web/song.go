@@ -69,6 +69,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 
 		if isAjax {
+			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"message": "Deleted"}`, http.StatusOK)
 		} else {
 			http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
@@ -83,6 +84,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 
 		if isAjax {
+			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"message": "Deleted"}`, http.StatusOK)
 		} else {
 			http.Redirect(w, r, "/songs", http.StatusFound)
@@ -128,6 +130,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	if isAjax {
+		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, `{"message": "Updated"}`, http.StatusOK)
 		return
 	}

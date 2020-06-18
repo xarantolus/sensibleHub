@@ -30,7 +30,7 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 		if _, ok := m.Songs[dir]; !ok && dir != "" {
 			err := os.RemoveAll(fmt.Sprintf(songDirTemplate, dir))
 			if err != nil {
-				log.Printf("[Cleanup]: Error while removing %s: %s\n", song.Name(), err.Error())
+				log.Printf("[Cleanup] Error while removing %s: %s\n", song.Name(), err.Error())
 				continue
 			}
 			n++
@@ -46,7 +46,7 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 
 		err := m.DeleteEntry(e.ID)
 		if err != nil {
-			log.Printf("[Cleanup]: Error while deleting %s (%s): %s\n", e.SongName(), e.ID, err.Error())
+			log.Printf("[Cleanup] Error while deleting %s (%s): %s\n", e.SongName(), e.ID, err.Error())
 			continue
 		}
 		n++
@@ -77,7 +77,7 @@ func (m *Manager) runCleanJob(maxAgeDays int) {
 
 		deleted := m.DeleteGeneratedFiles(maxAgeDays)
 		if deleted > 0 {
-			log.Printf("[Cleanup]: Removed %d unused generated files\n", deleted)
+			log.Printf("[Cleanup] Removed %d unused generated files\n", deleted)
 		}
 	}
 }

@@ -42,8 +42,6 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 		return nil // Upgrader has already responded to the request
 	}
 
-	closeChan := make(chan struct{})
-
 	if store.M.IsWorking() {
 		err = conn.WriteJSON(map[string]interface{}{
 			"type": "progress-start",
@@ -52,6 +50,8 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 			return conn.Close()
 		}
 	}
+
+	closeChan := make(chan struct{})
 
 	csl.Lock()
 	connectedSockets[conn] = closeChan

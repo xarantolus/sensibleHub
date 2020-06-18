@@ -115,12 +115,12 @@ func (m *Manager) download(url string) (err error) {
 		return nil
 	})
 	if err != nil {
-		return
+		return fmt.Errorf("%s\nyoutube-dl Output: %s", err.Error(), string(out))
 	}
 
 	if audioPath == "" {
 		// Well, what can we do?
-		return fmt.Errorf("invalid empty audio path, it seems like no audio was downloaded")
+		return fmt.Errorf("invalid empty audio path, it seems like no audio was downloaded\nyoutube-dl Output: %s", string(out))
 	}
 
 	// the bad part about this is that still images also have a duration of 0

@@ -28,19 +28,28 @@ type Manager struct {
 	Songs     map[string]music.Entry `json:"songs"`
 	SongsLock *sync.RWMutex          `json:"-"`
 
+	// enqueuedURLs is a queue where all urls that should be downloaded are put in.
+	// They will be processed sequentially
 	enqueuedURLs chan string
 
+	// evtFunc is called whenever a websocket event should be written to all sockets
+	// It should be set before using the manager / starting the server
 	evtFunc func(f func(c *websocket.Conn) error)
 
+	// isWorking indicates if the manager is currently downloading something.
+	// State changes are accompanied by the "progress-start" and "progress-end" websocket events
 	isWorking    bool
 	isWorkingMut sync.RWMutex
 
+	// lastErr is the last error encountered while running youtube-dl, might be nil
 	lastErr error
 
 	downloadContextLock sync.Mutex
-	currentDownload     string
-	downloadContext     context.Context
-	downloadCancelFunc  context.CancelFunc
+	// currentDownload contains the url that is currently processed by youtube-dl
+	currentDownload string
+	downloadContext context.Context
+	// downloadCancelFunc can be called to cancel the currently running download process
+	downloadCancelFunc context.CancelFunc
 }
 
 // M is the global Manager instance
@@ -255,7 +264,7 @@ func (m *Manager) serve() {
 		m.lastErr = err
 
 		if err != nil {
-			log.Printf("[Downloader]: %s\n", err.Error())
+			log.Printf("[Downloader] %s\n", err.Error())
 		}
 
 		m.setIsWorking(false)
