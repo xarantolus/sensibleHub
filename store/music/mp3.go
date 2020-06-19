@@ -49,10 +49,10 @@ func (e *Entry) MP3Path() (p string, err error) {
 		var cmd *exec.Cmd
 		if strings.ToUpper(filepath.Ext(ap)) == ".MP3" {
 			// remove existing metadata, keep mp3 stream
-			cmd = exec.Command("ffmpeg", "-i", ap, "-map_metadata", "-1", "-c:a", "copy", "-map", "a")
+			cmd = exec.Command("ffmpeg", "-y", "-i", ap, "-map_metadata", "-1", "-c:a", "copy", "-map", "a")
 		} else {
 			// Convert the given audio to mp3
-			cmd = exec.Command("ffmpeg", "-i", ap, "-map_metadata", "-1", "-f", "mp3")
+			cmd = exec.Command("ffmpeg", "-y", "-i", ap, "-map_metadata", "-1", "-f", "mp3")
 		}
 
 		// Audio settings: start and end
@@ -76,6 +76,7 @@ func (e *Entry) MP3Path() (p string, err error) {
 			tempAudio)
 		cmd.Stderr = &outbuf
 
+		// Generate / Convert audio file
 		err = cmd.Run()
 		if err != nil {
 			err = fmt.Errorf("%s\n\nStderr:%s", err.Error(), outbuf.String())
@@ -89,14 +90,12 @@ func (e *Entry) MP3Path() (p string, err error) {
 			return
 		}
 
-		// Now we edit its tags
+		// Now we set its tags if they exist
 
-		// Set artist
 		if have(&e.MusicData.Artist) {
 			tag.SetArtist(e.MusicData.Artist)
 		}
 
-		// Set title
 		if have(&e.MusicData.Title) {
 			tag.SetTitle(e.MusicData.Title)
 		}

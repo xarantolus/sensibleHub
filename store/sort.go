@@ -225,6 +225,7 @@ func (m *Manager) Newest() (list []music.Entry, today bool) {
 }
 
 // musicExtensions is a list of music extensions that *should not* be at the end of a song title, see https://en.wikipedia.org/wiki/Audio_file_format#List_of_formats
+// it also defines all audio formats that will be accepted after downloading
 var musicExtensions = map[string]bool{
 	"3gp":  true,
 	"aa":   true,

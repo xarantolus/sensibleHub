@@ -95,21 +95,29 @@ func (m *Manager) download(url string) (err error) {
 		switch ext {
 		case "JSON":
 			jsonPath = path
-		case "JPG", "JPEG":
+		case "JPG", "JPEG", "PNG":
 			thumbPath = path
-		case "PNG":
-			thumbPath = path
+		case "WEBP", "GIF", "TIFF", "RAW", "BMP":
+			// These image formats are not supported and must be converted
+			// The output format could be either PNG or JPG, but PNG is lossless
+			outpath := filepath.Join(tmpDir, "song.png")
+			err = exec.Command("ffmpeg", "-y", "-i", path, outpath).Run()
+			if err != nil {
+				return nil // Ignore error
+			}
+			thumbPath = outpath
 		case "TEMP", "TMP":
 			{
 				// Do nothing; however, it could the sign of an error.
 				// There is only a problem if audioPath == "", but that is handeled below
 			}
 		default:
-			// Assume this is the audio file.
-			// Having only a whitelist of audio file formats would not be great as there are quite many
-			// As long as it is supported by ffmpeg, we support it
-			audioPath = path
-			audioSize = info.Size()
+			// Assume this is the audio file. This is not exact, as there might be some
+			// image format that is not recognized above, which is why we need to have a whitelist
+			if musicExtensions[strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))] {
+				audioPath = path
+				audioSize = info.Size()
+			}
 		}
 
 		return nil
