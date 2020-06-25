@@ -45,7 +45,7 @@ In the "More" menu at the upper right side, you can find other listings that can
 ### Installation
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
 
-Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](additional-requirements).
+Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
 
 If no recent build is available, you can also build for yourself.
 
@@ -96,6 +96,7 @@ apt-get install ffmpeg youtube-dl
 
 You should however check if the youtube-dl version is recent (run `youtube-dl --version`) as there are frequent changes. Alternatively, try running `youtube-dl -U` to get the newest version or check out [their releases](https://github.com/ytdl-org/youtube-dl/releases/).
 
+You can also put both executables in the same directory this program is installed into. That way, it should be able to find them just fine.
 
 ### Configuration
 Now you can edit `config.json` (if you want to), don't include comments (after `//`): 
