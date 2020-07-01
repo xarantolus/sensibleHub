@@ -100,20 +100,29 @@ func CropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 	}
 
 noNeedToCrop:
-	ext := strings.ToUpper(strings.TrimPrefix(filepath.Ext(destination), "."))
+	fn, err := encodeImageToTemp(croppedImg, destination)
+	if err != nil {
+		return
+	}
 
+	return os.Rename(fn, destination)
+}
+
+func encodeImageToTemp(img image.Image, fn string) (outpath string, err error) {
 	file, err := ioutil.TempFile("", "shub-")
 	if err != nil {
 		return
 	}
 
+	ext := strings.ToUpper(strings.TrimPrefix(filepath.Ext(fn), "."))
+
 	switch ext {
 	case "JPG", "JPEG":
-		err = jpeg.Encode(file, croppedImg, &jpeg.Options{
+		err = jpeg.Encode(file, img, &jpeg.Options{
 			Quality: 100, // We don't care about file size, only quality
 		})
 	case "PNG":
-		err = png.Encode(file, croppedImg)
+		err = png.Encode(file, img)
 	default:
 		// Reject the image.
 		// Technically, we could work with the image (as it was decoded successfully), but for it to have
@@ -127,11 +136,8 @@ noNeedToCrop:
 	}
 
 	err = file.Close()
-	if err != nil {
-		return
-	}
 
-	return os.Rename(file.Name(), destination)
+	return file.Name(), nil
 }
 
 // BetterCover searches a better cover for a song that has artist and album information.

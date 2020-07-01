@@ -13,5 +13,8 @@
             }
         ]
     },
-    "keep_generated_days": 3
+    "keep_generated_days": 3,
+    "allow_external": {
+        "apple": true
+    }
 }

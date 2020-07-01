@@ -18,6 +18,10 @@ type Config struct {
 	} `json:"ftp"`
 
 	KeepGeneratedDays int `json:"keep_generated_days"`
+
+	AllowExternal struct {
+		Apple bool `json:"apple"`
+	} `json:"allow_external"`
 }
 
 const (

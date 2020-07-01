@@ -5,6 +5,7 @@ and syncing using external programs.
 
 ### Features
  * Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+ * Automagic metadata extraction (including cover images)
  * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
  * Set up FTP clients to [sync](#Syncing) your music to all your devices
  * List and search your songs by title, artist, album or year
@@ -127,7 +128,13 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     // If negative, they will be kept forever, if zero they will not be kept.
     // Files are checked every day at 0:00.
     // If you use multiple devices that sync at different intervals, it is recommended to keep files for a few days.
-    "keep_generated_days": 3
+    "keep_generated_days": 3,
+
+    // External data sources can be disabled
+    "allow_external": {
+        // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
+        "apple": true
+    }
 }
 ```
 

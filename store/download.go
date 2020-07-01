@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/vitali-fedulov/images"
 )
 
 const (
@@ -167,8 +169,10 @@ func (m *Manager) download(url string) (err error) {
 	now := time.Now()
 
 	// Technically, we would need to lock `m.generateID`, but that doesn't play
-	// nicely with `m.betterCover` below. Not greate, but generating two
-	// IDs at the same time just doesn't happen as downloads are sequential
+	// nicely with `m.betterCover` below. Not great, but generating two
+	// IDs at the same time just doesn't happen with downloads as they are sequential.
+	// There is the risk that files are imported over FTP while downloading something new,
+	// but the possibility of generating the same id is low
 	var e = &music.Entry{
 		ID:        m.generateID(),
 		SourceURL: minfo.Webpage(url),
@@ -229,6 +233,52 @@ func (m *Manager) download(url string) (err error) {
 			}
 		} else {
 			e.PictureData.Filename = ""
+		}
+	}
+
+	if m.cfg.AllowExternal.Apple {
+		externalSongData, err := music.SearchITunes(CleanName(title), CleanName(artist), filepath.Ext(thumbPath))
+		if err == nil && externalSongData.Artwork != nil {
+			writeNewImage := func() {
+				tmp, err := encodeImageToTemp(externalSongData.Artwork, e.PictureData.Filename)
+				if err != nil {
+					e.PictureData.Filename = ""
+					return
+				}
+
+				// Everything went well, we can move it to its real destination
+				destPath := filepath.Join(songDir, e.PictureData.Filename)
+
+				err = os.Rename(tmp, destPath)
+				if err != nil {
+					e.PictureData.Filename = ""
+					return
+				}
+			}
+
+			if e.PictureData.Filename == "" {
+				// Just encode our new image, no need to compare (as we have no image)
+				e.PictureData.Filename = "cover." + externalSongData.ArtworkExtension
+				writeNewImage()
+			} else {
+				// check if the downloaded cover is better than the one we already have
+				currentCoverPath := filepath.Join(songDir, e.PictureData.Filename)
+
+				currCov, err := images.Open(currentCoverPath)
+				if err == nil {
+					currSize := currCov.Bounds()
+					newSize := externalSongData.Artwork.Bounds()
+
+					// If it's not a square, we don't care
+					if newSize.Max.X == newSize.Max.Y {
+						// We only compare width, but height should be the same as width
+						if currSize.Dx() < newSize.Dx() {
+							// Now the new image is larger. Write it to the file
+							writeNewImage()
+						}
+					}
+				}
+			}
 		}
 	}
 

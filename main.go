@@ -36,7 +36,7 @@ func main() {
 		panic("while parsing config: " + err.Error())
 	}
 
-	err = store.InitializeManager()
+	err = store.InitializeManager(cfg)
 	if err != nil {
 		panic("while initializing manager: " + err.Error())
 	}

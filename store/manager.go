@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/websocket"
@@ -50,18 +51,22 @@ type Manager struct {
 	downloadContext context.Context
 	// downloadCancelFunc can be called to cancel the currently running download process
 	downloadCancelFunc context.CancelFunc
+
+	// cfg is the configuration
+	cfg config.Config
 }
 
 // M is the global Manager instance
 var M *Manager
 
 // InitializeManager initializes the global Manager instance `M`. It must be called before using `M`
-func InitializeManager() (err error) {
+func InitializeManager(cfg config.Config) (err error) {
 	// Initialize an empty manager
 	M = &Manager{
 		Songs:        make(map[string]music.Entry),
 		SongsLock:    new(sync.RWMutex),
 		enqueuedURLs: make(chan string, 25), // Allow up to 25 items to be queued
+		cfg:          cfg,
 	}
 
 	go M.serve()
