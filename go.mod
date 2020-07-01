@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/bogem/id3v2 v1.2.0
+	github.com/cenkalti/dominantcolor v0.0.0-20171020061837-df772e8dd39e
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 	github.com/gorilla/mux v1.7.4

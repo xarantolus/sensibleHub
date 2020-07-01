@@ -92,7 +92,8 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		}
 		coverFN := "cover" + strings.ToLower(ext)
 
-		err = CropCover(data.CoverImage, "", filepath.Join(entry.DirPath(), coverFN))
+		covDest := filepath.Join(entry.DirPath(), coverFN)
+		err = CropCover(data.CoverImage, "", covDest)
 		if err != nil {
 			return
 		}
@@ -102,6 +103,11 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 			if err != nil {
 				return
 			}
+		}
+
+		hex, err := music.CalculateDominantColor(covDest)
+		if err == nil {
+			entry.PictureData.DominantColorHEX = hex
 		}
 
 		entry.PictureData.Filename = coverFN
@@ -152,6 +158,8 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 		return
 	}
 
+	hex, _ := music.CalculateDominantColor(tmpCoverPath)
+
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
 
@@ -185,6 +193,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 
 		// Update song info
 		e.PictureData.Filename = coverFN
+		e.PictureData.DominantColorHEX = hex
 		e.LastEdit = time.Now()
 
 		m.Songs[sid] = e

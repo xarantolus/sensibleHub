@@ -172,6 +172,10 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		e.PictureData.Filename = ""
 	}
 
+	if e.PictureData.Filename != "" {
+		e.PictureData.DominantColorHEX, _ = music.CalculateDominantColor(e.CoverPath())
+	}
+
 	err = os.Rename(musicFile, e.AudioPath())
 	if err != nil {
 		return

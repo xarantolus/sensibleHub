@@ -297,6 +297,13 @@ func (m *Manager) download(url string) (err error) {
 		return
 	}
 
+	if e.PictureData.Filename != "" {
+		hex, err := music.CalculateDominantColor(e.CoverPath())
+		if err == nil {
+			e.PictureData.DominantColorHEX = hex
+		}
+	}
+
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
 

@@ -141,4 +141,7 @@ type MusicData struct {
 type PictureData struct {
 	// Filename is the name of the original cover for this song
 	Filename string `json:"filename"`
+
+	// DominantColorHEX is the dominant color hex without #-prefix
+	DominantColorHEX string `json:"dominant_color"`
 }
