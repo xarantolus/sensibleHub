@@ -194,14 +194,6 @@ a.button.is-static {
     border-radius: 10px;
 }
 
-ä .song-listing-item {
-    transition: all 0.05s ease-in-out;
-}
-
-.song-listing-item:hover {
-    background-color: #d6d6d6;
-}
-
 pre {
     overflow-x: auto;
     white-space: pre-wrap;
