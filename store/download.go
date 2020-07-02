@@ -237,7 +237,7 @@ func (m *Manager) download(url string) (err error) {
 	}
 
 	if m.cfg.AllowExternal.Apple {
-		externalSongData, err := music.SearchITunes(CleanName(title), CleanName(artist), filepath.Ext(thumbPath))
+		externalSongData, err := music.SearchITunes(title, album, artist, filepath.Ext(thumbPath))
 		if err == nil && externalSongData.Artwork != nil {
 			writeNewImage := func() {
 				tmp, err := encodeImageToTemp(externalSongData.Artwork, e.PictureData.Filename)

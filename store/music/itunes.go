@@ -32,17 +32,21 @@ type SongData struct {
 }
 
 // SearchITunes searches the song with the given cleaned title and cleaned artist on iTunes.
-func SearchITunes(cleanTitle, cleanArtist string, currentExt string) (s SongData, err error) {
-	searchTerm := cleanArtist + " " + cleanTitle
-	if cleanArtist == "" {
-		searchTerm = cleanTitle
+func SearchITunes(title, album, artist string, currentExt string) (s SongData, err error) {
+	title, album, artist = relevantInfo(title), relevantInfo(album), relevantInfo(artist)
+
+	var searchTerms []string
+	if artist != "" {
+		searchTerms = append(searchTerms, artist)
 	}
-	if searchTerm == "" {
-		err = fmt.Errorf("search term is empty")
-		return
+	if album != "" {
+		searchTerms = append(searchTerms, album)
+	}
+	if title != "" {
+		searchTerms = append(searchTerms, title)
 	}
 
-	resp, err := c.Get(fmt.Sprintf(appleMusicURL, url.QueryEscape(searchTerm)))
+	resp, err := c.Get(fmt.Sprintf(appleMusicURL, url.QueryEscape(strings.Join(searchTerms, " "))))
 	if err != nil {
 		return
 	}
@@ -102,6 +106,17 @@ func SearchITunes(cleanTitle, cleanArtist string, currentExt string) (s SongData
 	s.Title = sres.TrackName
 
 	return
+}
+
+// relevantInfo returns the relevant info from a string
+// e.g: Title (feat ...) => Title
+//      Artist1 & Artist2 => Artist1
+func relevantInfo(s string) string {
+	if i := strings.IndexAny(s, "&("); i != -1 {
+		s = s[:i]
+	}
+
+	return strings.TrimSpace(s)
 }
 
 type searchResults struct {
