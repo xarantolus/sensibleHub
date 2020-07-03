@@ -103,6 +103,11 @@ function registerCover() {
 
         var img = document.getElementById('song-cover');
         img.src = window.URL.createObjectURL(files[0]);
+
+        // remove the styled border as no longer know the dominant color
+        img.style.backgroundColor = null;
+        img.style.border = 0;
+        img.style.borderWidth = 0;
     }
 
     document.getElementById("song-cover-input").addEventListener("change", renderImagePreview);

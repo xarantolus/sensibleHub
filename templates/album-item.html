@@ -8,7 +8,7 @@
         <div class="column album-image-column">
             {{if $link}}<a href="/album/{{$x.MusicData.Artist | clean}}/{{$x.MusicData.Album | clean}}">{{end}}
                 <figure class="image is-square album-image-container">
-                    <img{{with $x.PictureData.DominantColorHEX}} style="background-color:{{.}}"{{end}} id="song-cover" id="img-{{$x.ID}}" src="/song/{{$x.ID}}/cover" alt="Cover">
+                    <img{{with $x.PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.}}"{{end}} id="song-cover" id="img-{{$x.ID}}" src="/song/{{$x.ID}}/cover" alt="Cover">
                 </figure>
             {{if $link}}</a>{{end}}
         </div>

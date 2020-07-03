@@ -10,18 +10,27 @@ window.addEventListener('keydown', function (ev) {
         return false;
     }
 
-    if (ev.keyCode === 27 && location.pathname !== "/") {
-        // ESC => Return to main page if not already there
-        InstantClick.go("/");
+    // Navigation shortcuts
+    var keyMap = {
+        27: "", // Escape: main page
+        78: "add", // 'n': add page
+        83: "songs", // 's': song listing
+        65: "artists", // 'a': artist listing
+        89: "years", // 'y': years listing
+        73: "incomplete", // 'i' incomplete songs listing
+        85: "unsynced", // 'u' unsynced songs
+    }
+
+    var destination = keyMap[ev.keyCode];
+
+    // if we know this destination and we're not already there
+    // if (destination && ...) doesn't work as 27:"" is falsey
+    if (destination !== undefined && location.pathname !== "/" + destination) {
+        ev.preventDefault();
+        InstantClick.go("/" + destination)
         return;
     }
 
-    // 'n' => Load add page
-    if (ev.keyCode === 78 && location.pathname != "/add") {
-        ev.preventDefault();
-        InstantClick.go("/add");
-        return;
-    }
 
     if (ev.key == "/") {
         ev.preventDefault();

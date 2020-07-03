@@ -11,6 +11,7 @@ and syncing using external programs.
  * List and search your songs by title, artist, album or year
  * Keyboard shortcuts allow faster navigation
    - `n` for loading the page where you can add new songs
+   - Listings: `s` for songs, `a` for artists, `y` for years, `i` for incomplete and `u` for unsynced
    - `/` for focusing on the search bar
    - `esc` for going to the main page
  * [Import](#Importing) songs you already have

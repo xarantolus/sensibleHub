@@ -29,7 +29,7 @@
     color: #222;
 }
 
-.song-title-link::after{
+.song-title-link::after {
     content: '';
     position: absolute;
     left: 0;
@@ -60,6 +60,11 @@
     /* Since all generated preview images have 60px */
     height: 60px;
     width: 60px;
+    border-radius: 5px;
+}
+
+.media-left>img {
+    border-radius: 5px;
 }
 
 .album-songs {
@@ -87,7 +92,7 @@
 }
 
 .song-link.box {
-    margin-bottom: 3em !important;
+    margin-bottom: 2em !important;
     position: relative;
 }
 
@@ -225,7 +230,7 @@ pre {
 #song-cover {
     object-fit: cover;
     border-radius: 10px;
-    border: 2px solid #ddd;
+    border: 3px solid #ddd;
 }
 
 .control.wide {
@@ -271,6 +276,15 @@ div.field.has-addons {
 .overflow-ignore {
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.overflow-ignore>* {
+    display: table-cell;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 

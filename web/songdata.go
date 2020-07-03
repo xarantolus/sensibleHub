@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"xarantolus/sensibleHub/store"
 
@@ -68,6 +69,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 		w.Header().Set("Last-Modified", le)
 		w.Header().Set("Content-Type", format)
+		w.Header().Set("Content-Length", strconv.Itoa(len(coverBytes)))
 
 		http.ServeContent(w, r, "cover-small.png", e.LastEdit, bytes.NewReader(coverBytes))
 		return nil
@@ -87,9 +89,15 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 			w.Header().Set("Content-Type", mtype)
 		}
 
+		info, err := coF.Stat()
+		if err == nil {
+			w.Header().Set("Content-Length", strconv.FormatInt(info.Size(), 10))
+		}
+
 		w.Header().Set("Last-Modified", le)
 
 		fn := store.CleanName(e.Filename(filepath.Ext(cp)))
+
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", fn))
 
 		http.ServeContent(w, r, fn, e.LastEdit, coF)
