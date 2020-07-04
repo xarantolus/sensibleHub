@@ -3,19 +3,18 @@ package music
 import (
 	"bytes"
 	"image"
-	"image/png"
+	"image/jpeg"
 	"io"
 	"os"
-	"sync"
 	"time"
+
+	"sync"
 
 	"github.com/nfnt/resize"
 	"golang.org/x/sync/singleflight"
 )
 
 var (
-	// coverGroup manages the functions that generate cover previews.
-	// They are started in HandleCover, and forgotten in HandleEditSong
 	coverGroup singleflight.Group
 
 	cstoreLock sync.RWMutex
@@ -29,7 +28,7 @@ type cover struct {
 
 // CoverPreview generates a cover preview
 func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
-	imageFormat = "image/png"
+	imageFormat = "image/jpeg"
 
 	cstoreLock.RLock()
 	cov, ok := coverStore[e.ID]
@@ -51,7 +50,7 @@ func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 		var b bytes.Buffer
 
 		// always returns a png image
-		err = resizeCover(e.CoverPath(), 60, &b)
+		err = resizeCover(e.CoverPath(), 120, &b)
 		if err != nil {
 			return
 		}
@@ -87,7 +86,9 @@ func resizeCover(coverPath string, width uint, out io.Writer) (err error) {
 		return
 	}
 
-	resized := resize.Resize(width, 0, img, resize.Lanczos3)
+	resized := resize.Resize(width, 0, img, resize.Bicubic)
 
-	return png.Encode(out, resized)
+	return jpeg.Encode(out, resized, &jpeg.Options{
+		Quality: jpeg.DefaultQuality,
+	})
 }

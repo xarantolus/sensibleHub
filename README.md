@@ -226,11 +226,12 @@ For Android, any music player will probably work. I recommend [Music](https://f-
 
 
 ### Resources
-This program tries not to need *too much* memory or processing power, but some things are necessary. The biggest memory hog is an in-memory cache of 60x60 preview cover images.
+This program tries not to need *too much* memory.
 
-With a library of about 750 songs and a populated cache it needs about 250Mb RAM.
+I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster. 
 
-I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster.
+RAM usage is a bit weird. While on windows (where I develop) everything seems to be around 50Mb, it looks like there's a problem on ARM computers (like the Raspberry Pi):
+using the same music library it needs about ten times as much memory. I have *not* found out where this issue comes from.
 
 
 ### Assumptions
