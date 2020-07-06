@@ -143,5 +143,5 @@ type PictureData struct {
 	Filename string `json:"filename"`
 
 	// DominantColorHEX is the dominant color hex without #-prefix
-	DominantColorHEX string `json:"dominant_color"`
+	DominantColorHEX Color `json:"dominant_color"`
 }

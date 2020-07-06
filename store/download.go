@@ -298,10 +298,8 @@ func (m *Manager) download(url string) (err error) {
 	}
 
 	if e.PictureData.Filename != "" {
-		hex, err := music.CalculateDominantColor(e.CoverPath())
-		if err == nil {
-			e.PictureData.DominantColorHEX = hex
-		}
+		hex, _ := music.CalculateDominantColor(e.CoverPath())
+		e.PictureData.DominantColorHEX = music.Color(hex)
 	}
 
 	m.SongsLock.Lock()

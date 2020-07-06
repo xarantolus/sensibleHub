@@ -10,7 +10,7 @@
             <!-- Left Side: Image -->
             <div class="column image-column">
                 <figure class="image is-square song-image-container">
-                <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.}}"{{end}} id="song-cover" id="img-{{.ID}}" src="/song/{{.ID}}/cover" alt="Cover">
+                <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.BorderColor}}"{{end}} id="song-cover" id="img-{{.ID}}" src="/song/{{.ID}}/cover" alt="Cover">
                     <div class="middle">
                         <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
                         <div class="file">

@@ -105,10 +105,8 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 			}
 		}
 
-		hex, err := music.CalculateDominantColor(covDest)
-		if err == nil {
-			entry.PictureData.DominantColorHEX = hex
-		}
+		hex, _ := music.CalculateDominantColor(covDest)
+		entry.PictureData.DominantColorHEX = music.Color(hex)
 
 		entry.PictureData.Filename = coverFN
 		editedImage = true
@@ -193,7 +191,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 
 		// Update song info
 		e.PictureData.Filename = coverFN
-		e.PictureData.DominantColorHEX = hex
+		e.PictureData.DominantColorHEX = music.Color(hex)
 		e.LastEdit = time.Now()
 
 		m.Songs[sid] = e
