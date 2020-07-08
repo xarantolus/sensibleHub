@@ -105,11 +105,13 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
 
 ```jsonc
 {
-    "port": 128, // HTTP server port
+    // HTTP server port (used for accessing the website)
+    "port": 128, 
 
-    // FTP settings (for sync)
+    // FTP settings
     "ftp": {
-        "port": 1280, // FTP port
+        // FTP port the server will listen on. You will need this when setting up syncing
+        "port": 1280, 
         
         // Valid FTP username/password combinations
         "users": [
@@ -135,6 +137,19 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     "allow_external": {
         // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
         "apple": true
+    },
+
+    // Settings for MP3 file generation
+    "mp3_settings": {
+        // ID3v2 version, must be 3 or 4 depending on whether you want to use ID3v2.3 or ID3v2.4
+        // If your media player doesn't display all metadata you can try if changing this helps
+        "tag_version": 4,
+        
+        // If this is true, only jpeg files will be embedded into MP3 files. This makes those files
+        // compatible with more older media players that might not display other files. PNG files will be converted
+        // to jpeg when the MP3 file is generated.
+        // If false, the cover image will be embedded without changing its format.
+        "jpeg_only": true 
     }
 }
 ```

@@ -304,3 +304,8 @@ func (m *Manager) IsWorking() bool {
 
 	return m.isWorking
 }
+
+// GetConfig returns the config used by this Manager
+func (m *Manager) GetConfig() config.Config {
+	return m.cfg
+}

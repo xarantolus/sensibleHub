@@ -3,6 +3,8 @@ package music
 import (
 	"bytes"
 	"fmt"
+	"image"
+	"image/jpeg"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"xarantolus/sensibleHub/store/config"
 
 	"github.com/bogem/id3v2"
 	"golang.org/x/sync/singleflight"
@@ -20,7 +23,7 @@ var (
 )
 
 // MP3Path returns the path for an mp3 file for this song. This might take some time
-func (e *Entry) MP3Path() (p string, err error) {
+func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 	var outName = filepath.Join("data", "songs", e.ID, "latest.mp3")
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
@@ -90,6 +93,8 @@ func (e *Entry) MP3Path() (p string, err error) {
 			return
 		}
 
+		tag.SetVersion(cfg.MP3Settings.TagVersion)
+
 		// Now we set its tags if they exist
 
 		if have(&e.MusicData.Artist) {
@@ -116,21 +121,40 @@ func (e *Entry) MP3Path() (p string, err error) {
 				return nil, err
 			}
 
-			// Other mime types don't work as only jpeg and png images are accepted
+			// Other mime types aren't checked as only jpeg and png images are accepted in uploads etc.
 			mimeType := "image/jpeg"
-			if strings.ToUpper(filepath.Ext(e.PictureData.Filename)) == ".PNG" {
-				mimeType = "image/png"
+			if strings.EqualFold(filepath.Ext(e.PictureData.Filename), ".PNG") {
+				// Check if user wants *only* jpeg images in their mp3 files (good for compatibility)
+				if cfg.MP3Settings.JPEGOnly {
+					coverImg, _, err := image.Decode(bytes.NewBuffer(b))
+					if err == nil {
+						var jpgBuf bytes.Buffer
+
+						err = jpeg.Encode(&jpgBuf, coverImg, &jpeg.Options{Quality: 100})
+						if err == nil {
+							b = jpgBuf.Bytes()
+						} else {
+							b = nil
+						}
+					} else {
+						b = nil
+					}
+				} else {
+					mimeType = "image/png"
+				}
 			}
 
-			pic := id3v2.PictureFrame{
-				Encoding:    id3v2.EncodingUTF8,
-				MimeType:    mimeType,
-				PictureType: id3v2.PTFrontCover,
-				Description: "Front cover",
-				Picture:     b,
-			}
+			if len(b) > 0 {
+				pic := id3v2.PictureFrame{
+					Encoding:    id3v2.EncodingUTF8,
+					MimeType:    mimeType,
+					PictureType: id3v2.PTFrontCover,
+					Description: "Front cover",
+					Picture:     b,
+				}
 
-			tag.AddAttachedPicture(pic)
+				tag.AddAttachedPicture(pic)
+			}
 		}
 
 		// and save it

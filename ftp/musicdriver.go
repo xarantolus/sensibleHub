@@ -113,7 +113,7 @@ func (m *musicDriver) GetFile(path string, n int64) (i int64, content io.ReadClo
 	for _, file := range al {
 		// Serve the file with the given name
 		if file.Name() == split[2] {
-			p, er := file.MP3Path()
+			p, er := file.MP3Path(store.M.GetConfig())
 			if er != nil {
 				err = er
 				return

@@ -152,7 +152,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	outName, err := e.MP3Path()
+	outName, err := e.MP3Path(store.M.GetConfig())
 	if err != nil {
 		return
 	}
