@@ -281,6 +281,7 @@ func (m *Manager) Incomplete() (groups []Group) {
 	var noImage = Group{Title: "No Cover"}
 	var noYear = Group{Title: "No Year"}
 	var weirdTitle = Group{Title: "Weird Title"}
+	var smallCover = Group{Title: "Small Cover"}
 
 	// The conditions inside this loop must have the same order as the
 	// lists in the for below it. That way, songs can cascade through these categories
@@ -306,13 +307,18 @@ func (m *Manager) Incomplete() (groups []Group) {
 			continue
 		}
 
+		if e.PictureData.Size < 750 {
+			smallCover.Songs = append(smallCover.Songs, e)
+			continue
+		}
+
 		if e.MusicData.Year == nil || *e.MusicData.Year == 0 {
 			noYear.Songs = append(noYear.Songs, e)
 			continue
 		}
 	}
 
-	for _, g := range []Group{weirdTitle, noArtist, noImage, noAlbum, noYear} {
+	for _, g := range []Group{weirdTitle, noArtist, noImage, noAlbum, noYear, smallCover} {
 		if len(g.Songs) == 0 {
 			continue
 		}

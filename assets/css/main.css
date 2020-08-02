@@ -67,6 +67,10 @@
     border-radius: 5px;
 }
 
+.cover-image-size {
+    padding: 0.5%;
+    color: #121212;
+}
 .album-songs {
     width: 100%;
     margin: 0 auto;

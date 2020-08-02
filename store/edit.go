@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"github.com/vitali-fedulov/images"
 	"io"
 	"io/ioutil"
 	"os"
@@ -108,6 +109,11 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		hex, _ := music.CalculateDominantColor(covDest)
 		entry.PictureData.DominantColorHEX = music.Color(hex)
 
+		i, err := images.Open(covDest)
+		if err == nil {
+			entry.PictureData.Size = i.Bounds().Dx()
+		}
+
 		entry.PictureData.Filename = coverFN
 		editedImage = true
 	}
@@ -158,6 +164,12 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 
 	hex, _ := music.CalculateDominantColor(tmpCoverPath)
 
+	var imageSize int
+	i, err := images.Open(tmpCoverPath)
+	if err == nil {
+		imageSize = i.Bounds().Dx()
+	}
+
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
 
@@ -192,6 +204,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 		// Update song info
 		e.PictureData.Filename = coverFN
 		e.PictureData.DominantColorHEX = music.Color(hex)
+		e.PictureData.Size = imageSize
 		e.LastEdit = time.Now()
 
 		m.Songs[sid] = e

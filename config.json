@@ -16,9 +16,5 @@
     "keep_generated_days": 3,
     "allow_external": {
         "apple": true
-    },
-    "mp3_settings": {
-        "tag_version": 4,
-        "jpeg_only": true 
     }
 }

@@ -152,7 +152,12 @@ func (m *Manager) download(url string) (err error) {
 
 	// For songs with multiple artists, there is a comma-separated list
 	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, strings.TrimSuffix(minfo.Uploader, " - Topic"))
+
 	album := cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle)
+	// If the album couldn't be determined, the playlist title will be the search string. That should not happen
+	if strings.Contains(album, "\"auto generated\"") {
+		album = ""
+	}
 
 	// Split artists so we only have *one* in the artist field
 	artists := strings.Split(artist, ", ")
@@ -226,7 +231,7 @@ func (m *Manager) download(url string) (err error) {
 		if err == nil {
 			// See if we already have a higher-quality version of this cover
 			better, err := m.betterCover(artist, album, destPath)
-			if err == nil {
+			if err == nil && better != "" {
 				// So, there is a better version.
 				// Just copy it, if it fails then we ignore it.
 				_ = copyOverwrite(better, destPath)
@@ -238,46 +243,57 @@ func (m *Manager) download(url string) (err error) {
 
 	if m.cfg.AllowExternal.Apple {
 		externalSongData, err := music.SearchITunes(title, album, artist, filepath.Ext(thumbPath))
-		if err == nil && externalSongData.Artwork != nil {
-			writeNewImage := func() {
-				tmp, err := encodeImageToTemp(externalSongData.Artwork, e.PictureData.Filename)
-				if err != nil {
-					e.PictureData.Filename = ""
-					return
+		if err == nil && strings.EqualFold(CleanName(externalSongData.Artist), CleanName(artist)) &&
+			// If it seems somehow similar to the data we already have, we might use a higher quality image
+			(strings.EqualFold(CleanName(album), CleanName(externalSongData.Album)) || strings.EqualFold(CleanName(title), CleanName(externalSongData.Title))) {
+			if externalSongData.Artwork != nil {
+				writeNewImage := func() {
+					tmp, err := encodeImageToTemp(externalSongData.Artwork, e.PictureData.Filename)
+					if err != nil {
+						e.PictureData.Filename = ""
+						return
+					}
+
+					// Everything went well, we can move it to its real destination
+					destPath := filepath.Join(songDir, e.PictureData.Filename)
+
+					err = os.Rename(tmp, destPath)
+					if err != nil {
+						e.PictureData.Filename = ""
+						return
+					}
+
+					e.PictureData.Size = externalSongData.Artwork.Bounds().Dx()
 				}
 
-				// Everything went well, we can move it to its real destination
-				destPath := filepath.Join(songDir, e.PictureData.Filename)
+				if e.PictureData.Filename == "" {
+					// Just encode our new image, no need to compare (as we have no image)
+					e.PictureData.Filename = "cover." + externalSongData.ArtworkExtension
+					writeNewImage()
+				} else {
+					// check if the downloaded cover is better than the one we already have
+					currentCoverPath := filepath.Join(songDir, e.PictureData.Filename)
 
-				err = os.Rename(tmp, destPath)
-				if err != nil {
-					e.PictureData.Filename = ""
-					return
-				}
-			}
+					currCov, err := images.Open(currentCoverPath)
+					if err == nil {
+						currSize := currCov.Bounds()
+						newSize := externalSongData.Artwork.Bounds()
 
-			if e.PictureData.Filename == "" {
-				// Just encode our new image, no need to compare (as we have no image)
-				e.PictureData.Filename = "cover." + externalSongData.ArtworkExtension
-				writeNewImage()
-			} else {
-				// check if the downloaded cover is better than the one we already have
-				currentCoverPath := filepath.Join(songDir, e.PictureData.Filename)
-
-				currCov, err := images.Open(currentCoverPath)
-				if err == nil {
-					currSize := currCov.Bounds()
-					newSize := externalSongData.Artwork.Bounds()
-
-					// If it's not a square, we don't care
-					if newSize.Max.X == newSize.Max.Y {
-						// We only compare width, but height should be the same as width
-						if currSize.Dx() < newSize.Dx() {
-							// Now the new image is larger. Write it to the file
-							writeNewImage()
+						// If it's not a square, we don't care
+						if newSize.Max.X == newSize.Max.Y {
+							// We only compare width, but height should be the same as width
+							if currSize.Dx() < newSize.Dx() {
+								// Now the new image is larger. Write it to the file
+								writeNewImage()
+							}
 						}
 					}
 				}
+			}
+
+			// Use the usually more accurate album information
+			if externalSongData.Album != "" {
+				e.MusicData.Album = externalSongData.Album
 			}
 		}
 	}
@@ -300,6 +316,11 @@ func (m *Manager) download(url string) (err error) {
 	if e.PictureData.Filename != "" {
 		hex, _ := music.CalculateDominantColor(e.CoverPath())
 		e.PictureData.DominantColorHEX = music.Color(hex)
+
+		i, err := images.Open(e.CoverPath())
+		if err == nil {
+			e.PictureData.Size = i.Bounds().Dx()
+		}
 	}
 
 	m.SongsLock.Lock()

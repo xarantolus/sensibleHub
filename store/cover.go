@@ -136,6 +136,9 @@ func encodeImageToTemp(img image.Image, fn string) (outpath string, err error) {
 	}
 
 	err = file.Close()
+	if err != nil {
+		return
+	}
 
 	return file.Name(), nil
 }

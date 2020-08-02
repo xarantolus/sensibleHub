@@ -137,19 +137,6 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     "allow_external": {
         // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
         "apple": true
-    },
-
-    // Settings for MP3 file generation
-    "mp3_settings": {
-        // ID3v2 version, must be 3 or 4 depending on whether you want to use ID3v2.3 or ID3v2.4
-        // If your media player doesn't display all metadata you can try if changing this helps
-        "tag_version": 4,
-        
-        // If this is true, only jpeg files will be embedded into MP3 files. This makes those files
-        // compatible with more older media players that might not display other files. PNG files will be converted
-        // to jpeg when the MP3 file is generated.
-        // If false, the cover image will be embedded without changing its format.
-        "jpeg_only": true 
     }
 }
 ```
@@ -255,7 +242,7 @@ There are several assumptions made so the program will work as expected in most 
 - Two songs have the same artist if the artist attribute is not empty and equal (case insensitive) after being put through the `CleanName` function in [`store/album.go`](store/album.go).
 - Two songs are in the same album if that attribute is not empty, the above applies for the artist and the same applies for the album name.
 - A song should have *one* artist, every other performer is mentioned in brackets in the song title, e.g. like `Title (feat. Artist2 & Artist3)`. If this is not done, the "Featured in" listing of the artists' page might not display all relevant songs.
-
+- All cover images are squared. Any that aren't will be cropped and some part of the image will be removed.
 
 
 ### Browser support
@@ -279,7 +266,7 @@ Compared to other music servers this one is very basic. Here are some things you
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
 * The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
-
+* It seems like some media players don't display cover images over a certain size, while others do.
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:
@@ -287,7 +274,7 @@ This program would not be possible without work done by many others. For that, I
 - [youtube-dl](https://github.com/ytdl-org/youtube-dl): easy tool for downloading all kinds of videos and audios
 - [FFmpeg](http://ffmpeg.org/): exceptional program for handling basically [any media format](https://ffmpeg.org/ffmpeg-codecs.html) in existence
 - [Go](https://golang.org/): the programming language used. It's so nice that you can have one codebase that works on so many platforms, with a very rich standard library
-- [id3v2 library](https://github.com/bogem/id3v2) for editing MP3 tags
+- [id3v2 library](https://github.com/bogem/id3v2) for reading MP3 tags
 - [exiffix](https://github.com/edwvee/exiffix), [imaging](https://github.com/disintegration/imaging), [resize](https://github.com/nfnt/resize) and [goexif](https://github.com/rwcarlsen/goexif) for handling cover images *correctly*
 - [FTP server library](https://goftp.io/server) for creating a virtual filesystem accessible over FTP
 - [gorilla/mux](https://github.com/gorilla/mux) and [gorilla/websocket](https://github.com/gorilla/websocket) for nice HTTP server improvements, including live events over WebSockets

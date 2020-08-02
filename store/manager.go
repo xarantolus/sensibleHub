@@ -61,6 +61,10 @@ var M *Manager
 
 // InitializeManager initializes the global Manager instance `M`. It must be called before using `M`
 func InitializeManager(cfg config.Config) (err error) {
+	if M != nil {
+		panic("Manager already exists, not initializing again")
+	}
+
 	// Initialize an empty manager
 	M = &Manager{
 		Songs:        make(map[string]music.Entry),

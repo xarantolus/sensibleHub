@@ -7,10 +7,6 @@ A FTP server framework forked from [github.com/yob/graval](http://github.com/yob
 
 Full documentation for the package is available on [godoc](http://godoc.org/goftp.io/server)
 
-## Version
-
-    v0.2.3
-
 ## Installation
 
     go get goftp.io/server
@@ -19,19 +15,15 @@ Full documentation for the package is available on [godoc](http://godoc.org/goft
 
 To boot a FTP server you will need to provide a driver that speaks to
 your persistence layer - the required driver contract is in [the
-documentation](http://godoc.org/goftp.io/server).
+documentation](http://godoc.org/goftp.io/server/core).
 
-Look at the [file driver](https://gitea.com/goftp/file-driver) to see
+Look at the [file driver](https://goftp.io/server/driver/file) to see
 an example of how to build a backend.
 
-There is a [sample ftp server](/exampleftpd) as a demo. You can build it with this
+There is a [sample ftp server](https://goftp.io/ftpd) as a demo. You can build it with this
 command:
 
-    go install goftp.io/server/exampleftpd
-
-Then run it if you have add $GOPATH to your $PATH:
-
-    exampleftpd -root /tmp
+    go install goftp.io/ftpd
 
 And finally, connect to the server with any FTP client and the following
 details:

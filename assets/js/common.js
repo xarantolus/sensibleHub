@@ -108,6 +108,12 @@ function registerCover() {
         img.style.backgroundColor = null;
         img.style.border = 0;
         img.style.borderWidth = 0;
+
+        // we also no longer know the cover size - this is only present on song pages
+        var sizeSpan = document.querySelector(".cover-image-size");
+        if (sizeSpan) {
+            sizeSpan.remove();
+        }
     }
 
     document.getElementById("song-cover-input").addEventListener("change", renderImagePreview);

@@ -144,4 +144,7 @@ type PictureData struct {
 
 	// DominantColorHEX is the dominant color hex without #-prefix
 	DominantColorHEX Color `json:"dominant_color"`
+
+	// Size is the width and height of the cover. We use one attribute only because both must be the same
+	Size int `json:"size"`
 }

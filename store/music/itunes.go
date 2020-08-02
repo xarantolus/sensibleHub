@@ -25,6 +25,7 @@ type SongData struct {
 	Artist string
 	Title  string
 	Album  string
+	Year   int // don't use if it's 0
 
 	// might be nil
 	Artwork          image.Image
@@ -40,7 +41,9 @@ func SearchITunes(title, album, artist string, currentExt string) (s SongData, e
 		searchTerms = append(searchTerms, artist)
 	}
 	if album != "" {
-		searchTerms = append(searchTerms, album)
+		if len(strings.Fields(album)) < 3 {
+			searchTerms = append(searchTerms, album)
+		}
 	}
 	if title != "" {
 		searchTerms = append(searchTerms, title)
@@ -102,7 +105,7 @@ func SearchITunes(title, album, artist string, currentExt string) (s SongData, e
 	}
 
 	s.Artist = sres.ArtistName
-	s.Album = sres.CollectionName
+	s.Album = strings.TrimSuffix(sres.CollectionName, " - Single")
 	s.Title = sres.TrackName
 
 	return

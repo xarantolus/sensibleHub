@@ -31,6 +31,7 @@
                         {{if have .PictureData.Filename}}
                         <button id="delete-cover" name="delete-cover" class="delete-cover button is-small is-danger" value="delete-cover">Delete current cover</button>
                     {{end}}</div>
+                    {{with .PictureData.Size}}<span class="cover-image-size">{{.}}x{{.}}px</span>{{end}}
                 </figure>
             </div>
 

@@ -10,17 +10,28 @@ github.com/edwvee/exiffix
 github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 github.com/gorilla/websocket
-# github.com/minio/minio-go/v6 v6.0.46
+# github.com/json-iterator/go v1.1.10
+github.com/json-iterator/go
+# github.com/klauspost/cpuid v1.3.1
+github.com/klauspost/cpuid
+# github.com/minio/md5-simd v1.1.0
+github.com/minio/md5-simd
+# github.com/minio/minio-go/v6 v6.0.57
 github.com/minio/minio-go/v6
 github.com/minio/minio-go/v6/pkg/credentials
 github.com/minio/minio-go/v6/pkg/encrypt
-github.com/minio/minio-go/v6/pkg/s3signer
 github.com/minio/minio-go/v6/pkg/s3utils
 github.com/minio/minio-go/v6/pkg/set
+github.com/minio/minio-go/v6/pkg/signer
+github.com/minio/minio-go/v6/pkg/tags
 # github.com/minio/sha256-simd v0.1.1
 github.com/minio/sha256-simd
 # github.com/mitchellh/go-homedir v1.1.0
 github.com/mitchellh/go-homedir
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
 # github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 github.com/nfnt/resize
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
@@ -28,25 +39,28 @@ github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
 # github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9
 github.com/vitali-fedulov/images
-# goftp.io/server v0.3.4
+# goftp.io/server v0.4.0
 goftp.io/server
-# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+goftp.io/server/core
+goftp.io/server/driver/file
+goftp.io/server/driver/minio
+# golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
-# golang.org/x/image v0.0.0-20200618115811-c13761719519
+# golang.org/x/image v0.0.0-20200801110659-972c09e46d76
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
-# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+# golang.org/x/net v0.0.0-20200707034311-ab3426394381
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
-# golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
+# golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e
+# golang.org/x/sys v0.0.0-20200728102440-3e129f6d46b1
 golang.org/x/sys/cpu
-# golang.org/x/text v0.3.2
+# golang.org/x/text v0.3.3
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/internal
@@ -58,5 +72,5 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# gopkg.in/ini.v1 v1.42.0
+# gopkg.in/ini.v1 v1.57.0
 gopkg.in/ini.v1

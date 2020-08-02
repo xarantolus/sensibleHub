@@ -39,8 +39,13 @@ ws.onmessage = function (evt) {
     // song-edit song-add song-delete
     if (e.type.startsWith("song-")) {
         if (isListingPage()) {
-            // this listing might contain this song, so we reload 
-            reload();
+            var selem = document.getElementById("song-" + e.data.id);
+            if (selem && e.type == "song-delete") {
+                selem.remove();
+            } else {
+                // this listing might contain this song, so we reload 
+                reload();
+            }
         } else if (e.type !== "song-delete" && !isReload) {
             // If we are on a song page, we reload it on edit
             if (trimChar(location.pathname, "/") === "song/" + e.data.id) {
