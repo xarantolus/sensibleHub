@@ -21,15 +21,17 @@ func TestManager_hasLink(t *testing.T) {
 
 	tests := map[string]bool{
 		// Same url as above
-		"https://www.youtube.com/watch?v=videoid": true,
-		"https://youtube.com/watch?v=videoid":     true,
-		"https://youtu.be/videoid":                true,
-		"https://www.youtu.be/videoid":            true,
+		"https://www.youtube.com/watch?v=videoid":   true,
+		"https://youtube.com/watch?v=videoid":       true,
+		"https://youtu.be/videoid":                  true,
+		"https://www.youtu.be/videoid":              true,
+		"https://music.youtube.com/watch?v=videoid": true,
 
-		"https://youtube.com/watch?v=videoidno":  false,
-		"https://example.com":                    false,
-		"https:/soundcloud.com/some-artist/song": false,
-		"https://youtu.be/otherid":               false,
+		"https://youtube.com/watch?v=videoidno":     false,
+		"https://example.com":                       false,
+		"https:/soundcloud.com/some-artist/song":    false,
+		"https://youtu.be/otherid":                  false,
+		"https://music.youtube.com/watch?v=otherid": true,
 	}
 
 	for turl, tok := range tests {

@@ -206,6 +206,17 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 		u.Path = "/watch"
 	}
 
+	// music.youtube.com links will later be displayed as ...youtube.com/watch... (due to youtube-dls webpage_url field),
+	// so we should compare them like that
+	if u.Host == "music.youtube.com" {
+		var q = make(url.Values)
+		q.Set("v", u.Query().Get("v"))
+		u.RawQuery = q.Encode()
+
+		u.Host = "youtube.com"
+		u.Path = "/watch"
+	}
+
 	// clean other url parameters
 	if u.Host == "youtube.com" {
 		var q = make(url.Values)

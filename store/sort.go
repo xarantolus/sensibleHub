@@ -180,7 +180,7 @@ func isLetter(r rune) bool {
 }
 
 const (
-	newSongs = 7
+	newSongs = 10
 )
 
 // Newest returns the newest entries
