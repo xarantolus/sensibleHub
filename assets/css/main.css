@@ -38,6 +38,14 @@
     bottom: 0;
 }
 
+.title-container {
+    padding-bottom: 1%;
+}
+
+.removepadding {
+    padding-bottom: 0 !important;
+}
+
 .cover-center {
     display: flex;
     justify-content: center;
@@ -71,6 +79,7 @@
     padding: 0.5%;
     color: #121212;
 }
+
 .album-songs {
     width: 100%;
     margin: 0 auto;

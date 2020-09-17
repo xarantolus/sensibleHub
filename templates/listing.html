@@ -2,17 +2,22 @@
 {{with .Groups}}
 {{range .}}
 <div class="listing">
-    {{if have .Link .Title}}
-        <a href="{{.Link}}"><h4 class="title is-4">{{.Title}}</h4></a>
-    {{else}}
-        {{with .Title}}<h4 class="title is-4">{{.}}</h4>{{end}}
-    {{end}}
-    
+    {{if have .Title}}<div class="title-container">
+        {{if have .Link }}
+            <a href="{{.Link}}">
+                <h4 class="title is-4 removepadding">{{.Title}}</h4>
+            </a>
+        {{else}}
+            <h4 class="title is-4 removepadding">{{.Title}}</h4>
+        {{end}}
+        {{with .Description}}<p class="help">{{.}}</p>{{end}}
+    </div>{{end}}
+
     {{range .Songs}}
         {{ template "song-item.html" . }}
     {{end}}
 </div>
 {{end}}{{else}}
-    {{template "notfound.html"}}
+{{template "notfound.html"}}
 {{end}}
 {{ template "foot.html" . }}

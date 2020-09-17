@@ -28,9 +28,10 @@ func (m *Manager) AllEntries() (list []music.Entry) {
 }
 
 // Group is a struct that stores songs that are grouped together,
-// e.g. because they the same beginning or artist
+// e.g. because they have the same prefix or artist
 type Group struct {
-	Title string
+	Title       string
+	Description string
 
 	Link string
 
@@ -119,9 +120,10 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 	for _, songs := range artMap {
 		// since every len(songs) > 0
 		groups = append(groups, Group{
-			Title: songs[0].MusicData.Artist, // don't use the upper-case artist
-			Songs: songs,
-			Link:  "/artist/" + CleanName(songs[0].Artist()),
+			Title:       songs[0].MusicData.Artist, // don't use the upper-case artist
+			Description: songLenDescription(len(songs)),
+			Songs:       songs,
+			Link:        "/artist/" + CleanName(songs[0].Artist()),
 		})
 	}
 
@@ -159,8 +161,9 @@ func (m *Manager) GroupByYear() (groups []Group) {
 
 		// since every len(songs) > 0
 		groups = append(groups, Group{
-			Title: year,
-			Songs: songs,
+			Title:       year,
+			Description: songLenDescription(len(songs)),
+			Songs:       songs,
 		})
 	}
 
@@ -276,12 +279,12 @@ var musicExtensions = map[string]bool{
 
 // Incomplete returns all entries with incomplete data
 func (m *Manager) Incomplete() (groups []Group) {
-	var noArtist = Group{Title: "No Artist"}
-	var noAlbum = Group{Title: "No Album"}
-	var noImage = Group{Title: "No Cover"}
-	var noYear = Group{Title: "No Year"}
-	var weirdTitle = Group{Title: "Weird Title"}
-	var smallCover = Group{Title: "Small Cover"}
+	var noArtist = Group{Title: "No Artist", Description: "We don't even know who made these songs"}
+	var noAlbum = Group{Title: "No Album", Description: "Missing album information"}
+	var noImage = Group{Title: "No Cover", Description: "There's no cover image for these songs"}
+	var noYear = Group{Title: "No Year", Description: "The year tag is missing"}
+	var weirdTitle = Group{Title: "Weird Title", Description: "Weird titles that should probably be changed"}
+	var smallCover = Group{Title: "Small Cover", Description: "Songs with a cover image less than 750 pixels in size"}
 
 	// The conditions inside this loop must have the same order as the
 	// lists in the for below it. That way, songs can cascade through these categories
@@ -334,7 +337,8 @@ func (m *Manager) Incomplete() (groups []Group) {
 // Unsynced returns all songs that have syncing disabled
 func (m *Manager) Unsynced() (groups []Group) {
 	var g = Group{
-		Title: "Unsynced",
+		Title:       "Unsynced",
+		Description: "Songs that are currently not synced to your devices",
 	}
 
 	for _, song := range m.AllEntries() {
@@ -365,4 +369,11 @@ func (m *Manager) NewestSong() (e music.Entry, ok bool) {
 	}
 
 	return
+}
+
+func songLenDescription(count int) string {
+	if count < 5 {
+		return ""
+	}
+	return strconv.Itoa(count) + " songs"
 }
