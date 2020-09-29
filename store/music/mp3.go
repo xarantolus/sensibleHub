@@ -14,6 +14,7 @@ import (
 	"strings"
 	"xarantolus/sensibleHub/store/config"
 
+	"github.com/nfnt/resize"
 	"golang.org/x/sync/singleflight"
 )
 
@@ -61,27 +62,40 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 			coverImg, _, err := image.Decode(bytes.NewBuffer(b))
 			if err == nil {
+				var maxImageSize = cfg.Cover.MaxSize
+				if maxImageSize > 0 && coverImg.Bounds().Dx() > maxImageSize {
+					resized := resize.Resize(uint(maxImageSize), 0, coverImg, resize.MitchellNetravali)
+					coverImg = resized
+				}
 
+				// Yes, all png images are also converted to JPEG.
+				// This might not be optimal for all use cases, but there are *some* audio players that support *only* JPEG
 				err = jpeg.Encode(&coverBuf, coverImg, &jpeg.Options{Quality: 100})
 				if err != nil {
 					coverBuf.Reset()
 				}
 			} else {
+				log.Println("error while decoding image:", err.Error())
 				b = nil
 			}
 
-			// Use the buffer as cover input (stdin) and tell ffmpeg that it is a JPEG stream
-			cmd.Args = append(cmd.Args, "-f", "jpeg_pipe", "-i", "-")
-			cmd.Stdin = &coverBuf
+			// If everything worked, we can now add the cover image command-line arguments
+			if len(b) > 0 && err == nil {
+				// Use the buffer as cover input (stdin) and tell ffmpeg that it is a JPEG stream
+				cmd.Args = append(cmd.Args, "-probesize", "64M", "-f", "jpeg_pipe", "-i", "-")
+				cmd.Stdin = &coverBuf
 
-			cmd.Args = append(cmd.Args, "-c:v", "copy")
+				cmd.Args = append(cmd.Args, "-c:v", "copy")
 
-			cmd.Args = append(cmd.Args, "-map", "0:0", "-map", "1:0")
+				cmd.Args = append(cmd.Args, "-map", "0", "-map", "1")
 
-			// Make sure the image stream is recognized as cover image
-			cmd.Args = append(cmd.Args,
-				"-metadata:s:v", "title=Front cover",
-				"-metadata:s:v", "comment=Cover (front)")
+				// Make sure the image stream is recognized as cover image
+				cmd.Args = append(cmd.Args,
+					"-metadata:s:v", "title=Front cover",
+					"-metadata:s:v", "comment=Cover (front)")
+
+				cmd.Args = append(cmd.Args, "-flush_packets", "0")
+			}
 		}
 
 		// Set whether to convert the stream or not - a mp3 stream can be kept

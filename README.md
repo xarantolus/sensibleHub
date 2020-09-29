@@ -137,6 +137,13 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     "allow_external": {
         // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
         "apple": true
+    },
+    
+    // Settings for cover images. Affects only those in generated MP3 files
+    "cover": {
+        // Cover images of generated/synced songs will have this as maximum size in pixels, larger ones are downscaled.
+        // If omitted, 0 or lower, this setting will be ignored and image sizes are not changed.
+        "max_size": 2000
     }
 }
 ```
@@ -266,7 +273,7 @@ Compared to other music servers this one is very basic. Here are some things you
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
 * The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
-* It seems like some media players don't display cover images over a certain size, while others do.
+* It seems like some media players don't display cover images over a certain size, while others do. Use the cover max size setting to see if lowering the size helps.
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:

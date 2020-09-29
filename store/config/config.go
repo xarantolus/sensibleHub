@@ -19,6 +19,10 @@ type Config struct {
 
 	KeepGeneratedDays int `json:"keep_generated_days"`
 
+	Cover struct {
+		MaxSize int `json:"max_size"`
+	} `json:"cover"`
+
 	AllowExternal struct {
 		Apple bool `json:"apple"`
 	} `json:"allow_external"`

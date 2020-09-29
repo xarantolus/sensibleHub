@@ -16,5 +16,8 @@
     "keep_generated_days": 3,
     "allow_external": {
         "apple": true
+    },
+    "cover": {
+        "max_size": 2000
     }
 }
