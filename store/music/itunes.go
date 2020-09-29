@@ -36,11 +36,14 @@ type SongData struct {
 func SearchITunes(title, album, artist string, currentExt string) (s SongData, err error) {
 	title, album, artist = relevantInfo(title), relevantInfo(album), relevantInfo(artist)
 
+	// Sometimes it doesn't find any songs when we add the album to the query, so we just try again without it
+	var secondTry bool
+retry:
 	var searchTerms []string
 	if artist != "" {
 		searchTerms = append(searchTerms, artist)
 	}
-	if album != "" {
+	if album != "" && !secondTry {
 		if len(strings.Fields(album)) < 3 {
 			searchTerms = append(searchTerms, album)
 		}
@@ -67,6 +70,10 @@ func SearchITunes(title, album, artist string, currentExt string) (s SongData, e
 	}
 
 	if len(search.Results) == 0 {
+		if !secondTry {
+			secondTry = true
+			goto retry
+		}
 		err = fmt.Errorf("cannot find this song on apple music")
 		return
 	}
