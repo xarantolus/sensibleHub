@@ -1,1 +1,1 @@
-golangci-lint run --enable-all --disable testpackage,godot,goerr113,gomnd,stylecheck,goimports,gochecknoglobals,unparam,lll,nakedret,goconst,golint,wsl,gochecknoinits,scopelint,funlen,prealloc,gocognit,ineffassign,gocyclo
+golangci-lint run --enable-all --disable nestif,nlreturn,noctx,testpackage,godot,goerr113,gomnd,stylecheck,goimports,gochecknoglobals,unparam,lll,nakedret,goconst,golint,wsl,gochecknoinits,scopelint,funlen,prealloc,gocognit,ineffassign,gocyclo

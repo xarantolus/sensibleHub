@@ -100,7 +100,7 @@ func InitializeManager(cfg config.Config) (err error) {
 
 // Save saves the current state of the manager instance to its data file
 func (m *Manager) Save(lock ...bool) (err error) {
-	var shouldLock = true // Default: Lock m.SongsLock
+	shouldLock := true // Default: Lock m.SongsLock
 	if len(lock) > 0 {
 		shouldLock = lock[0]
 	}
@@ -110,12 +110,12 @@ func (m *Manager) Save(lock ...bool) (err error) {
 		defer m.SongsLock.Unlock()
 	}
 
-	err = os.MkdirAll(filepath.Dir(managerDataFile), 0755) // https://stackoverflow.com/a/31151508
+	err = os.MkdirAll(filepath.Dir(managerDataFile), 0o755) // https://stackoverflow.com/a/31151508
 	if err != nil {
 		return
 	}
 
-	var tmpFile = managerDataFile + ".tmp"
+	tmpFile := managerDataFile + ".tmp"
 
 	f, err := os.Create(tmpFile)
 	if err != nil {
@@ -198,7 +198,7 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 
 	// make sure that resolved links are recognized
 	if u.Host == "youtu.be" {
-		var q = make(url.Values)
+		q := make(url.Values)
 		q.Set("v", strings.TrimPrefix(u.Path, "/"))
 		u.RawQuery = q.Encode()
 
@@ -209,7 +209,7 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 	// music.youtube.com links will later be displayed as ...youtube.com/watch... (due to youtube-dls webpage_url field),
 	// so we should compare them like that
 	if u.Host == "music.youtube.com" {
-		var q = make(url.Values)
+		q := make(url.Values)
 		q.Set("v", u.Query().Get("v"))
 		u.RawQuery = q.Encode()
 
@@ -219,7 +219,7 @@ func (m *Manager) hasLink(u *url.URL) (me music.Entry, ok bool) {
 
 	// clean other url parameters
 	if u.Host == "youtube.com" {
-		var q = make(url.Values)
+		q := make(url.Values)
 		q.Set("v", u.Query().Get("v"))
 		u.RawQuery = q.Encode()
 	}

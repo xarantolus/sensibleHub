@@ -6,9 +6,8 @@ import (
 	"image/jpeg"
 	"io"
 	"os"
-	"time"
-
 	"sync"
+	"time"
 
 	"github.com/nfnt/resize"
 	"golang.org/x/sync/singleflight"

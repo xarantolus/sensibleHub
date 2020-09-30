@@ -110,13 +110,13 @@ type ArtistInfo struct {
 func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 	var res []Album
 
-	var cleanedArtist = CleanName(artist)
+	cleanedArtist := CleanName(artist)
 
 	artist = strings.ToUpper(artist)
 
-	var am = make(map[string]Album)
+	am := make(map[string]Album)
 
-	var unknownAlbum = Album{}
+	unknownAlbum := Album{}
 
 	for _, e := range m.AllEntries() {
 		// Wrong artist?
@@ -142,7 +142,7 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 		aname := CleanName(e.MusicData.Album)
 
-		var combined = strings.ToUpper(aname)
+		combined := strings.ToUpper(aname)
 
 		var album Album
 		if aname == "" {
@@ -208,11 +208,11 @@ func (m *Manager) Artist(artist string) (ai ArtistInfo, ok bool) {
 
 // GroupByAlbum groups songs by their artist and albums
 func (m *Manager) GroupByAlbum() (res []Album) {
-	var normalizedArtists = make(map[string]string)
+	normalizedArtists := make(map[string]string)
 
 	// this code is very similar to `ftp/musicfactory.go`
 	// in fact, I even copied most of it
-	var am = make(map[string]Album)
+	am := make(map[string]Album)
 
 	for _, e := range m.AllEntries() {
 		art := CleanName(e.Artist())
@@ -224,7 +224,7 @@ func (m *Manager) GroupByAlbum() (res []Album) {
 
 		aname := CleanName(e.AlbumName())
 
-		var combined = strings.ToUpper(art + "/" + aname)
+		combined := strings.ToUpper(art + "/" + aname)
 
 		album, ok := am[combined]
 		if !ok {

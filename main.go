@@ -10,9 +10,7 @@ import (
 	"xarantolus/sensibleHub/web"
 )
 
-var (
-	flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
-)
+var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
 
 func main() {
 	flag.Parse()
@@ -21,7 +19,7 @@ func main() {
 		log.Println("[Debug] Debug mode enabled")
 	}
 
-	var checkInstalledCommand = func(cmd string) {
+	checkInstalledCommand := func(cmd string) {
 		_, err := exec.LookPath(cmd)
 		if err != nil {
 			log.Printf("[Warning] Cannot find %s (%s). Please make sure to install it.\n", cmd, err.Error())

@@ -19,11 +19,11 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		Artists: make(map[string]Album),
 	}
 
-	var uniquePaths = make(map[string]bool)
+	uniquePaths := make(map[string]bool)
 
 	// Create the virtual file system
-	var normalizedArtists = make(map[string]string)
-	var normalizedAlbums = make(map[string]string)
+	normalizedArtists := make(map[string]string)
+	normalizedAlbums := make(map[string]string)
 
 	for _, e := range entries {
 		// Entries that should not be synced will not appear in the listing

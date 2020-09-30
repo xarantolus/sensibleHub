@@ -106,7 +106,7 @@ func (m *Manager) GroupByArtist() (groups []Group) {
 	m.SongsLock.RLock()
 	defer m.SongsLock.RUnlock()
 
-	var artMap = map[string][]music.Entry{}
+	artMap := map[string][]music.Entry{}
 
 	for _, song := range m.AllEntries() {
 		artist := strings.ToUpper(CleanName(song.MusicData.Artist))
@@ -140,7 +140,7 @@ func (m *Manager) GroupByYear() (groups []Group) {
 	m.SongsLock.RLock()
 	defer m.SongsLock.RUnlock()
 
-	var yMap = map[string][]music.Entry{}
+	yMap := map[string][]music.Entry{}
 
 	for _, song := range m.AllEntries() {
 		var yearName string
@@ -279,12 +279,12 @@ var musicExtensions = map[string]bool{
 
 // Incomplete returns all entries with incomplete data
 func (m *Manager) Incomplete() (groups []Group) {
-	var noArtist = Group{Title: "No Artist", Description: "We don't even know who made these songs"}
-	var noAlbum = Group{Title: "No Album", Description: "Missing album information"}
-	var noImage = Group{Title: "No Cover", Description: "There's no cover image for these songs"}
-	var noYear = Group{Title: "No Year", Description: "The year tag is missing"}
-	var weirdTitle = Group{Title: "Weird Title", Description: "Weird titles that should probably be changed"}
-	var smallCover = Group{Title: "Small Cover", Description: "Songs with a cover image less than 750 pixels in size"}
+	noArtist := Group{Title: "No Artist", Description: "We don't even know who made these songs"}
+	noAlbum := Group{Title: "No Album", Description: "Missing album information"}
+	noImage := Group{Title: "No Cover", Description: "There's no cover image for these songs"}
+	noYear := Group{Title: "No Year", Description: "The year tag is missing"}
+	weirdTitle := Group{Title: "Weird Title", Description: "Weird titles that should probably be changed"}
+	smallCover := Group{Title: "Small Cover", Description: "Songs with a cover image less than 750 pixels in size"}
 
 	// The conditions inside this loop must have the same order as the
 	// lists in the for below it. That way, songs can cascade through these categories
@@ -336,7 +336,7 @@ func (m *Manager) Incomplete() (groups []Group) {
 
 // Unsynced returns all songs that have syncing disabled
 func (m *Manager) Unsynced() (groups []Group) {
-	var g = Group{
+	g := Group{
 		Title:       "Unsynced",
 		Description: "Songs that are currently not synced to your devices",
 	}

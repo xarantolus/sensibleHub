@@ -53,12 +53,12 @@ func CropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 	// If we already have a square, we can just use the source file
 	if bounds.Max.X == bounds.Max.Y {
 		// Now we have a square - but is it the same file type as the one for the desired extension?
-		var desiredExtension = strings.ToUpper(filepath.Ext(destination))
+		desiredExtension := strings.ToUpper(filepath.Ext(destination))
 
 		if (desiredExtension == ".JPG" || desiredExtension == ".JPEG") && (format == "jpeg" || format == "jpg") || desiredExtension == ".PNG" && format == "png" {
 			// If yes, we don't need to worry about anything
 			if sourceFile == "" {
-				return ioutil.WriteFile(destination, data, 0644)
+				return ioutil.WriteFile(destination, data, 0o644)
 			}
 
 			return os.Rename(sourceFile, destination)

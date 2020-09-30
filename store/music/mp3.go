@@ -18,13 +18,11 @@ import (
 	"golang.org/x/sync/singleflight"
 )
 
-var (
-	mp3Group singleflight.Group
-)
+var mp3Group singleflight.Group
 
 // MP3Path returns the path for an mp3 file for this song. This might take some time
 func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
-	var outName = filepath.Join("data", "songs", e.ID, "latest.mp3")
+	outName := filepath.Join("data", "songs", e.ID, "latest.mp3")
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
 	if fi, ferr := os.Stat(outName); !os.IsNotExist(ferr) && fi.ModTime().After(e.LastEdit) {
@@ -49,7 +47,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 		var outbuf bytes.Buffer
 
-		var cmd = exec.Command("ffmpeg", "-y", "-i", ap)
+		cmd := exec.Command("ffmpeg", "-y", "-i", ap)
 
 		// If we have a cover image, we add it
 		if e.PictureData.Filename != "" {
@@ -62,7 +60,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 			coverImg, _, err := image.Decode(bytes.NewBuffer(b))
 			if err == nil {
-				var maxImageSize = cfg.Cover.MaxSize
+				maxImageSize := cfg.Cover.MaxSize
 				if maxImageSize > 0 && coverImg.Bounds().Dx() > maxImageSize {
 					resized := resize.Resize(uint(maxImageSize), 0, coverImg, resize.MitchellNetravali)
 					coverImg = resized

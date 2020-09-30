@@ -63,7 +63,7 @@ retry:
 		return
 	}
 
-	var search = new(searchResults)
+	search := new(searchResults)
 	err = json.NewDecoder(resp.Body).Decode(search)
 	if err != nil {
 		return
@@ -133,6 +133,7 @@ type searchResults struct {
 	ResultCount int             `json:"resultCount"`
 	Results     []appleSongData `json:"results"`
 }
+
 type appleSongData struct {
 	WrapperType            string    `json:"wrapperType"`
 	Kind                   string    `json:"kind"`

@@ -17,7 +17,7 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 		return
 	}
 
-	var existingSongs = make(map[string]bool)
+	existingSongs := make(map[string]bool)
 
 	for _, song := range songsList {
 		if !song.IsDir() {
@@ -103,7 +103,7 @@ func (m *Manager) DeleteGeneratedFiles(maxAgeDays int) (n int) {
 		}
 
 		// this is the mp3 file
-		var outName = filepath.Join("data", "songs", song.ID, "latest.mp3")
+		outName := filepath.Join("data", "songs", song.ID, "latest.mp3")
 
 		err := os.Remove(outName)
 		if err != nil {

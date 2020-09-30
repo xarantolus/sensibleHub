@@ -53,7 +53,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	var isAjax = r.Header.Get("X-XHR") == "true"
+	isAjax := r.Header.Get("X-XHR") == "true"
 
 	songID := v["songID"]
 

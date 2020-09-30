@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	"github.com/vitali-fedulov/images"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,13 +10,13 @@ import (
 	"strings"
 	"time"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/vitali-fedulov/images"
 )
 
-var (
-	// ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are
-	// the same because having a zero-second song doesn't make sense
-	ErrAudioSameStartEnd = fmt.Errorf("Audio start/end must not be the same")
-)
+// ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are
+// the same because having a zero-second song doesn't make sense
+var ErrAudioSameStartEnd = fmt.Errorf("Audio start/end must not be the same")
 
 // EditEntryData is used for editing an entry.
 // Not all fields must be set, most are optional
@@ -49,7 +48,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		return fmt.Errorf("Cannot edit entry with id %s as it doesn't exist", id)
 	}
 
-	var entryBefore = entry
+	entryBefore := entry
 
 	// Title must not be empty
 	setValidS(&entry.MusicData.Title, data.Title)
@@ -84,7 +83,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 
 	var editedImage bool
 	if data.CoverImage != nil && data.CoverFilename != "" {
-		var oldCover, oldCoverPath = entry.PictureData.Filename, entry.CoverPath()
+		oldCover, oldCoverPath := entry.PictureData.Filename, entry.CoverPath()
 
 		// If we have no extension, it will be converted to a jpeg image
 		ext := filepath.Ext(data.CoverFilename)
@@ -184,7 +183,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 			continue
 		}
 
-		var oldCover, oldCoverPath = e.PictureData.Filename, e.CoverPath()
+		oldCover, oldCoverPath := e.PictureData.Filename, e.CoverPath()
 		newPath := filepath.Join(e.DirPath(), coverFN)
 
 		// Move the new cover to its place

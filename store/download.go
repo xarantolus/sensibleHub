@@ -44,7 +44,7 @@ func (m *Manager) download(url string) (err error) {
 		}
 	}()
 
-	var cmdCtx, cancel = context.WithCancel(context.Background())
+	cmdCtx, cancel := context.WithCancel(context.Background())
 
 	m.downloadContextLock.Lock()
 	m.downloadContext = cmdCtx
@@ -178,7 +178,7 @@ func (m *Manager) download(url string) (err error) {
 	// IDs at the same time just doesn't happen with downloads as they are sequential.
 	// There is the risk that files are imported over FTP while downloading something new,
 	// but the possibility of generating the same id is low
-	var e = &music.Entry{
+	e := &music.Entry{
 		ID:        m.generateID(),
 		SourceURL: minfo.Webpage(url),
 
@@ -211,7 +211,7 @@ func (m *Manager) download(url string) (err error) {
 
 	// Create song dir
 	songDir := fmt.Sprintf(songDirTemplate, e.ID)
-	err = os.MkdirAll(songDir, 0644)
+	err = os.MkdirAll(songDir, 0o644)
 	if err != nil {
 		return
 	}

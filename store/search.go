@@ -13,7 +13,7 @@ func (m *Manager) Search(query string) (list []music.Entry) {
 	query = strings.TrimSpace(query)
 
 	// If searching for an url (even without prefix), we check if we already have it
-	var q = query
+	q := query
 	if strings.ContainsAny(q, "./?=") && !strings.HasPrefix(q, "http://") && !strings.HasPrefix(q, "https://") {
 		q = "https://" + q
 	}

@@ -50,7 +50,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		}
 	}
 
-	var md = music.MusicData{}
+	md := music.MusicData{}
 
 	tag, err := id3v2.Open(musicFile, id3v2.Options{Parse: true})
 	if err == nil {
@@ -97,7 +97,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	var picBuf bytes.Buffer
 
 	ex := filepath.Ext(musicFile)
-	var f = strings.TrimSuffix(musicFile, ex) + ".temp" + ex
+	f := strings.TrimSuffix(musicFile, ex) + ".temp" + ex
 
 	// try to extract image from the file: https://superuser.com/a/1328212
 	cmd := exec.Command("ffmpeg", "-y", "-i", musicFile, "-map", "0:v", "-map", "-0:V", "-c", "copy", "-f", "image2pipe", "pipe:1")
@@ -114,7 +114,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		return
 	}
 
-	var oldmfile = musicFile
+	oldmfile := musicFile
 	defer func() {
 		if err == nil {
 			err = os.Remove(oldmfile)
@@ -152,7 +152,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	}
 
 	songDir := fmt.Sprintf(songDirTemplate, e.ID)
-	err = os.MkdirAll(songDir, 0644)
+	err = os.MkdirAll(songDir, 0o644)
 	if err != nil {
 		return
 	}
