@@ -6,7 +6,7 @@ github.com/cenkalti/dominantcolor
 github.com/disintegration/imaging
 # github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 github.com/edwvee/exiffix
-# github.com/gorilla/mux v1.7.4
+# github.com/gorilla/mux v1.8.0
 github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 github.com/gorilla/websocket
@@ -37,28 +37,28 @@ github.com/nfnt/resize
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
-# github.com/vitali-fedulov/images v0.0.0-20191211155917-6fa8ac4e96b9
+# github.com/vitali-fedulov/images v0.0.0-20200831232703-8a90db96a358
 github.com/vitali-fedulov/images
 # goftp.io/server v0.4.0
 goftp.io/server
 goftp.io/server/core
 goftp.io/server/driver/file
 goftp.io/server/driver/minio
-# golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
+# golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
-# golang.org/x/image v0.0.0-20200801110659-972c09e46d76
+# golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
-# golang.org/x/net v0.0.0-20200707034311-ab3426394381
+# golang.org/x/net v0.0.0-20200927032502-5d4f70055728
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
 # golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20200728102440-3e129f6d46b1
+# golang.org/x/sys v0.0.0-20200929083018-4d22bbb62b3c
 golang.org/x/sys/cpu
 # golang.org/x/text v0.3.3
 golang.org/x/text/encoding
@@ -72,5 +72,5 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# gopkg.in/ini.v1 v1.57.0
+# gopkg.in/ini.v1 v1.61.0
 gopkg.in/ini.v1
