@@ -228,6 +228,9 @@ func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, e
 	}
 
 	_, err = store.M.ImportFile(d.Name(), nil)
+	if err != nil {
+		log.Println("[Import] Error while importing file from FTP:", err.Error())
+	}
 
 	return
 }

@@ -176,12 +176,12 @@ func (m *Manager) betterCover(artist, album, currentPath string) (path string, e
 			return "", err
 		}
 
-		currHash, currSize := images.Hash(curr)
-
-		// if the current image is smaller than the one that should be replaced, we skip it
-		if origSize.X > currSize.X {
+		// if the current image is not larger than the one that should be replaced, we skip it
+		if curr.Bounds().Dx() < orig.Bounds().Dx() {
 			continue
 		}
+
+		currHash, currSize := images.Hash(curr)
 
 		if images.Similar(origHash, currHash, origSize, currSize) {
 			return song.CoverPath(), nil

@@ -1,6 +1,7 @@
 package store
 
 import (
+	"net/url"
 	"sort"
 	"strings"
 	"unicode"
@@ -9,7 +10,22 @@ import (
 
 // Search offers search functionality
 func (m *Manager) Search(query string) (list []music.Entry) {
-	qs := splitString(strings.ToUpper(strings.TrimSpace(query)))
+	query = strings.TrimSpace(query)
+
+	// If searching for an url (even without prefix), we check if we already have it
+	var q = query
+	if strings.ContainsAny(q, "./?=") && !strings.HasPrefix(q, "http://") && !strings.HasPrefix(q, "https://") {
+		q = "https://" + q
+	}
+
+	if u, err := url.ParseRequestURI(q); err == nil {
+		if e, ok := m.hasLink(u); ok {
+			list = []music.Entry{e}
+			return
+		}
+	}
+
+	qs := splitString(strings.ToUpper(query))
 	e := m.AllEntries()
 
 	type result struct {

@@ -199,7 +199,7 @@ a.box:focus, a.box:hover {
 }
 
 .audio-controls {
-    border-radius: 20px;
+    border-radius: 4px;
 }
 
 a.button.is-static {
