@@ -1,5 +1,5 @@
 function songPage() {
-   registerCover();
+    registerCover();
 
     // Confirm submitting when deleting song
     function confirmDelete(evt) {
@@ -24,7 +24,7 @@ function songPage() {
     }
     document.getElementById("delete-button").addEventListener("click", confirmDelete);
 
-    
+
     function confirmDeleteCover(evt) {
         evt.preventDefault();
 
@@ -54,7 +54,31 @@ function songPage() {
         localStorage.setItem("audio-volume", evt.target.volume);
     }
 
+    // initialize mediaSession metadata
+    if ('mediaSession' in navigator) {
+        // if span is visible, we have a non-placeholder image
+        var coverSizeSpan = document.querySelector(".cover-image-size");
+        var coverImage = document.getElementById("song-cover");
+        var artwork = [];
+        if (coverSizeSpan && coverImage) {
+            artwork.push({ src: coverImage.src + "?size=small", sizes: "120x120" });
+            artwork.push({ src: coverImage.src, sizes: coverImage.dataset.size + "x" + coverImage.dataset.size });
+        }
+        
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: document.getElementById("song-title").value,
+            artist: document.getElementById("song-artist").value,
+            album: document.getElementById("song-album").value,
+            artwork: artwork,
+        });
+    }
+
+
     var audioElement = document.getElementsByTagName("audio")[0];
+    // If this page is loaded from InstantClick's cache, then the audio src might be removed
+    if (audioElement.src == "") {
+        audioElement.src = location.href + "/audio";
+    }
 
     // Fix audio issue in firefox: sometimes it doesn't load the audio because "not all candidates could be loaded", then it disables "media loading" for the page
     audioElement.load();

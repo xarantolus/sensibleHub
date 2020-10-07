@@ -24,6 +24,17 @@ InstantClick.on('change', function () {
 })
 
 InstantClick.on('receive', function (url, body, title) {
+    // Try to clear MediaSession API to make sure we can no longer use media keys
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "none"
+        navigator.mediaSession.metadata = null;
+        // firefox keeps playing audio, so we remove its source
+        var a = document.querySelector("audio");
+        if (a) {
+            a.src = "";
+            a.pause();
+        }
+    }
     if (!isSearch) {
         return;
     }
