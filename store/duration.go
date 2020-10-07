@@ -9,12 +9,12 @@ import (
 )
 
 // getAudioDuration returns the duration of the audio in seconds (also works on videos)
-func getAudioDuration(inputPath string) (durationSeconds float64, err error) {
+func (m *Manager) getAudioDuration(inputPath string) (durationSeconds float64, err error) {
 	if strings.TrimSpace(inputPath) == "" {
 		return 0, fmt.Errorf("inputPath is empty")
 	}
 
-	cmd := exec.Command("ffprobe", "-i", inputPath, "-show_entries", "format=duration", "-print_format", "json", "-v", "quiet")
+	cmd := exec.Command(m.cfg.Alternatives.FFprobe, "-i", inputPath, "-show_entries", "format=duration", "-print_format", "json", "-v", "quiet")
 
 	output, err := cmd.StdoutPipe()
 	if err != nil {

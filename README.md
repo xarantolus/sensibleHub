@@ -88,7 +88,7 @@ GOOS=linux GOARCH=arm GOARM=7 ./pack.sh
 #### Additional requirements
 This program relies on some other programs that need to be installed and be available in your $PATH:
 - [youtube-dl](https://github.com/ytdl-org/youtube-dl): Used for downloading files from [all kinds of sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html). Since websites change frequently and break youtube-dl, you should update it from time to time or set up an automatic update (e.g. using a cron job)
-- [FFmpeg](http://ffmpeg.org/): Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports and transcoding mp3 files for downloads
+- [FFmpeg](http://ffmpeg.org/) and FFprobe: Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports and transcoding MP3 files for downloads
 
 You might be able to install them using the following command:
 
@@ -144,6 +144,14 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
         // Cover images of generated/synced songs will have this as maximum size in pixels, larger ones are downscaled.
         // If omitted, 0 or lower, this setting will be ignored and image sizes are not changed.
         "max_size": 2000
+    },
+
+    // Alternatives for programs used by this server. Leave blank to use default values.
+    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/blackjack4494/youtube-dlc) 
+    "alternatives": {
+        "ffmpeg": "ffmpeg",
+        "ffprobe": "ffprobe",
+        "youtube-dl": "youtube-dl"
     }
 }
 ```

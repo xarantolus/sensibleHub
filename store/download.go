@@ -53,7 +53,7 @@ func (m *Manager) download(url string) (err error) {
 	m.downloadContextLock.Unlock()
 
 	// Setup youtube-dl command and run it
-	cmd := exec.CommandContext(cmdCtx, "youtube-dl", "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "song.%(ext)s")
+	cmd := exec.CommandContext(cmdCtx, m.cfg.Alternatives.YoutubeDL, "--write-info-json", "--write-thumbnail", "-f", "bestaudio/best", "--max-downloads", "1", "--no-playlist", "-x", "-o", "song.%(ext)s")
 	cmd.Dir = tmpDir
 
 	// when searching for a specific song, we want to reject Instrumental versions.
@@ -103,7 +103,7 @@ func (m *Manager) download(url string) (err error) {
 			// These image formats are not supported and must be converted
 			// The output format could be either PNG or JPG, but PNG is lossless
 			outpath := filepath.Join(tmpDir, "song.png")
-			err = exec.Command("ffmpeg", "-y", "-i", path, outpath).Run()
+			err = exec.Command(m.cfg.Alternatives.FFmpeg, "-y", "-i", path, outpath).Run()
 			if err != nil {
 				return nil // Ignore error
 			}
@@ -134,7 +134,7 @@ func (m *Manager) download(url string) (err error) {
 	}
 
 	// the bad part about this is that still images also have a duration of 0
-	dur, err := getAudioDuration(audioPath)
+	dur, err := m.getAudioDuration(audioPath)
 	if err != nil {
 		return fmt.Errorf("cannot get audio duration: %w", err)
 	}

@@ -47,7 +47,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 		var outbuf bytes.Buffer
 
-		cmd := exec.Command("ffmpeg", "-y", "-i", ap)
+		cmd := exec.Command(cfg.Alternatives.FFmpeg, "-y", "-i", ap)
 
 		// If we have a cover image, we add it
 		if e.PictureData.Filename != "" {

@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -26,6 +27,12 @@ type Config struct {
 	AllowExternal struct {
 		Apple bool `json:"apple"`
 	} `json:"allow_external"`
+
+	Alternatives struct {
+		FFmpeg    string `json:"ffmpeg"`
+		FFprobe   string `json:"ffprobe"`
+		YoutubeDL string `json:"youtube-dl"`
+	} `json:"alternatives"`
 }
 
 const (
@@ -42,6 +49,20 @@ func Parse() (c Config, err error) {
 	err = json.NewDecoder(f).Decode(&c)
 	if err != nil {
 		return
+	}
+
+	// Set default paths/names if none are set
+	c.Alternatives.FFmpeg = strings.TrimSpace(c.Alternatives.FFmpeg)
+	if c.Alternatives.FFmpeg == "" {
+		c.Alternatives.FFmpeg = "ffmpeg"
+	}
+	c.Alternatives.FFprobe = strings.TrimSpace(c.Alternatives.FFprobe)
+	if c.Alternatives.FFprobe == "" {
+		c.Alternatives.FFprobe = "ffprobe"
+	}
+	c.Alternatives.YoutubeDL = strings.TrimSpace(c.Alternatives.YoutubeDL)
+	if c.Alternatives.YoutubeDL == "" {
+		c.Alternatives.YoutubeDL = "youtube-dl"
 	}
 
 	return

@@ -19,5 +19,10 @@
     },
     "cover": {
         "max_size": 2000
+    },
+    "alternatives": {
+        "ffmpeg": "ffmpeg",
+        "ffprobe": "ffprobe",
+        "youtube-dl": "youtube-dl"
     }
 }

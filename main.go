@@ -19,20 +19,21 @@ func main() {
 		log.Println("[Debug] Debug mode enabled")
 	}
 
-	checkInstalledCommand := func(cmd string) {
-		_, err := exec.LookPath(cmd)
-		if err != nil {
-			log.Printf("[Warning] Cannot find %s (%s). Please make sure to install it.\n", cmd, err.Error())
-		}
-	}
-	// Check all external commands that are used by this program in order to warn the user if they aren't accessible
-	checkInstalledCommand("ffmpeg")
-	checkInstalledCommand("youtube-dl")
-
 	cfg, err := config.Parse()
 	if err != nil {
 		panic("while parsing config: " + err.Error())
 	}
+
+	checkInstalledCommand := func(cmd string) {
+		_, err := exec.LookPath(cmd)
+		if err != nil {
+			log.Printf("[Warning] Cannot find %s (%s). Please make sure it is installed and that the path is correct.\n", cmd, err.Error())
+		}
+	}
+	// Check all external commands that are used by this program in order to warn the user if they aren't accessible
+	checkInstalledCommand(cfg.Alternatives.FFmpeg)
+	checkInstalledCommand(cfg.Alternatives.FFprobe)
+	checkInstalledCommand(cfg.Alternatives.YoutubeDL)
 
 	err = store.InitializeManager(cfg)
 	if err != nil {
