@@ -10,28 +10,28 @@
             <!-- Left Side: Image -->
             <div class="column image-column">
                 <figure class="image is-square song-image-container">
-                <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.BorderColor}}"{{end}} id="song-cover" id="img-{{.ID}}" data-size="{{.PictureData.Size}}" src="/song/{{.ID}}/cover" alt="Cover">
-                    <div class="middle">
-                        <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
-                        <div class="file">
-                            <span class="file-label">
-                                <input id="song-cover-input" class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button">
-                                <span class="file-cta">
-                                    <span class="file-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                            <path d="M403.002 217.001C388.998 148.002 328.998 96 256 96c-57.998 0-107.998 32.998-132.998 81.001C63.002 183.002 16 233.998 16 296c0 65.996 53.999 120 120 120h260c55 0 100-45 100-100 0-52.998-40.996-96.001-92.998-98.999zM288 276v76h-64v-76h-68l100-100 100 100h-68z"></path>
-                                        </svg>
+                    <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.BorderColor}}" {{end}} id="song-cover" id="img-{{.ID}}" data-size="{{.PictureData.Size}}" src="/song/{{.ID}}/cover" alt="Cover">
+                        <div class="middle">
+                            <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
+                            <div class="file">
+                                <span class="file-label">
+                                    <input id="song-cover-input" class="file-input" accept="image/png,image/jpeg" type="file" name="cover-upload-button">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                <path d="M403.002 217.001C388.998 148.002 328.998 96 256 96c-57.998 0-107.998 32.998-132.998 81.001C63.002 183.002 16 233.998 16 296c0 65.996 53.999 120 120 120h260c55 0 100-45 100-100 0-52.998-40.996-96.001-92.998-98.999zM288 276v76h-64v-76h-68l100-100 100 100h-68z"></path>
+                                            </svg>
+                                        </span>
+                                        <label for="song-cover-input" class="file-label" id="cover-upload-button">
+                                            Choose a cover image…
+                                        </label>
                                     </span>
-                                    <label for="song-cover-input" class="file-label" id="cover-upload-button">
-                                        Choose a cover image…
-                                    </label>
                                 </span>
-                            </span>
+                            </div>
+                            {{if have .PictureData.Filename}}
+                            {{with .PictureData.Size}}<span class="cover-image-size">{{.}}x{{.}}px</span><br>{{end}}
+                            <button id="delete-cover" name="delete-cover" class="delete-cover button is-small is-danger" value="delete-cover">Delete current cover</button>{{end}}
                         </div>
-                        {{if have .PictureData.Filename}}
-                        <button id="delete-cover" name="delete-cover" class="delete-cover button is-small is-danger" value="delete-cover">Delete current cover</button>
-                    {{end}}</div>
-                    {{with .PictureData.Size}}<span class="cover-image-size">{{.}}x{{.}}px</span>{{end}}
                 </figure>
             </div>
 
@@ -177,7 +177,7 @@
 <div class="listing similar">
     <h4 class="title is-4">Similar</h4>
     {{range .}}
-        {{ template "song-item.html" . }}
+    {{ template "song-item.html" . }}
     {{end}}
 </div>{{end}}
 {{ template "foot.html" . }}
