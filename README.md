@@ -239,7 +239,7 @@ Now you can create a new *Folder pair* with these settings:
  * **Scheduling**: Here you can set *when* it should sync your files
  * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. Disable *Only resync source files if modified (ignore target deletion)*. Set *Overwrite old files* to *Always* and set *If conflicting modifications* to *Use remote file*. Now the most important part, **you must enable _Disable file-size check_** or it will not work. You can also enable *Rescan media library* to make sure new files are recognized.
 
-For Android, any music player will probably work. I recommend [Music](https://f-droid.org/packages/com.maxfour.music/), it is quite customizable and colorful.
+For Android, any music player will probably work. I recommend [Music](https://f-droid.org/packages/com.maxfour.music/), it is quite customizable and colorful. You can enable *Ignore Media Store covers* in settings if some cover images aren't displayed.
 
 
 ### Resources
@@ -281,7 +281,7 @@ Compared to other music servers this one is very basic. Here are some things you
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
 * The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
-* It seems like some media players don't display cover images over a certain size, while others do. Use the cover max size setting to see if lowering the size helps.
+* It seems like some media players don't display cover images over a certain size, while others do. Use the cover max size setting to see if lowering the size helps. On Android, use a music player that allows you to ignore MediaStore covers.
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:

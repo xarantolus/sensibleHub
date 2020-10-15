@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -337,8 +338,7 @@ func (m *Manager) Incomplete() (groups []Group) {
 // Unsynced returns all songs that have syncing disabled
 func (m *Manager) Unsynced() (groups []Group) {
 	g := Group{
-		Title:       "Unsynced",
-		Description: "Songs that are currently not synced to your devices",
+		Title: "Unsynced",
 	}
 
 	for _, song := range m.AllEntries() {
@@ -350,6 +350,7 @@ func (m *Manager) Unsynced() (groups []Group) {
 	}
 
 	if len(g.Songs) > 0 {
+		g.Description = fmt.Sprintf("%d songs are currently not synced to your devices", len(g.Songs))
 		groups = []Group{g}
 	}
 
