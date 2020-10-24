@@ -25,7 +25,7 @@ and syncing using external programs.
 The page used for adding new songs. When a download is already running, new urls will be put in a queue. A progress bar will appear on all pages to indicate if a download is running.
   
 ##### Album page
-  ![Album page](.github/screenshots/shub-album.jpg?raw=true)
+  ![Album page](.github/screenshots/shub-album.png?raw=true)
 Show all songs that are in an album. On this page, you can also set an album image for *all* songs in it so you don't have to set it manually for every song.
   
 ##### Song page
