@@ -25,6 +25,7 @@ func RunServer(cfg config.Config, enableDebug bool) (err error) {
 	store.M.SetEventFunc(AllSockets)
 
 	r := mux.NewRouter()
+	r.StrictSlash(true)
 
 	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
 
