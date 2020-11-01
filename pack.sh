@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm sensibleHub.zip || true 
 rm sensibleHub || true 
 rm sensibleHub.exe || true 

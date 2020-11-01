@@ -1,6 +1,8 @@
 mkdir -p releases
 rm releases/*
 
+chmod +x pack.sh
+
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
 GOOS=windows ./pack.sh "releases/sensibleHub-windows-$GIT_COMMIT.zip"
