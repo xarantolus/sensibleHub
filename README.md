@@ -147,11 +147,11 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     },
 
     // Alternatives for programs used by this server. Leave blank to use default values.
-    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/blackjack4494/youtube-dlc) 
+    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/blackjack4494/yt-dlc) 
     "alternatives": {
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
-        "youtube-dl": "youtube-dl"
+        "youtube-dl": "youtube-dlc"
     }
 }
 ```

@@ -23,6 +23,6 @@
     "alternatives": {
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
-        "youtube-dl": "youtube-dl"
+        "youtube-dl": "youtube-dlc"
     }
 }
