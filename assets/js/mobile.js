@@ -23,6 +23,13 @@ function registerMenu() {
     // this is why we need to use touchstart too
     burger.addEventListener('click', openCloseMenu);
     burger.addEventListener('touchstart', openCloseMenu);
+    burger.addEventListener('click', function (evt) {
+        evt.preventDefault();
+        var menu = document.querySelector('.navbar-menu');
+        if (menu.classList.contains("is-active")) {
+            document.getElementById("search-bar").focus();
+        }
+    })
 }
 
 InstantClick.on('change', registerMenu)
