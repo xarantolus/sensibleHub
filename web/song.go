@@ -57,9 +57,12 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 
 	songID := v["songID"]
 
-	err = r.ParseMultipartForm(25 << 20) // Limit: 25MB
+	err = r.ParseMultipartForm(250 << 20) // Limit: 250MB
 	if err != nil {
 		return
+	}
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
 	}
 
 	if r.FormValue("delete-cover") == "delete-cover" {
