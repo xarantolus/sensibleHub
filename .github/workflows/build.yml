@@ -28,7 +28,7 @@ jobs:
     - name: Generate tag name
       run: echo "TAG_NAME=$(git rev-parse --short HEAD)" >> $GITHUB_ENV  
     - name: Generate release title
-      run: echo "RTITLE=$(git log -n 1 --oneline | cut -d\" \" -f2- -)"  >> $GITHUB_ENV
+      run: echo "RTITLE=$(git log -n 1 --oneline | cut -d' ' -f2- -)"  >> $GITHUB_ENV
       
     - name: Upload release
       uses: softprops/action-gh-release@v1
