@@ -31,7 +31,7 @@ jobs:
         files: releases/*.zip
         tag_name: ${{ env.TAG_NAME }}
         fail_on_unmatched_files: true
-        draft: true
+        body_path: release.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
