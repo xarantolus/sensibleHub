@@ -65,6 +65,8 @@ func RunServer(cfg config.Config, enableDebug bool) (err error) {
 	r.HandleFunc("/song/{songID}/audio", ErrWrap(HandleAudio)).Methods(http.MethodGet)
 	r.HandleFunc("/song/{songID}/mp3", ErrWrap(HandleMP3)).Methods(http.MethodGet)
 
+	r.HandleFunc("/songs/random", ErrWrap(debugWrap(HandleRandomSong))).Methods(http.MethodGet)
+
 	// Album Listing
 	// r.HandleFunc("/albums")
 	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(HandleShowAlbum))).Methods(http.MethodGet)

@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"math/rand"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -377,4 +378,14 @@ func songLenDescription(count int) string {
 		return ""
 	}
 	return strconv.Itoa(count) + " songs"
+}
+
+// RandomSong returns a randomly chosen song. `ok` is false in case we have no songs at all
+func (m *Manager) RandomSong() (e music.Entry, ok bool) {
+	songs := m.AllEntries()
+	if len(songs) == 0 {
+		return
+	}
+
+	return songs[rand.Intn(len(songs))], true
 }

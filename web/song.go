@@ -141,3 +141,21 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	http.Redirect(w, r, r.URL.String(), http.StatusSeeOther)
 	return
 }
+
+// HandleRandomSong redirects to a randomly chosen song
+func HandleRandomSong(w http.ResponseWriter, r *http.Request) (err error) {
+	song, ok := store.M.RandomSong()
+	if !ok {
+		return HTTPError{
+			StatusCode: http.StatusNotFound,
+			Message:    "There aren't any songs that can be chosen from",
+		}
+	}
+
+	// don't cache, we want a new one every time
+	w.Header().Set("Cache-Control", "no-cache, max-age=0, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+
+	http.Redirect(w, r, "/song/"+song.ID, http.StatusTemporaryRedirect)
+	return
+}
