@@ -54,6 +54,12 @@ function songPage() {
         localStorage.setItem("audio-volume", evt.target.volume);
     }
 
+    var audioElement = document.getElementsByTagName("audio")[0];
+    // If this page is loaded from InstantClick's cache, then the audio src might be removed
+    if (audioElement.duration == NaN) {
+        audioElement.src = document.getElementsByClassName("source")[0].src;
+    }
+
     // initialize mediaSession metadata
     if ('mediaSession' in navigator) {
         // if span is visible, we have a non-placeholder image
@@ -71,13 +77,6 @@ function songPage() {
             album: document.getElementById("song-album").value,
             artwork: artwork,
         });
-    }
-
-
-    var audioElement = document.getElementsByTagName("audio")[0];
-    // If this page is loaded from InstantClick's cache, then the audio src might be removed
-    if (audioElement.src == "") {
-        audioElement.src = location.href + "/audio";
     }
 
     // Fix audio issue in firefox: sometimes it doesn't load the audio because "not all candidates could be loaded", then it disables "media loading" for the page
@@ -101,5 +100,4 @@ function songPage() {
 
     songDownloadButton.addEventListener('click', downloadButtonClicked);
     songDownloadButton.addEventListener('blur', removeLoading);
-
 }

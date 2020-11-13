@@ -23,7 +23,7 @@ InstantClick.on('change', function () {
     }
 })
 
-InstantClick.on('receive', function (url, body, title) {
+InstantClick.on('change', function () {
     // Try to clear MediaSession API to make sure we can no longer use media keys
     if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = "none"
@@ -31,17 +31,21 @@ InstantClick.on('receive', function (url, body, title) {
         // firefox keeps playing audio, so we remove its source
         var a = document.querySelector("audio");
         if (a) {
-            a.src = "";
             a.pause();
+            a.src = "";
+            a.src = null;
+            a.removeAttribute("src");
         }
     }
+})
 
+InstantClick.on('receive', function (url, body, title) {
     // song is there, we have been redirected. Sadly instantclick.js doesn't handle this, so we need to check it here
     var song = body.querySelector("#song-id");
     if (song) {
-        nextUrl = "/song/" + song.value; 
+        nextUrl = "/song/" + song.value;
     }
-    
+
     if (!isSearch) {
         return;
     }
