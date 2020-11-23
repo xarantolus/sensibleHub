@@ -59,6 +59,11 @@ function songPage() {
     if (audioElement.duration == NaN) {
         audioElement.src = document.getElementsByClassName("source")[0].src;
     }
+    
+    var start = document.getElementsByName("audio-start");
+    if (start.length > 0 && start[0].value > 0) {
+        audioElement.currentTime = start[0].value
+    }
 
     // initialize mediaSession metadata
     if ('mediaSession' in navigator) {
