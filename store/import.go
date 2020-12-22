@@ -165,7 +165,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	}()
 
 	if picBuf.Len() > 0 {
-		err = CropCover(ioutil.NopCloser(&picBuf), "", e.CoverPath())
+		err = cropCover(ioutil.NopCloser(&picBuf), "", e.CoverPath())
 	} else {
 		e.PictureData.Filename = ""
 	}

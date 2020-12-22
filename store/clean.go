@@ -7,11 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	"xarantolus/sensibleHub/store/config"
 )
 
 // CleanUp removes all unused directories in the data directory. They might not have been deleted due to errors.
-func (m *Manager) CleanUp(cfg config.Config) (n int) {
+func (m *Manager) CleanUp() (n int) {
 	songsList, err := ioutil.ReadDir(filepath.Dir(songDirTemplate))
 	if err != nil {
 		return
@@ -52,9 +51,9 @@ func (m *Manager) CleanUp(cfg config.Config) (n int) {
 		n++
 	}
 
-	m.DeleteGeneratedFiles(cfg.KeepGeneratedDays)
+	m.DeleteGeneratedFiles(m.cfg.KeepGeneratedDays)
 
-	go m.runCleanJob(cfg.KeepGeneratedDays)
+	go m.runCleanJob(m.cfg.KeepGeneratedDays)
 
 	return
 }

@@ -24,5 +24,6 @@
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
         "youtube-dl": "youtube-dlc"
-    }
+    },
+    "generate_on_startup": true
 }

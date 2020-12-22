@@ -152,7 +152,12 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
         "youtube-dl": "youtube-dlc"
-    }
+    },
+
+    // Whether to generate cover previews when starting up.
+    // If this is false, cover previews are first generated the first time a page is loaded, which 
+    // can lead to pages where previews come in after serveral seconds
+    "generate_on_startup": true
 }
 ```
 

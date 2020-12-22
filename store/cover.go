@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,6 +16,37 @@ import (
 	"github.com/edwvee/exiffix"
 	"github.com/vitali-fedulov/images"
 )
+
+// GenerateCoverPreviews starts generating all cover previews.
+// It should be called once when the server starts up.
+// Since it might take multiple minutes, it runs in the background.
+// It is sequential, which means that it might be quite slow, but that usually
+// doesn't matter when we just warm the cache and nobody is requesting anything
+func (m *Manager) GenerateCoverPreviews() {
+	if !m.cfg.GenerateOnStartup {
+		return
+	}
+
+	newest, _ := m.Newest()
+	if len(newest) == 0 {
+		// We don't have any songs yet
+		return
+	}
+
+	log.Println("[Startup]: Starting cover preview generation")
+
+	// This might take some time, especially with more songs.
+	// Could easily be parallelized, but I see no reason for that
+	// Also, yes, the songs in newest are done twice, but again,
+	// I don't really care.
+	// The goal is to warm up the songs one sees first (main page),
+	// then all others.
+	for _, e := range append(newest, m.AllEntries()...) {
+		e.CoverPreview()
+	}
+
+	log.Println("[Startup]: Finished cover preview generation")
+}
 
 // cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
 // If no squared image can be generated, no image will be generated.
@@ -24,12 +56,12 @@ func cropMoveCover(sourceFile, destination string) (err error) {
 		return
 	}
 
-	return CropCover(f, sourceFile, destination)
+	return cropCover(f, sourceFile, destination)
 }
 
-// CropCover crops a cover image stored in `f` to a square and writes it to a file at `destination`.
+// cropCover crops a cover image stored in `f` to a square and writes it to a file at `destination`.
 // sourceFile can be "" (empty string) if the cover has been read e.g. from an http request
-func CropCover(f io.ReadCloser, sourceFile string, destination string) (err error) {
+func cropCover(f io.ReadCloser, sourceFile string, destination string) (err error) {
 	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		f.Close()

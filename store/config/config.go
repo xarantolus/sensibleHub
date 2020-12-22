@@ -33,6 +33,8 @@ type Config struct {
 		FFprobe   string `json:"ffprobe"`
 		YoutubeDL string `json:"youtube-dl"`
 	} `json:"alternatives"`
+
+	GenerateOnStartup bool `json:"generate_on_startup"`
 }
 
 const (

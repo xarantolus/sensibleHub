@@ -93,7 +93,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		coverFN := "cover" + strings.ToLower(ext)
 
 		covDest := filepath.Join(entry.DirPath(), coverFN)
-		err = CropCover(data.CoverImage, "", covDest)
+		err = cropCover(data.CoverImage, "", covDest)
 		if err != nil {
 			return
 		}
@@ -156,7 +156,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 	}
 	tmpCoverPath := filepath.Join(tmpDir, coverFN)
 
-	err = CropCover(coverImage, "", tmpCoverPath)
+	err = cropCover(coverImage, "", tmpCoverPath)
 	if err != nil {
 		return
 	}
