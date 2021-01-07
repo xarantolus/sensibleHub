@@ -1,4 +1,3 @@
-
 var isSearch = false;
 
 var nextUrl = null;
@@ -56,6 +55,133 @@ InstantClick.on('receive', function (url, body, title) {
     };
 });
 
+var createSuggestionNode = function (obj) {
+    var n = document.createElement("a");
+    n.href = "/song/" + obj.id;
+    n.className = "navbar-item autosuggest-song";
+    n.dataset.title = obj.title;
+
+    if (obj.selected) {
+        n.className += " search-selected";
+    }
+
+    var span = document.createElement("span");
+    span.className = "autosuggest-song-name";
+    span.innerText = obj.title;
+
+    n.append(span);
+
+    return n;
+}
+
+function searchSuggestions(loading) {
+    var searchText = document.getElementById("search-bar").value.trim();
+
+    if (searchText == "") {
+        var resultTarget = document.getElementById("search-suggestions");
+        resultTarget.innerHTML = "";
+        return;
+    }
+
+    loading(true);
+
+    ajax("/api/v1/search?q=" + encodeURIComponent(searchText)).get(function (status, obj) {
+        if (status !== 200) {
+            return;
+        }
+        
+        // Typing too fast / Slow network
+        if (obj.query !== searchText) return;
+
+        if (obj.results.length > 0) {
+            // If the selected result is the same as last time, we keep it
+            // Also if there's only one, we also select it (we would get redirected anyways)
+            if (obj.results.length == 1 || obj.results[0].title == selectedText) {
+                obj.results[0].selected = true;
+            } else {
+                selectedIndex = -1;
+                selectedText = "";
+            }
+        }
+
+        var resultTarget = document.getElementById("search-suggestions");
+        resultTarget.innerHTML = "";
+
+        for (var i = 0; i < obj.results.length; i++) {
+            resultTarget.append(createSuggestionNode(obj.results[i]));
+        }
+
+        loading(false);
+    });
+}
+
+
+var selectedIndex = -1;
+var selectedText = "";
+
+function searchKeypress(evt) {
+    // Handle UP/DOWN arrows
+
+    if (evt.key === "ArrowUp" || evt.which === 38) {
+        // UP Arrow
+        var suggestions = document.getElementById("search-suggestions");
+        if (selectedIndex == 0) {
+            // Deselect
+            suggestions.children[selectedIndex].classList.remove("search-selected");
+
+            selectedIndex = -1;
+            selectedText = "";
+        } else if (selectedIndex > 0) {
+            suggestions.children[selectedIndex].classList.remove("search-selected");
+
+            // Choose element
+            selectedIndex--;
+            selectedText = suggestions.children[selectedIndex].dataset.title;
+
+            suggestions.children[selectedIndex].classList.add("search-selected");
+        }
+
+        evt.preventDefault();
+        return false;
+    }
+
+    if (evt.key === "ArrowDown" || evt.which === 40) {
+        // DOWN Arrow
+        var suggestions = document.getElementById("search-suggestions");
+        evt.preventDefault();
+
+        if (selectedIndex == -1) {
+            // Select the first item
+            selectedIndex = 0;
+            selectedText = suggestions.children[selectedIndex].dataset.title;
+
+            suggestions.children[selectedIndex].classList.add("search-selected");
+        } else if (selectedIndex + 1 < suggestions.children.length) {
+            suggestions.children[selectedIndex].classList.remove("search-selected");
+
+            // Choose element
+            selectedIndex++;
+            selectedText = suggestions.children[selectedIndex].dataset.title;
+
+            suggestions.children[selectedIndex].classList.add("search-selected");
+        }
+
+        evt.preventDefault();
+        return false;
+    }
+
+    if (evt.key == "Enter" || evt.which === 13) {
+        var suggestions = document.getElementById("search-suggestions");
+
+        if (selectedIndex > -1 && selectedIndex < suggestions.children.length) {
+            evt.preventDefault();
+            suggestions.children[selectedIndex].click();
+            return false;
+        }
+    }
+
+    return true;
+}
 
 
 function initSearch() {
@@ -80,6 +206,21 @@ function initSearch() {
         setLoading(true);
 
         InstantClick.go("/search?q=" + encodeURIComponent(sb.value))
+    }
+
+    sb.oninput = function (evt) {
+        searchSuggestions(setLoading);
+    }
+    sb.onkeydown = searchKeypress;
+    sb.onfocus = function (evt) {
+        searchSuggestions(setLoading);
+    }
+
+    sb.onblur = function () {
+        setTimeout(function () {
+            var resultTarget = document.getElementById("search-suggestions");
+            resultTarget.innerHTML = "";
+        }, 500)
     }
 }
 

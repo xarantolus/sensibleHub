@@ -195,6 +195,28 @@ a.box:focus, a.box:hover {
     filter: drop-shadow(0 0 0.25rem #1d1d1d1c);
 }
 
+#search-suggestions {
+    display: block !important;
+}
+
+#search-suggestions:empty {
+    display: none !important;
+}
+
+#search-suggestions>a.navbar-item {
+    padding-left: .375em !important;
+    padding-right: .375em !important;
+    padding-top: .275em !important;
+}
+
+#search-suggestions>a.navbar-item>span {
+    overflow-x: hidden !important;
+}
+
+.search-selected {
+    background: #dddddd;
+}
+
 .content-container {
     padding-top: 3.5%;
 }
@@ -324,5 +346,8 @@ div.field.has-addons {
     }
     .subtitle {
         padding-top: 5%;
+    }
+    .search-image-div {
+        display: none;
     }
 }
