@@ -15,7 +15,7 @@ func TestManager_hasLink(t *testing.T) {
 
 		Songs: map[string]music.Entry{
 			"id": {
-				SourceURL: "https://youtube.com/watch?v=videoid",
+				SourceURL: "https://www.youtube.com/watch?v=videoid",
 			},
 		},
 	}
@@ -32,7 +32,7 @@ func TestManager_hasLink(t *testing.T) {
 		"https://example.com":                       false,
 		"https:/soundcloud.com/some-artist/song":    false,
 		"https://youtu.be/otherid":                  false,
-		"https://music.youtube.com/watch?v=otherid": true,
+		"https://music.youtube.com/watch?v=otherid": false,
 	}
 
 	for turl, tok := range tests {
