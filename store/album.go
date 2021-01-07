@@ -3,6 +3,7 @@ package store
 import (
 	"sort"
 	"strings"
+
 	"xarantolus/sensibleHub/store/music"
 )
 
@@ -272,4 +273,21 @@ func CleanName(n string) string {
 
 		return -1
 	}, n)
+}
+
+func equalBrackets(a, b string) bool {
+	return strings.EqualFold(cleanBrackets(a), cleanBrackets(b))
+}
+
+func cleanBrackets(a string) string {
+	for {
+		var sb, eb = strings.IndexRune(a, '('), strings.IndexRune(a, ')')
+		if sb == -1 || eb == -1 || sb > eb {
+			break
+		}
+
+		a = a[:sb] + a[eb+1:]
+	}
+
+	return strings.Join(strings.Fields(a), " ")
 }

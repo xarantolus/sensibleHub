@@ -53,16 +53,20 @@ func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 		if err != nil {
 			return
 		}
-		re := b.Bytes()
+
+		var resBytes = make([]byte, b.Len())
+		copy(resBytes, b.Bytes())
 
 		cstoreLock.Lock()
 		coverStore[e.ID] = cover{
 			date:  e.LastEdit,
-			bytes: re,
+			bytes: resBytes,
 		}
 		cstoreLock.Unlock()
 
-		return re, nil
+		b.Reset()
+
+		return resBytes, nil
 	})
 	if err != nil {
 		return

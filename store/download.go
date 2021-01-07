@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/vitali-fedulov/images"
+	"xarantolus/sensibleHub/store/music"
 )
 
 const (
@@ -243,9 +243,13 @@ func (m *Manager) download(url string) (err error) {
 
 	if m.cfg.AllowExternal.Apple {
 		externalSongData, err := music.SearchITunes(title, album, artist, filepath.Ext(thumbPath))
+		if err != nil {
+			log.Println("[Warning]: Error downloading external song data:", err)
+		}
+
 		if err == nil && strings.EqualFold(CleanName(externalSongData.Artist), CleanName(artist)) &&
 			// If it seems somehow similar to the data we already have, we might use a higher quality image
-			(strings.EqualFold(CleanName(album), CleanName(externalSongData.Album)) || strings.EqualFold(CleanName(title), CleanName(externalSongData.Title))) {
+			(equalBrackets(CleanName(album), CleanName(externalSongData.Album)) || equalBrackets(CleanName(title), CleanName(externalSongData.Title))) {
 			if externalSongData.Artwork != nil {
 				writeNewImage := func() {
 					tmp, err := encodeImageToTemp(externalSongData.Artwork, e.PictureData.Filename)
@@ -294,6 +298,13 @@ func (m *Manager) download(url string) (err error) {
 			// Use the usually more accurate album information
 			if externalSongData.Album != "" {
 				e.MusicData.Album = externalSongData.Album
+			}
+			if externalSongData.Title != "" {
+				e.MusicData.Title = externalSongData.Title
+			}
+
+			if externalSongData.Year != 0 {
+				e.MusicData.Year = &externalSongData.Year
 			}
 		}
 	}

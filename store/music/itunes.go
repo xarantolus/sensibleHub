@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+
+	// Supported image formats
+	_ "image/jpeg"
+	_ "image/png"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,7 +22,7 @@ const (
 )
 
 var c = http.Client{
-	Timeout: 30 * time.Second,
+	Timeout: 60 * time.Second,
 }
 
 type SongData struct {
@@ -43,7 +47,7 @@ retry:
 	if artist != "" {
 		searchTerms = append(searchTerms, artist)
 	}
-	if album != "" && !secondTry {
+	if album != "" && !secondTry && !strings.EqualFold(title, album) {
 		if len(strings.Fields(album)) < 3 {
 			searchTerms = append(searchTerms, album)
 		}
@@ -101,7 +105,7 @@ retry:
 
 			img, _, err := image.Decode(resp.Body)
 			if err != nil {
-				return err
+				return fmt.Errorf("decode %s: %w", u, err)
 			}
 
 			s.Artwork = img
@@ -114,6 +118,10 @@ retry:
 	s.Artist = sres.ArtistName
 	s.Album = strings.TrimSuffix(sres.CollectionName, " - Single")
 	s.Title = sres.TrackName
+
+	if !sres.ReleaseDate.IsZero() {
+		s.Year = sres.ReleaseDate.Year()
+	}
 
 	return
 }

@@ -7,7 +7,7 @@ rm sensibleHub.exe || true
 # Use first argument for name if possible, fallback to sensibleHub.zip
 NAME=${1:-sensibleHub.zip}    
 
-go build -v -mod vendor -ldflags "-s -w"
+go build -a -v -mod vendor -ldflags "-s -w"
 
 zip -r "$NAME" LICENSE README.md templates/ assets/ config.json sensibleHub*
 
