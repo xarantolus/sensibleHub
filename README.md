@@ -43,6 +43,13 @@ In the "More" menu at the upper right side, you can find other listings that can
 <img src=".github/screenshots/shub-additional-listings.png?raw=true" width="50%">
 </p>
 
+##### Search suggestions
+While typing in the search box, your collection is already searched and suggestions are shown:
+
+<p align="center">
+<img src=".github/screenshots/suggestions.gif?raw=true" width="30%">
+</p>
+
 
 ### Installation
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
