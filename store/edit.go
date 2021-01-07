@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/vitali-fedulov/images"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are

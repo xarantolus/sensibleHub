@@ -52,13 +52,13 @@ golang.org/x/image/bmp
 golang.org/x/image/ccitt
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
-# golang.org/x/net v0.0.0-20200927032502-5d4f70055728
+# golang.org/x/net v0.0.0-20201021035429-f5854403a974
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
-# golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
+# golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20200929083018-4d22bbb62b3c
+# golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
 golang.org/x/sys/cpu
 # golang.org/x/text v0.3.3
 golang.org/x/text/encoding

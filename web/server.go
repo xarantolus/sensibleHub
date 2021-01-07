@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/config"
 
 	"github.com/gorilla/mux"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
 )
 
 var debug bool
@@ -53,6 +53,8 @@ func RunServer(cfg config.Config, enableDebug bool) (err error) {
 
 	// Search listing
 	r.HandleFunc("/search", ErrWrap(debugWrap(HandleSearchListing))).Methods(http.MethodGet)
+
+	r.HandleFunc("/api/v1/search", ErrWrap(debugWrap(HandleAPISongSearch))).Methods(http.MethodGet)
 
 	// Song html page
 	r.HandleFunc("/song/{songID}", ErrWrap(debugWrap(HandleShowSong))).Methods(http.MethodGet)

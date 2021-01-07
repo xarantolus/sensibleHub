@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"xarantolus/sensibleHub/store"
 
 	"goftp.io/server"
+	"xarantolus/sensibleHub/store"
 )
 
 var (
@@ -27,7 +27,7 @@ type musicDriver struct {
 type Album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
-	log.Println("[FTP] Connected client from", c.PublicIP())
+	log.Println("[FTP] Connected client from", c.RemoteAddr())
 }
 
 func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
