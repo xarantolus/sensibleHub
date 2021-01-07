@@ -1,5 +1,8 @@
 function addPage() {
     var linkInput = document.getElementById("searchTerm");
+    // We're handling empty inputs in JavaScript. Since we're using progressive enhancement,
+    // we should remove it here (so people with javascript disabled can still use the site)
+    linkInput.required = false; 
     linkInput.focus();
 
     var notification = document.getElementById("add-notif");
