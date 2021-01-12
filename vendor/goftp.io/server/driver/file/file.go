@@ -137,13 +137,21 @@ func (driver *Driver) GetFile(path string, offset int64) (int64, io.ReadCloser, 
 	if err != nil {
 		return 0, nil, err
 	}
+	defer func() {
+		if err != nil && f != nil {
+			f.Close()
+		}
+	}()
 
 	info, err := f.Stat()
 	if err != nil {
 		return 0, nil, err
 	}
 
-	f.Seek(offset, io.SeekStart)
+	_, err = f.Seek(offset, io.SeekStart)
+	if err != nil {
+		return 0, nil, err
+	}
 
 	return info.Size() - offset, f, nil
 }

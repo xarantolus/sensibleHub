@@ -56,6 +56,9 @@ type ServerOpts struct {
 	// If ture TLS is used in RFC4217 mode
 	ExplicitFTPS bool
 
+	// If true, client must upgrade to TLS before sending any other command
+	ForceTLS bool
+
 	WelcomeMessage string
 
 	// A logger implementation, if nil the StdLogger is used

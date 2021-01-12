@@ -5,7 +5,7 @@
 
 A FTP server framework forked from [github.com/yob/graval](http://github.com/yob/graval) and changed a lot.
 
-Full documentation for the package is available on [godoc](http://godoc.org/goftp.io/server)
+Full documentation for the package is available on [godoc](http://pkg.go.dev/goftp.io/server)
 
 ## Installation
 
@@ -15,7 +15,7 @@ Full documentation for the package is available on [godoc](http://godoc.org/goft
 
 To boot a FTP server you will need to provide a driver that speaks to
 your persistence layer - the required driver contract is in [the
-documentation](http://godoc.org/goftp.io/server/core).
+documentation](http://pkg.go.dev/goftp.io/server/core).
 
 Look at the [file driver](https://goftp.io/server/driver/file) to see
 an example of how to build a backend.
@@ -34,6 +34,10 @@ details:
     password: 123456
 
 This uses the file driver mentioned above to serve files.
+
+## Contact us
+
+You can contact us via discord [https://discord.gg/ytmYqfNfqh](https://discord.gg/ytmYqfNfqh) or QQ群 972357369
 
 ## Contributors
 

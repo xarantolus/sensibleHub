@@ -235,7 +235,15 @@ func (driver *Driver) GetFile(path string, offset int64) (int64, io.ReadCloser, 
 	if err != nil {
 		return 0, nil, err
 	}
-	object.Seek(offset, io.SeekStart)
+	defer func() {
+		if err != nil && object != nil {
+			object.Close()
+		}
+	}()
+	_, err = object.Seek(offset, io.SeekStart)
+	if err != nil {
+		return 0, nil, err
+	}
 
 	info, err := object.Stat()
 	if err != nil {

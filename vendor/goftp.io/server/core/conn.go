@@ -145,7 +145,7 @@ func (conn *Conn) Serve() {
 		conn.receiveLine(line)
 		// QUIT command closes connection, break to avoid error on reading from
 		// closed socket
-		if conn.closed == true {
+		if conn.closed {
 			break
 		}
 	}
@@ -209,6 +209,8 @@ func (conn *Conn) receiveLine(line string) {
 	}
 	if cmdObj.RequireParam() && param == "" {
 		conn.writeMessage(553, "action aborted, required param missing")
+	} else if conn.server.ServerOpts.ForceTLS && !conn.tls && !(cmdObj == commands["AUTH"] && param == "TLS") {
+		conn.writeMessage(534, "Request denied for policy reasons. AUTH TLS required.")
 	} else if cmdObj.RequireAuth() && conn.user == "" {
 		conn.writeMessage(530, "not logged in")
 	} else {
@@ -225,21 +227,19 @@ func (conn *Conn) parseLine(line string) (string, string) {
 }
 
 // writeMessage will send a standard FTP response back to the client.
-func (conn *Conn) writeMessage(code int, message string) (wrote int, err error) {
+func (conn *Conn) writeMessage(code int, message string) {
 	conn.logger.PrintResponse(conn.sessionID, code, message)
 	line := fmt.Sprintf("%d %s\r\n", code, message)
-	wrote, err = conn.controlWriter.WriteString(line)
+	_, _ = conn.controlWriter.WriteString(line)
 	conn.controlWriter.Flush()
-	return
 }
 
 // writeMessage will send a standard FTP response back to the client.
-func (conn *Conn) writeMessageMultiline(code int, message string) (wrote int, err error) {
+func (conn *Conn) writeMessageMultiline(code int, message string) {
 	conn.logger.PrintResponse(conn.sessionID, code, message)
 	line := fmt.Sprintf("%d-%s\r\n%d END\r\n", code, message, code)
-	wrote, err = conn.controlWriter.WriteString(line)
+	_, _ = conn.controlWriter.WriteString(line)
 	conn.controlWriter.Flush()
-	return
 }
 
 // buildPath takes a client supplied path or filename and generates a safe
@@ -277,7 +277,7 @@ func (conn *Conn) buildPath(filename string) (fullPath string) {
 func (conn *Conn) sendOutofbandData(data []byte) {
 	bytes := len(data)
 	if conn.dataConn != nil {
-		conn.dataConn.Write(data)
+		_, _ = conn.dataConn.Write(data)
 		conn.dataConn.Close()
 		conn.dataConn = nil
 	}

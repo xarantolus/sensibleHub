@@ -140,7 +140,9 @@ func (conn *Conn) newPassiveSocket() (DataSocket, error) {
 	socket.egress = make(chan []byte)
 	socket.logger = conn.logger
 	socket.host = conn.passiveListenIP()
-	socket.tlsConfig = conn.tlsConfig
+	if conn.tls {
+		socket.tlsConfig = conn.tlsConfig
+	}
 	const retries = 10
 	var err error
 	for i := 1; i <= retries; i++ {

@@ -13,6 +13,14 @@ steps:
       exclude:
         - pull_request
 
+- name: linter
+  image: golang:1.14
+  commands:
+    - go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.30.0
+    - golangci-lint run
+  environment:
+    GOPROXY: https://goproxy.cn,direct
+
 - name: test
   pull: always
   image: golang:1.13
