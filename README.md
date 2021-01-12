@@ -233,7 +233,7 @@ rclone sync --update --ignore-size -v MyMusic:/ %USERPROFILE%\Music
 
 The `--ignore-size` flag is very important as the server doesn't always know the correct file size if the file hasn't been generated yet.
 
-If you want to, you can set this up as a cron job or use windows task scheduler to run the command automatically.
+If you want to, you can set this up as a cron job or use windows task scheduler to run the command automatically. Another simple option is creating a batch file/script and running it from time to time.
 
 My recommended music player for Windows is [Dopamine](https://github.com/digimezzo/dopamine-windows), it can automatically index the music directory. You can [download it here](https://www.digimezzo.com/content/software/dopamine/).
 

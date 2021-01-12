@@ -91,7 +91,7 @@ func (m *musicDriver) ChangeDir(path string) (err error) {
 
 // params  - path
 // returns - a string containing the file data to send to the client
-func (m *musicDriver) GetFile(path string, n int64) (i int64, content io.ReadCloser, err error) {
+func (m *musicDriver) GetFile(path string, offset int64) (i int64, content io.ReadCloser, err error) {
 	split := splitPath(path)
 	if len(split) != 3 {
 		err = errNotFound
@@ -132,7 +132,15 @@ func (m *musicDriver) GetFile(path string, n int64) (i int64, content io.ReadClo
 				return
 			}
 
-			return fi.Size(), f, nil
+			if offset > 0 {
+				_, err = f.Seek(offset, io.SeekStart)
+				if err != nil {
+					f.Close()
+					return 0, nil, err
+				}
+			}
+
+			return fi.Size() - offset, f, nil
 		}
 	}
 
