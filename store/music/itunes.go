@@ -96,7 +96,7 @@ retry:
 
 	u, ok := sres.highResImageURL(aext)
 	if ok {
-		err = func() error {
+		var fetchImageFunc = func() error {
 			resp, err := c.Get(u)
 			if err != nil {
 				return err
@@ -112,7 +112,20 @@ retry:
 			s.ArtworkExtension = aext
 
 			return nil
-		}()
+		}
+
+		// I'm aware, that looks weird.
+		// This step of downloading & decoding the image doesn't always work,
+		// and retrying with the exact same parameters etc. seems to work.
+		// As in the first step returns an error that the image cannot be decoded,
+		// but when trying again it works?
+		// It's confusing, but at least it works
+		for i := 3; i >= 0; i-- {
+			err = fetchImageFunc()
+			if err == nil {
+				break
+			}
+		}
 	}
 
 	s.Artist = sres.ArtistName

@@ -23,7 +23,7 @@ require (
 	github.com/vitali-fedulov/images v0.0.0-20200831232703-8a90db96a358
 	goftp.io/server v0.4.1
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
-	golang.org/x/image v0.0.0-20201208152932-35266b937fa6 // indirect
+	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc // indirect
