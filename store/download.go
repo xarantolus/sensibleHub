@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/vitali-fedulov/images"
-	"xarantolus/sensibleHub/store/music"
 )
 
 const (
@@ -22,12 +22,12 @@ const (
 )
 
 // Download downloads the song from the given URL using youtube-dl and saves it to the appropriate directory
-func (m *Manager) download(url string) (err error) {
-	log.Println("[Download] Start downloading", url)
+func (m *Manager) download(downloadURL string) (err error) {
+	log.Println("[Download] Start downloading", downloadURL)
 
 	defer func() {
 		if err != nil {
-			log.Printf("[Download] Error while downloading %s: %s\n", url, err.Error())
+			log.Printf("[Download] Error while downloading %s: %s\n", downloadURL, err.Error())
 		}
 	}()
 
@@ -49,7 +49,7 @@ func (m *Manager) download(url string) (err error) {
 	m.downloadContextLock.Lock()
 	m.downloadContext = cmdCtx
 	m.downloadCancelFunc = cancel
-	m.currentDownload = url
+	m.currentDownload = downloadURL
 	m.downloadContextLock.Unlock()
 
 	// Setup youtube-dl command and run it
@@ -59,11 +59,11 @@ func (m *Manager) download(url string) (err error) {
 	// when searching for a specific song, we want to reject Instrumental versions.
 	// This leads to youtube-dl selecting the second search result if the instrumental is first
 	// Don't add it when we explicitly want them though
-	if strings.Contains(url, "youtube.com/results?search_query") && !strings.Contains(strings.ToUpper(url), "INSTRUMENTAL") {
+	if strings.Contains(downloadURL, "youtube.com/results?search_query") && !strings.Contains(strings.ToUpper(downloadURL), "INSTRUMENTAL") {
 		cmd.Args = append(cmd.Args, "--reject-title", "(Instrumental)")
 	}
 
-	cmd.Args = append(cmd.Args, url)
+	cmd.Args = append(cmd.Args, downloadURL)
 
 	out, err := cmd.CombinedOutput()
 
@@ -173,6 +173,26 @@ func (m *Manager) download(url string) (err error) {
 
 	now := time.Now()
 
+	// Check if we already downloaded the song
+	var sourceURL = minfo.Webpage(downloadURL)
+
+	// Try to parse the URL, if possible
+	urlParsed, perr := url.ParseRequestURI(sourceURL)
+	if perr != nil {
+		urlParsed, err = url.ParseRequestURI(downloadURL)
+		if err != nil {
+			// This should be impossible
+			return fmt.Errorf("Both URLs are invalid: %s, %w", perr, err)
+		}
+		// OK, use the old one
+		sourceURL = downloadURL
+	}
+
+	// If we have this link already, there's no point in downloading it again
+	if e, ok := m.hasLink(urlParsed); ok {
+		return fmt.Errorf("Already downloaded exact same song %q (id %s)", e.SongName(), e.ID)
+	}
+
 	// Technically, we would need to lock `m.generateID`, but that doesn't play
 	// nicely with `m.betterCover` below. Not great, but generating two
 	// IDs at the same time just doesn't happen with downloads as they are sequential.
@@ -180,7 +200,7 @@ func (m *Manager) download(url string) (err error) {
 	// but the possibility of generating the same id is low
 	e := &music.Entry{
 		ID:        m.generateID(),
-		SourceURL: minfo.Webpage(url),
+		SourceURL: sourceURL,
 
 		LastEdit: now,
 		Added:    now,
