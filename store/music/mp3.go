@@ -12,10 +12,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"xarantolus/sensibleHub/store/config"
 
 	"github.com/nfnt/resize"
 	"golang.org/x/sync/singleflight"
-	"xarantolus/sensibleHub/store/config"
 )
 
 var mp3Group singleflight.Group

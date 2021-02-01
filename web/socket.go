@@ -3,9 +3,9 @@ package web
 import (
 	"net/http"
 	"sync"
+	"xarantolus/sensibleHub/store"
 
 	"github.com/gorilla/websocket"
-	"xarantolus/sensibleHub/store"
 )
 
 var upgrader = websocket.Upgrader{

@@ -9,12 +9,12 @@ import (
 	_ "image/png"
 	"log"
 	"os/exec"
-
-	_ "golang.org/x/image/webp"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web"
+
+	_ "golang.org/x/image/webp"
 )
 
 var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")

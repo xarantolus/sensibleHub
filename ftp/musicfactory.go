@@ -2,9 +2,9 @@ package ftp
 
 import (
 	"strings"
+	"xarantolus/sensibleHub/store"
 
 	"goftp.io/server"
-	"xarantolus/sensibleHub/store"
 )
 
 // musicDriverFactory is the ftp driver factory for this program.
