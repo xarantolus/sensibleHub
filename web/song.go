@@ -2,10 +2,10 @@ package web
 
 import (
 	"net/http"
-	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/mux"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/music"
 )
 
 type songPage struct {

@@ -6,12 +6,22 @@ import (
 	"image"
 
 	// Supported image formats
-	_ "image/jpeg"
-	_ "image/png"
+	"image/jpeg"
+	"image/png"
+	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"golang.org/x/image/webp"
+)
+
+var (
+	_ = jpeg.Decode
+	_ = png.Decode
+	_ = webp.Decode
 )
 
 const (
@@ -21,9 +31,18 @@ const (
 	sizeLimit = 10000 // Always try to get the highest quality picture
 )
 
-var c = http.Client{
-	Timeout: 60 * time.Second,
-}
+var (
+	c = http.Client{
+		Timeout: 60 * time.Second,
+	}
+
+	possibleUserAgents = []string{
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
+		"Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36",
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9",
+	}
+)
 
 type SongData struct {
 	Artist string
@@ -97,7 +116,15 @@ retry:
 	u, ok := sres.highResImageURL(aext)
 	if ok {
 		var fetchImageFunc = func() error {
-			resp, err := c.Get(u)
+			req, err := http.NewRequest(http.MethodGet, u, nil)
+			if err != nil {
+				return err
+			}
+
+			req.Header.Set("User-Agent", possibleUserAgents[rand.Intn(len(possibleUserAgents))])
+			req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+
+			resp, err := c.Do(req)
 			if err != nil {
 				return err
 			}
@@ -120,11 +147,14 @@ retry:
 		// As in the first step returns an error that the image cannot be decoded,
 		// but when trying again it works?
 		// It's confusing, but at least it works
-		for i := 3; i >= 0; i-- {
+		for i := 5; i >= 0; i-- {
 			err = fetchImageFunc()
 			if err == nil {
 				break
 			}
+			log.Println(err)
+
+			time.Sleep(5 * time.Second)
 		}
 	}
 

@@ -47,7 +47,7 @@ goftp.io/server/driver/minio
 # golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
-# golang.org/x/image v0.0.0-20201208152932-35266b937fa6
+# golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
 golang.org/x/image/riff

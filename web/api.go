@@ -37,6 +37,8 @@ func HandleAPISongSearch(w http.ResponseWriter, r *http.Request) (err error) {
 		res = res[:limit]
 	}
 
+	// TODO:  Suggest random song (title = 🔀 Random Song, id=random)
+
 	var searchResult = apiSearchResult{Query: query, Results: make([]shortResult, len(res))}
 	for i, r := range res {
 		searchResult.Results[i] = shortResult{

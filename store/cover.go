@@ -42,7 +42,7 @@ func (m *Manager) GenerateCoverPreviews() {
 	// The goal is to warm up the songs one sees first (main page),
 	// then all others.
 	for _, e := range append(newest, m.AllEntries()...) {
-		e.CoverPreview()
+		_, _, _ = e.CoverPreview()
 	}
 
 	log.Println("[Startup]: Finished cover preview generation")
