@@ -10,13 +10,22 @@ import (
 	"sort"
 	"strings"
 
-	"goftp.io/server"
 	"xarantolus/sensibleHub/store"
+
+	"goftp.io/server"
 )
 
 var (
 	errReadOnly = fmt.Errorf("write/delete not allowed")
 	errNotFound = fmt.Errorf("file/directory not found")
+)
+
+// The different depths an FTP path can have
+const (
+	rootDirectory   int = 0
+	artistDirectory int = 1
+	albumDirectory  int = 2
+	songFile        int = 3
 )
 
 type musicDriver struct {
@@ -34,21 +43,21 @@ func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
 	split := splitPath(path)
 
 	switch len(split) {
-	case 0:
+	case rootDirectory:
 		// this one pretends to be a good root directory
 		return &artistAlbumInfo{
 			Album: "/",
 		}, nil
-	case 1:
+	case artistDirectory:
 		return &artistAlbumInfo{
 			Artist:   split[0],
 			isArtist: true,
 		}, nil
-	case 2:
+	case albumDirectory:
 		return &artistAlbumInfo{
 			Album: split[1],
 		}, nil
-	case 3:
+	case songFile:
 		{
 			// Stat the actual mp3 files
 			a, ok := m.Artists[split[0]]
@@ -72,12 +81,12 @@ func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
 func (m *musicDriver) ChangeDir(path string) (err error) {
 	split := splitPath(path)
 
-	if len(split) == 1 {
+	if len(split) == artistDirectory {
 		// Exists or is root
 		if _, ok := m.Artists[split[0]]; split[0] == "" || ok {
 			return nil
 		}
-	} else if len(split) == 2 {
+	} else if len(split) == albumDirectory {
 		a, ok := m.Artists[split[0]]
 		if ok {
 			if _, ok := a[split[1]]; ok {
@@ -93,7 +102,7 @@ func (m *musicDriver) ChangeDir(path string) (err error) {
 // returns - a string containing the file data to send to the client
 func (m *musicDriver) GetFile(path string, offset int64) (i int64, content io.ReadCloser, err error) {
 	split := splitPath(path)
-	if len(split) != 3 {
+	if len(split) != songFile {
 		err = errNotFound
 		return
 	}
@@ -153,7 +162,7 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 	split := splitPath(path)
 
 	switch len(split) {
-	case 1:
+	case artistDirectory:
 		if split[0] == "" {
 			// We want them in alphabetical order
 			var keys []string
@@ -190,7 +199,7 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 				}
 			}
 		}
-	case 2:
+	case albumDirectory:
 		// List all albums in artist directory
 		for _, song := range m.Artists[split[0]][split[1]] {
 			err = f(song)
