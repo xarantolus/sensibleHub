@@ -10,17 +10,28 @@ import (
 	"xarantolus/sensibleHub/store/config"
 )
 
-var debug bool
-
 // RunServer runs the web server on the port specified in `cfg`.
-// `enableDebug` sets whether to start the server in debug mode
-func RunServer(cfg config.Config, enableDebug bool) (err error) {
+// `debugMode` sets whether to start the server in debug mode
+func RunServer(cfg config.Config, debugMode bool) (err error) {
 	err = parseTemplates()
 	if err != nil {
 		return
 	}
 
-	debug = enableDebug
+	// debugWrap parses templates every time they are requested if the debug mode is enabled
+	var debugWrap = func(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
+		if !debugMode {
+			return f
+		}
+
+		return func(w http.ResponseWriter, r *http.Request) error {
+			err := parseTemplates()
+			if err != nil {
+				return err
+			}
+			return f(w, r)
+		}
+	}
 
 	store.M.SetEventFunc(AllSockets)
 
@@ -82,19 +93,4 @@ func RunServer(cfg config.Config, enableDebug bool) (err error) {
 
 	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)
-}
-
-// debugWrap parses templates every time they are requested if the debug mode is enabled
-func debugWrap(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
-	if !debug {
-		return f
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) error {
-		err := parseTemplates()
-		if err != nil {
-			return err
-		}
-		return f(w, r)
-	}
 }
