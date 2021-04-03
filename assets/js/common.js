@@ -155,7 +155,7 @@ InstantClick.on('change', function () {
     var sc = document.getElementById("song-cover");
     if (sc) {
         sc.addEventListener("load", loadCovers);
-    } else if (document.location.pathname == "/") {
+    } else if (document.location.pathname == "/" || document.location.pathname == "/search") {
         loadCovers();
     }
 })
