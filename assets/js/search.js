@@ -39,15 +39,20 @@ InstantClick.on('change', function () {
 })
 
 InstantClick.on('receive', function (url, body, title) {
-    if (!isSearch) {
+    if (url.indexOf("album") !== -1 || url.indexOf("artist") !== -1) {
         return;
     }
-        // song is there, we have been redirected. Sadly instantclick.js doesn't handle this, so we need to check it here
+
+      // song is there, we have been redirected. Sadly instantclick.js doesn't handle this, so we need to check it here
     var song = body.querySelector("#song-id");
     if (song) {
         nextUrl = "/song/" + song.value;
     }
-
+  
+    if (!isSearch) {
+        return;
+    }
+  
     return {
         body: body,
         title: title
