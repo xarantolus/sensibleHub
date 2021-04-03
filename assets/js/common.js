@@ -129,3 +129,33 @@ function registerCover() {
 
     (document.querySelector(".song-image-container") || document.querySelector(".album-image-container")).addEventListener('click', selectCover);
 }
+
+
+// preloadImage preloads the image at the given URL
+function preloadImage(url) {
+    if (Image) {
+        var img = new Image();
+        img.src = url;
+        img.onload = function () { };
+    }
+}
+
+InstantClick.on('change', function () {
+    // Preload a maximum of 10 song covers
+    function loadCovers() {
+        var linkedSongs = document.getElementsByClassName("song-link");
+        for (var i = 0; i < Math.min(linkedSongs.length, 10); i++) {
+            if (linkedSongs[i].id.startsWith("song-")) {
+                preloadImage("/song/" + linkedSongs[i].id.substr(5) + "/cover")
+            }
+        }
+    }
+
+    // Present on album, artist & song page
+    var sc = document.getElementById("song-cover");
+    if (sc) {
+        sc.addEventListener("load", loadCovers);
+    } else if (document.location.pathname == "/") {
+        loadCovers();
+    }
+})
