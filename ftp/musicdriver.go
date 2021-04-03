@@ -10,9 +10,8 @@ import (
 	"sort"
 	"strings"
 
-	"xarantolus/sensibleHub/store"
-
 	"goftp.io/server"
+	"xarantolus/sensibleHub/store"
 )
 
 var (
