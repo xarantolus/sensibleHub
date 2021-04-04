@@ -27,7 +27,9 @@ function registerMenu() {
         evt.preventDefault();
         var menu = document.querySelector('.navbar-menu');
         if (menu.classList.contains("is-active")) {
-            document.getElementById("search-bar").focus();
+            var sb = document.getElementById("search-bar");
+            sb.focus();
+            sb.setSelectionRange(0, sb.value.length);
         }
     })
 }
