@@ -39,14 +39,16 @@ InstantClick.on('change', function () {
 })
 
 InstantClick.on('receive', function (url, body, title) {
+    // We only change the URL if we are searching and got redirected to one specific song,
+    // OR when we click on the random song button
+    if (!isSearch && url.indexOf("/songs/random") === -1) {
+        return;
+    }
+
     // song is there, we have been redirected. Sadly instantclick.js doesn't handle this, so we need to check it here
     var song = body.querySelector("#song-id");
     if (song) {
         nextUrl = "/song/" + song.value;
-    }
-
-    if (!isSearch) {
-        return;
     }
 
     return {
