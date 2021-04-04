@@ -123,6 +123,10 @@
     background-color: #ddd;
 }
 
+.song-media {
+    overflow-y: hidden;
+}
+
 a.box:focus, a.box:hover {
     box-shadow: initial !important;
 }
