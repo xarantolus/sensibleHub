@@ -159,3 +159,18 @@ InstantClick.on('change', function () {
         loadCovers();
     }
 })
+
+// When we click on a song link, we already preload the cover
+InstantClick.on('receive', function (url, body, title) {
+    // Trim URL prefix
+    var pref = location.protocol + "//" + location.host;
+    if (url.startsWith(pref)) {
+        url = pref.substr(pref.length);
+    }
+
+    var split = url.split("/");
+
+    if (split[0] == "song") {
+        preloadImage("/song/" + split[1] + "/cover")
+    }
+})
