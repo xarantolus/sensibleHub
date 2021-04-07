@@ -13,7 +13,16 @@
 </section>
 
 {{range .Albums}}
-{{template "album-item.html" . }}
+{{if have .Title}}
+    {{template "album-item.html" . }}
+{{else}}
+    <div class="listing unknown-album">
+        <h2 class="title is-2 has-text-centered">{{.AlbumTitle}}</h2>
+        {{range .Songs}}
+            {{ template "song-item.html" . }}
+        {{end}}
+    </div>
+{{end}}
 {{end}}
 
 {{with .Featured}}

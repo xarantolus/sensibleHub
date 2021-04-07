@@ -58,10 +58,10 @@
     padding-top: 1%;
 }
 
-.similar {
+.similar, .unknown-album {
     width: 50%;
     padding-bottom: 2.5%;
-    padding-top: 5%;
+    padding-top: 2.5%;
 }
 
 .media-left {
