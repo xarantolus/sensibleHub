@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/gorilla/mux"
 )
 
 // Listing defines a listing of grouped songs
@@ -18,42 +19,42 @@ type Listing struct {
 }
 
 // HandleTitleListing returns the song listing, sorted by titles
-func HandleTitleListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return renderTemplate(w, r, "listing.html", Listing{
+func (s *server) HandleTitleListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Songs",
-		Groups: store.M.GroupByTitle(),
+		Groups: s.m.GroupByTitle(),
 	})
 }
 
 // HandleArtistListing returns the artist listing, sorted by artist names
-func HandleArtistListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return renderTemplate(w, r, "listing.html", Listing{
+func (s *server) HandleArtistListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Artists",
-		Groups: store.M.GroupByArtist(),
+		Groups: s.m.GroupByArtist(),
 	})
 }
 
 // HandleYearListing returns the year listing
-func HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return renderTemplate(w, r, "listing.html", Listing{
+func (s *server) HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Years",
-		Groups: store.M.GroupByYear(),
+		Groups: s.m.GroupByYear(),
 	})
 }
 
 // HandleIncompleteListing returns all items with incomplete data
-func HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return renderTemplate(w, r, "listing.html", Listing{
+func (s *server) HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Incomplete",
-		Groups: store.M.Incomplete(),
+		Groups: s.m.Incomplete(),
 	})
 }
 
 // HandleUnsyncedListing returns all items with that are not synced
-func HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return renderTemplate(w, r, "listing.html", Listing{
+func (s *server) HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", Listing{
 		Title:  "Unsynced",
-		Groups: store.M.Unsynced(),
+		Groups: s.m.Unsynced(),
 	})
 }
 
@@ -65,19 +66,19 @@ type searchListing struct {
 }
 
 // HandleSearchListing returns a search listing
-func HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
 	query := r.URL.Query().Get("q")
 	if query == "" {
 		return fmt.Errorf("Empty query")
 	}
 
-	res := store.M.Search(query)
+	res := s.m.Search(query)
 	if len(res) == 1 {
 		http.Redirect(w, r, "/song/"+res[0].ID, http.StatusTemporaryRedirect)
 		return
 	}
 
-	return renderTemplate(w, r, "search.html", searchListing{
+	return s.renderTemplate(w, r, "search.html", searchListing{
 		Title: "Search results",
 		Songs: res,
 		Query: query,
@@ -91,7 +92,7 @@ type albumPage struct {
 }
 
 // HandleShowAlbum shows the album page for the artist and album that's given in the url
-func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
 		return HTTPError{
@@ -100,7 +101,7 @@ func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	al, ok := store.M.GetAlbum(v["artist"], v["album"])
+	al, ok := s.m.GetAlbum(v["artist"], v["album"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -109,7 +110,7 @@ func HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	al.Title = al.Artist + " - " + al.Title
-	return renderTemplate(w, r, "album.html", albumPage{
+	return s.renderTemplate(w, r, "album.html", albumPage{
 		Title: al.Title,
 		A:     al,
 	})
@@ -122,7 +123,7 @@ type artistPage struct {
 }
 
 // HandleShowArtist shows the artist page for the artist given in the url
-func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" {
 		return HTTPError{
@@ -131,7 +132,7 @@ func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	artistInfo, ok := store.M.Artist(v["artist"])
+	artistInfo, ok := s.m.Artist(v["artist"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -139,7 +140,7 @@ func HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	return renderTemplate(w, r, "artist.html", artistPage{
+	return s.renderTemplate(w, r, "artist.html", artistPage{
 		Title: artistInfo.Name,
 		Info:  artistInfo,
 	})

@@ -10,8 +10,10 @@ import (
 	"sort"
 	"strings"
 
-	"goftp.io/server"
 	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
+
+	"goftp.io/server"
 )
 
 var (
@@ -29,6 +31,9 @@ const (
 
 type musicDriver struct {
 	Artists map[string]Album
+
+	manager *store.Manager
+	cfg     config.Config
 }
 
 // Album is part of the virtual file system
@@ -121,7 +126,7 @@ func (m *musicDriver) GetFile(path string, offset int64) (i int64, content io.Re
 	for _, file := range al {
 		// Serve the file with the given name
 		if file.Name() == split[2] {
-			p, er := file.MP3Path(store.M.GetConfig())
+			p, er := file.MP3Path(m.cfg)
 			if er != nil {
 				err = er
 				return
@@ -243,7 +248,7 @@ func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, e
 		return
 	}
 
-	_, err = store.M.ImportFile(d.Name(), nil)
+	_, err = m.manager.ImportFile(d.Name(), nil)
 	if err != nil {
 		log.Println("[Import] Error while importing file from FTP:", err.Error())
 	}

@@ -13,9 +13,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -56,43 +57,34 @@ type Manager struct {
 	cfg config.Config
 }
 
-// M is the global Manager instance
-var M *Manager
-
-// InitializeManager initializes the global Manager instance `M`. It must be called before using `M`
-func InitializeManager(cfg config.Config) (err error) {
-	if M != nil {
-		panic("Manager already exists, not initializing again")
-	}
-
+// NewManager initializes the global Manager instance `M`. It must be called before using `M`
+func NewManager(cfg config.Config) (m *Manager, err error) {
 	// Initialize an empty manager
-	M = &Manager{
+	m = &Manager{
 		Songs:        make(map[string]music.Entry),
 		SongsLock:    new(sync.RWMutex),
 		enqueuedURLs: make(chan string, 25), // Allow up to 25 items to be queued
 		cfg:          cfg,
 	}
 
-	go M.serve()
+	go m.serve()
 
 	// Try reading from file
 	f, err := os.Open(managerDataFile)
 	if err != nil {
 		// If the file doesn't exist, it will be created on next save
 		if os.IsNotExist(err) {
-			return nil
+			return m, nil
 		}
 
-		M = nil
 		// This is a real error - might have to do with permissions
-		return err
+		return m, err
 	}
 	defer f.Close()
 
-	err = json.NewDecoder(f).Decode(M)
+	err = json.NewDecoder(f).Decode(m)
 	if err != nil {
-		M = nil
-		return err
+		return m, err
 	}
 
 	return

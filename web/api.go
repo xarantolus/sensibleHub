@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"xarantolus/sensibleHub/store"
 )
 
 type apiSearchResult struct {
@@ -21,7 +19,7 @@ type shortResult struct {
 }
 
 // HandleAPISongSearch is for the search API
-func HandleAPISongSearch(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleAPISongSearch(w http.ResponseWriter, r *http.Request) (err error) {
 	query := r.URL.Query().Get("q")
 	if query == "" {
 		return fmt.Errorf("Empty query")
@@ -32,7 +30,7 @@ func HandleAPISongSearch(w http.ResponseWriter, r *http.Request) (err error) {
 		limit = i
 	}
 
-	res := store.M.Search(query)
+	res := s.m.Search(query)
 	if len(res) > limit {
 		res = res[:limit]
 	}

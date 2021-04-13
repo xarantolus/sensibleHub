@@ -39,21 +39,20 @@ var (
 			return true
 		},
 	}
-	templates *template.Template
 )
 
-func parseTemplates() (err error) {
+func (s *server) parseTemplates() (err error) {
 	temp, err := template.New("base").Funcs(funcMap).ParseGlob("templates/*.html")
 	if err != nil {
 		return
 	}
 
-	templates = temp
+	s.templates = temp
 	return nil
 }
 
-func renderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, p interface{}) error {
+func (s *server) renderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, p interface{}) error {
 	w.Header().Set("Content-Type", "text/html")
 
-	return templates.ExecuteTemplate(w, tmplName, p)
+	return s.templates.ExecuteTemplate(w, tmplName, p)
 }

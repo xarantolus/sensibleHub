@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"xarantolus/sensibleHub/store"
 )
 
 type addAccept struct {
@@ -15,7 +14,7 @@ type addAccept struct {
 
 // HandleDownloadSong handles a song download request. This kind of request is done
 // from the /add page, either using AJAX (with ?format=json) or a normal form submit
-func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 	// For AJAX requests
 	if strings.ToUpper(r.URL.Query().Get("format")) == "JSON" {
 		acc := new(addAccept)
@@ -25,7 +24,7 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 			return
 		}
 
-		err = store.M.Enqueue(acc.SearchTerm)
+		err = s.m.Enqueue(acc.SearchTerm)
 		if err == nil {
 			w.WriteHeader(http.StatusOK)
 			_, err = w.Write([]byte(`{}`))
@@ -44,7 +43,7 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	err = store.M.Enqueue(r.FormValue("searchTerm"))
+	err = s.m.Enqueue(r.FormValue("searchTerm"))
 	if err != nil {
 		return
 	}
@@ -55,10 +54,10 @@ func HandleDownloadSong(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // HandleAbortDownload aborts a currently running download
-func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
 	// For AJAX requests
 	if strings.ToUpper(r.URL.Query().Get("format")) == "JSON" {
-		err = store.M.AbortDownload()
+		err = s.m.AbortDownload()
 		if err == nil {
 			w.WriteHeader(http.StatusOK)
 			_, err = w.Write([]byte(`{}`))
@@ -72,7 +71,7 @@ func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
 		return err
 	}
 
-	err = store.M.AbortDownload()
+	err = s.m.AbortDownload()
 	if err != nil {
 		return
 	}
@@ -83,7 +82,7 @@ func HandleAbortDownload(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // HandleEditAlbum edits an album, only accepts an image. This way, one image can quickly be set for all songs in one album
-func HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
 		return HTTPError{
@@ -112,7 +111,7 @@ func HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 		return err
 	}
 
-	err = store.M.EditAlbumCover(v["artist"], v["album"], fh.Filename, coverFile)
+	err = s.m.EditAlbumCover(v["artist"], v["album"], fh.Filename, coverFile)
 	if err != nil {
 		return
 	}

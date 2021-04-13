@@ -10,11 +10,12 @@ import (
 	"log"
 	"os/exec"
 
-	_ "golang.org/x/image/webp"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web"
+
+	_ "golang.org/x/image/webp"
 )
 
 var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
@@ -45,21 +46,21 @@ func main() {
 
 	// Let's initialize our Manager. This is the main data structure
 	// that handles basically everything
-	err = store.InitializeManager(cfg)
+	manager, err := store.NewManager(cfg)
 	if err != nil {
 		panic("while initializing manager: " + err.Error())
 	}
 
 	// At first, we check if there are any songs in `import/` that
 	// we could move to our music collection
-	err = store.M.ImportFiles("import")
+	err = manager.ImportFiles("import")
 	if err != nil {
 		log.Printf("Error while importing: %s\n", err.Error())
 	}
 
 	// At first, we clean up all unused data on disk.
 	// Also if a song directory was deleted we delete it from our dataset
-	n := store.M.CleanUp()
+	n := manager.CleanUp()
 	if n == 0 {
 		log.Println("[Cleanup] No cleanup necessary")
 	} else {
@@ -72,18 +73,18 @@ func main() {
 
 	// Kick off cover preview generaiton.
 	// That way they aren't all generated on the first load of the /songs page
-	go store.M.GenerateCoverPreviews()
+	go manager.GenerateCoverPreviews()
 
 	// Start the FTP server
 	go func() {
-		err := ftp.RunServer(cfg)
+		err := ftp.RunServer(manager, cfg)
 		if err != nil {
 			panic("while running ftp server: " + err.Error())
 		}
 	}()
 
 	// And the web server of course
-	err = web.RunServer(cfg, *flagDebug)
+	err = web.RunServer(manager, cfg, *flagDebug)
 	if err != nil {
 		panic("while running web server: " + err.Error())
 	}

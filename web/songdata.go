@@ -10,14 +10,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"xarantolus/sensibleHub/store"
+
+	"github.com/gorilla/mux"
 )
 
 // HandleCover displays the cover image for the song with the `songID` given in the URL.
 // If the song doesn't have a cover image, it will serve a placeholder image (svg) with an 404 status code.
 // If the URL parameter `size` is "small", a cover preview image will be generated and sent.
-func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
 		return HTTPError{
@@ -26,7 +27,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	e, ok := store.M.GetEntry(v["songID"])
+	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -108,7 +109,7 @@ func HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 
 // HandleAudio serves the default audio for the song with the `songID` specified in the URL.
 // This is different from the MP3 download handler.
-func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
 		return HTTPError{
@@ -117,7 +118,7 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	e, ok := store.M.GetEntry(v["songID"])
+	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -135,7 +136,7 @@ func HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 
 // HandleMP3 returns the requested songs' audio as an MP3 stream.
 // It creates the mp3 file from its associated data and caches the result until the song is edited
-func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
 		return HTTPError{
@@ -144,7 +145,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	e, ok := store.M.GetEntry(v["songID"])
+	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -152,7 +153,7 @@ func HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	outName, err := e.MP3Path(store.M.GetConfig())
+	outName, err := e.MP3Path(s.m.GetConfig())
 	if err != nil {
 		return
 	}

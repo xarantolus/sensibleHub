@@ -3,7 +3,6 @@ package web
 import (
 	"net/http"
 
-	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/music"
 )
 
@@ -16,10 +15,10 @@ type indexPage struct {
 }
 
 // HandleIndex shows the main/index page. It shows new songs from today or the most recently added songs
-func HandleIndex(w http.ResponseWriter, r *http.Request) (err error) {
-	entries, today := store.M.Newest()
+func (s *server) HandleIndex(w http.ResponseWriter, r *http.Request) (err error) {
+	entries, today := s.m.Newest()
 
-	return renderTemplate(w, r, "index.html", indexPage{
+	return s.renderTemplate(w, r, "index.html", indexPage{
 		Title:           "Sensible Hub",
 		NewEntries:      entries,
 		NewEntriesToday: today,
@@ -36,18 +35,18 @@ type newPage struct {
 }
 
 // HandleAddSong displays the form for adding a song
-func HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
-	dl, okr := store.M.IsDownloading()
+func (s *server) HandleAddSong(w http.ResponseWriter, r *http.Request) (err error) {
+	dl, okr := s.m.IsDownloading()
 
 	var nsp *music.Entry
-	ns, ok := store.M.NewestSong()
+	ns, ok := s.m.NewestSong()
 	if ok {
 		nsp = &ns
 	}
 
-	return renderTemplate(w, r, "add.html", newPage{
+	return s.renderTemplate(w, r, "add.html", newPage{
 		Title:       "Add a new song",
-		LastError:   store.M.LastError(),
+		LastError:   s.m.LastError(),
 		Running:     okr,
 		DownloadURL: dl,
 		NewestSong:  nsp,

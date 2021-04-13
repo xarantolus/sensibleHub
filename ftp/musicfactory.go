@@ -3,20 +3,24 @@ package ftp
 import (
 	"strings"
 
-	"goftp.io/server"
 	"xarantolus/sensibleHub/store"
+
+	"goftp.io/server"
 )
 
 // musicDriverFactory is the ftp driver factory for this program.
 // It implements the server.DriverFactory
 type musicDriverFactory struct {
+	*store.Manager
 }
 
 func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
-	entries := store.M.AllEntries()
+	entries := m.AllEntries()
 
 	d := &musicDriver{
 		Artists: make(map[string]Album),
+		manager: m.Manager,
+		cfg:     m.GetConfig(),
 	}
 
 	uniquePaths := make(map[string]bool)

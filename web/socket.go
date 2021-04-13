@@ -2,10 +2,8 @@ package web
 
 import (
 	"net/http"
-	"sync"
 
 	"github.com/gorilla/websocket"
-	"xarantolus/sensibleHub/store"
 )
 
 var upgrader = websocket.Upgrader{
@@ -13,36 +11,31 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-var (
-	connectedSockets = make(map[*websocket.Conn]chan struct{})
-	csl              sync.Mutex
-)
-
 // AllSockets runs `f` on all connected websockets, disconnecting any websockets for which `f` returns an non-nil error
 // It is used as the Manager's `evtFunc`
-func AllSockets(f func(c *websocket.Conn) error) {
-	csl.Lock()
-	defer csl.Unlock()
+func (s *server) AllSockets(f func(c *websocket.Conn) error) {
+	s.connectedSocketsLock.Lock()
+	defer s.connectedSocketsLock.Unlock()
 
-	for c, cc := range connectedSockets {
+	for c, cc := range s.connectedSockets {
 		err := f(c)
 		if err != nil {
 			// If we cannot write to a socket, we disconnect it (the connection was broken anyways)
 			c.Close()
 			close(cc)
-			delete(connectedSockets, c)
+			delete(s.connectedSockets, c)
 		}
 	}
 }
 
 // HandleWebsocket connects/upgrades a websocket request. It runs until the websocket is disconnected.
-func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return nil // Upgrader has already responded to the request
 	}
 
-	if store.M.IsWorking() {
+	if s.m.IsWorking() {
 		err = conn.WriteJSON(map[string]interface{}{
 			"type": "progress-start",
 		})
@@ -53,9 +46,9 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) (err error) {
 
 	closeChan := make(chan struct{})
 
-	csl.Lock()
-	connectedSockets[conn] = closeChan
-	csl.Unlock()
+	s.connectedSocketsLock.Lock()
+	s.connectedSockets[conn] = closeChan
+	s.connectedSocketsLock.Unlock()
 
 	<-closeChan
 	return nil

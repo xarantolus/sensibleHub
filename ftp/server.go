@@ -5,17 +5,21 @@ import (
 	"fmt"
 	"log"
 
-	"goftp.io/server"
+	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
+
+	"goftp.io/server"
 )
 
 // RunServer runs the FTP server until it crashes
-func RunServer(cfg config.Config) (err error) {
+func RunServer(manager *store.Manager, cfg config.Config) (err error) {
 	opts := &server.ServerOpts{
-		Factory: &musicDriverFactory{},
-		Port:    cfg.FTP.Port,
-		Auth:    &configAuth{cfg: cfg},
-		Logger:  &server.DiscardLogger{},
+		Factory: &musicDriverFactory{
+			Manager: manager,
+		},
+		Port:   cfg.FTP.Port,
+		Auth:   &configAuth{cfg: cfg},
+		Logger: &server.DiscardLogger{},
 	}
 
 	server := server.NewServer(opts)
@@ -37,7 +41,7 @@ func (a *configAuth) CheckPasswd(name, pass string) (bool, error) {
 			return true, nil
 		}
 	}
-	return false, fmt.Errorf("Login failure")
+	return false, fmt.Errorf("login failure")
 }
 
 func constantTimeEquals(a, b string) bool {

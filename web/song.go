@@ -3,9 +3,10 @@ package web
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/gorilla/mux"
 )
 
 type songPage struct {
@@ -17,7 +18,7 @@ type songPage struct {
 }
 
 // HandleShowSong shows information about a song
-func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
 		return HTTPError{
@@ -26,7 +27,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	e, ok := store.M.GetEntry(v["songID"])
+	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
@@ -34,9 +35,9 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	similar := store.M.GetRelatedSongs(e)
+	similar := s.m.GetRelatedSongs(e)
 
-	return renderTemplate(w, r, "song.html", songPage{
+	return s.renderTemplate(w, r, "song.html", songPage{
 		e.SongName(),
 		&e,
 		similar,
@@ -44,7 +45,7 @@ func HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // HandleEditSong handles editing a song
-func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *server) HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
 		return HTTPError{
@@ -66,7 +67,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	if r.FormValue("delete-cover") == "delete-cover" {
-		err = store.M.DeleteCoverImage(songID)
+		err = s.m.DeleteCoverImage(songID)
 		if err != nil {
 			return err
 		}
@@ -81,7 +82,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 	// If the delete button was clicked
 	if r.FormValue("delete") == "delete" {
-		err = store.M.DeleteEntry(songID)
+		err = s.m.DeleteEntry(songID)
 		if err != nil {
 			return err
 		}
@@ -121,7 +122,7 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 		Sync: r.FormValue("should-sync"),
 	}
 
-	err = store.M.EditEntry(songID, newData)
+	err = s.m.EditEntry(songID, newData)
 	if err != nil {
 		if err == store.ErrAudioSameStartEnd {
 			return HTTPError{
@@ -143,8 +144,8 @@ func HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // HandleRandomSong redirects to a randomly chosen song
-func HandleRandomSong(w http.ResponseWriter, r *http.Request) (err error) {
-	song, ok := store.M.RandomSong()
+func (s *server) HandleRandomSong(w http.ResponseWriter, r *http.Request) (err error) {
+	song, ok := s.m.RandomSong()
 	if !ok {
 		return HTTPError{
 			StatusCode: http.StatusNotFound,
