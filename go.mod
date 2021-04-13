@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/bogem/id3v2 v1.2.0
-	github.com/cenkalti/dominantcolor v0.0.0-20171020061837-df772e8dd39e
+	github.com/cenkalti/dominantcolor v0.0.0-20210411190141-70117844b8ca
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 	github.com/gorilla/mux v1.8.0
@@ -12,6 +12,7 @@ require (
 	github.com/jlaffaye/ftp v0.0.0-20200602180915-5563613968bf // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.6 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v6 v6.0.57 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -23,12 +24,11 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/vitali-fedulov/images v0.0.0-20200831232703-8a90db96a358
 	goftp.io/server v0.4.1
-	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
+	golang.org/x/net v0.0.0-20210410081132-afb366fc7cd1 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210303074136-134d130e1a04 // indirect
-	golang.org/x/text v0.3.5 // indirect
+	golang.org/x/sys v0.0.0-20210412220455-f1c623a9e750 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )
