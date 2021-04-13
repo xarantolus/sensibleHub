@@ -15,8 +15,12 @@ import (
 )
 
 type server struct {
+	debug bool
+
 	m         *store.Manager
 	templates *template.Template
+
+	router *mux.Router
 
 	connectedSocketsLock sync.Mutex
 	connectedSockets     map[*websocket.Conn]chan struct{}
@@ -25,8 +29,13 @@ type server struct {
 // RunServer runs the web server on the port specified in `cfg`.
 // `debugMode` sets whether to start the server in debug mode
 func RunServer(manager *store.Manager, cfg config.Config, debugMode bool) (err error) {
+	r := mux.NewRouter()
+	r.StrictSlash(true)
+
 	var server = server{
+		debug:            debugMode,
 		m:                manager,
+		router:           r,
 		connectedSockets: make(map[*websocket.Conn]chan struct{}),
 	}
 
@@ -35,79 +44,79 @@ func RunServer(manager *store.Manager, cfg config.Config, debugMode bool) (err e
 		return
 	}
 
-	// debugWrap parses templates every time they are requested if the debug mode is enabled
-	var debugWrap = func(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
-		if !debugMode {
-			return f
-		}
-
-		return func(w http.ResponseWriter, r *http.Request) error {
-			err := server.parseTemplates()
-			if err != nil {
-				return err
-			}
-			return f(w, r)
-		}
-	}
-
 	manager.SetEventFunc(server.AllSockets)
 
-	r := mux.NewRouter()
-	r.StrictSlash(true)
-
+	// set up the file server that serves our data directory
 	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
 
-	// Static assets
+	// serve static assets and a favicon
 	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))).Methods(http.MethodGet)
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "assets/fav/favicon.ico")
 	}).Methods(http.MethodGet)
 
 	// Index page
-	r.HandleFunc("/", ErrWrap(debugWrap(server.HandleIndex))).Methods(http.MethodGet)
+	server.route("/", server.HandleIndex).Methods(http.MethodGet)
 
 	// Song submit form
-	r.HandleFunc("/add", ErrWrap(debugWrap(server.HandleAddSong))).Methods(http.MethodGet)
-	r.HandleFunc("/add", ErrWrap(debugWrap(server.HandleDownloadSong))).Methods(http.MethodPost)
+	server.route("/add", server.HandleAddSong).Methods(http.MethodGet)
+	server.route("/add", server.HandleDownloadSong).Methods(http.MethodPost)
 
-	r.HandleFunc("/abort", ErrWrap(debugWrap(server.HandleAbortDownload))).Methods(http.MethodPost)
+	server.route("/abort", server.HandleAbortDownload).Methods(http.MethodPost)
 
 	// Song listings
-	r.HandleFunc("/songs", ErrWrap(debugWrap(server.HandleTitleListing))).Methods(http.MethodGet)
-	r.HandleFunc("/artists", ErrWrap(debugWrap(server.HandleArtistListing))).Methods(http.MethodGet)
-	r.HandleFunc("/years", ErrWrap(debugWrap(server.HandleYearListing))).Methods(http.MethodGet)
-	r.HandleFunc("/incomplete", ErrWrap(debugWrap(server.HandleIncompleteListing))).Methods(http.MethodGet)
-	r.HandleFunc("/unsynced", ErrWrap(debugWrap(server.HandleUnsyncedListing))).Methods(http.MethodGet)
+	server.route("/songs", server.HandleTitleListing).Methods(http.MethodGet)
+	server.route("/artists", server.HandleArtistListing).Methods(http.MethodGet)
+	server.route("/years", server.HandleYearListing).Methods(http.MethodGet)
+	server.route("/incomplete", server.HandleIncompleteListing).Methods(http.MethodGet)
+	server.route("/unsynced", server.HandleUnsyncedListing).Methods(http.MethodGet)
 
 	// Search listing
-	r.HandleFunc("/search", ErrWrap(debugWrap(server.HandleSearchListing))).Methods(http.MethodGet)
+	server.route("/search", server.HandleSearchListing).Methods(http.MethodGet)
+	// Search API for search suggestions
+	server.route("/api/v1/search", server.HandleAPISongSearch).Methods(http.MethodGet)
 
-	r.HandleFunc("/api/v1/search", ErrWrap(debugWrap(server.HandleAPISongSearch))).Methods(http.MethodGet)
+	// Song html page and handler for editing
+	server.route("/song/{songID}", server.HandleShowSong).Methods(http.MethodGet)
+	server.route("/song/{songID}", server.HandleEditSong).Methods(http.MethodPost)
 
-	// Song html page
-	r.HandleFunc("/song/{songID}", ErrWrap(debugWrap(server.HandleShowSong))).Methods(http.MethodGet)
+	// Song Data retrieval
+	server.route("/song/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
+	server.route("/song/{songID}/audio", server.HandleAudio).Methods(http.MethodGet)
+	server.route("/song/{songID}/mp3", server.HandleMP3).Methods(http.MethodGet)
 
-	// Song edit handler
-	r.HandleFunc("/song/{songID}", ErrWrap(debugWrap(server.HandleEditSong))).Methods(http.MethodPost)
+	// Redirects to a random song
+	server.route("/songs/random", server.HandleRandomSong).Methods(http.MethodGet)
 
-	// Song Data
-	r.HandleFunc("/song/{songID}/cover", ErrWrap(server.HandleCover)).Methods(http.MethodGet)
-	r.HandleFunc("/song/{songID}/audio", ErrWrap(server.HandleAudio)).Methods(http.MethodGet)
-	r.HandleFunc("/song/{songID}/mp3", ErrWrap(server.HandleMP3)).Methods(http.MethodGet)
-
-	r.HandleFunc("/songs/random", ErrWrap(debugWrap(server.HandleRandomSong))).Methods(http.MethodGet)
-
-	// Album Listing
-	// r.HandleFunc("/albums")
-	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(server.HandleShowAlbum))).Methods(http.MethodGet)
-	r.HandleFunc("/album/{artist}/{album}", ErrWrap(debugWrap(server.HandleEditAlbum))).Methods(http.MethodPost)
+	// Album listing
+	server.route("/album/{artist}/{album}", server.HandleShowAlbum).Methods(http.MethodGet)
+	server.route("/album/{artist}/{album}", server.HandleEditAlbum).Methods(http.MethodPost)
 
 	// Artist listing
-	r.HandleFunc("/artist/{artist}", ErrWrap(debugWrap(server.HandleShowArtist))).Methods(http.MethodGet)
+	server.route("/artist/{artist}", server.HandleShowArtist).Methods(http.MethodGet)
 
 	// Websocket
-	r.HandleFunc("/api/v1/events/ws", ErrWrap(debugWrap(server.HandleWebsocket)))
+	server.route("/api/v1/events/ws", server.HandleWebsocket)
 
 	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)
+}
+
+func (s *server) route(path string, f func(w http.ResponseWriter, r *http.Request) error) *mux.Route {
+	return s.router.HandleFunc(path, s.errWrap(s.debugWrap(f)))
+}
+
+// debugWrap adds a wrapper that reloads templates before a route is processed when the server debug field is true
+func (s *server) debugWrap(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
+	if !s.debug {
+		return f
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) error {
+		err := s.parseTemplates()
+		if err != nil {
+			return err
+		}
+		return f(w, r)
+	}
 }

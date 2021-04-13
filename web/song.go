@@ -21,7 +21,7 @@ type songPage struct {
 func (s *server) HandleShowSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -29,7 +29,7 @@ func (s *server) HandleShowSong(w http.ResponseWriter, r *http.Request) (err err
 
 	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -48,7 +48,7 @@ func (s *server) HandleShowSong(w http.ResponseWriter, r *http.Request) (err err
 func (s *server) HandleEditSong(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -125,7 +125,7 @@ func (s *server) HandleEditSong(w http.ResponseWriter, r *http.Request) (err err
 	err = s.m.EditEntry(songID, newData)
 	if err != nil {
 		if err == store.ErrAudioSameStartEnd {
-			return HTTPError{
+			return httpError{
 				StatusCode: http.StatusPreconditionFailed,
 				Message:    err.Error(),
 			}
@@ -147,7 +147,7 @@ func (s *server) HandleEditSong(w http.ResponseWriter, r *http.Request) (err err
 func (s *server) HandleRandomSong(w http.ResponseWriter, r *http.Request) (err error) {
 	song, ok := s.m.RandomSong()
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    "There aren't any songs that can be chosen from",
 		}

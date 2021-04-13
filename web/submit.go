@@ -85,7 +85,7 @@ func (s *server) HandleAbortDownload(w http.ResponseWriter, r *http.Request) (er
 func (s *server) HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need an artist and album",
 		}
@@ -102,7 +102,7 @@ func (s *server) HandleEditAlbum(w http.ResponseWriter, r *http.Request) (err er
 	coverFile, fh, err := r.FormFile("cover-upload-button")
 	if err != nil {
 		if err == http.ErrMissingFile {
-			return HTTPError{
+			return httpError{
 				StatusCode: http.StatusBadRequest,
 				Message:    "Must include image",
 			}

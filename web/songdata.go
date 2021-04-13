@@ -21,7 +21,7 @@ import (
 func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -29,7 +29,7 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 
 	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -112,7 +112,7 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -120,7 +120,7 @@ func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error)
 
 	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}
@@ -139,7 +139,7 @@ func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error)
 func (s *server) HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need a song ID",
 		}
@@ -147,7 +147,7 @@ func (s *server) HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 
 	e, ok := s.m.GetEntry(v["songID"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    "Song not found",
 		}

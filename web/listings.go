@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Listing defines a listing of grouped songs
-type Listing struct {
+// listingPage defines a listing of grouped songs
+type listingPage struct {
 	Title string
 
 	// Groups are the groups that should be displayed
@@ -20,7 +20,7 @@ type Listing struct {
 
 // HandleTitleListing returns the song listing, sorted by titles
 func (s *server) HandleTitleListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return s.renderTemplate(w, r, "listing.html", Listing{
+	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Songs",
 		Groups: s.m.GroupByTitle(),
 	})
@@ -28,7 +28,7 @@ func (s *server) HandleTitleListing(w http.ResponseWriter, r *http.Request) (err
 
 // HandleArtistListing returns the artist listing, sorted by artist names
 func (s *server) HandleArtistListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return s.renderTemplate(w, r, "listing.html", Listing{
+	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Artists",
 		Groups: s.m.GroupByArtist(),
 	})
@@ -36,7 +36,7 @@ func (s *server) HandleArtistListing(w http.ResponseWriter, r *http.Request) (er
 
 // HandleYearListing returns the year listing
 func (s *server) HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return s.renderTemplate(w, r, "listing.html", Listing{
+	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Years",
 		Groups: s.m.GroupByYear(),
 	})
@@ -44,7 +44,7 @@ func (s *server) HandleYearListing(w http.ResponseWriter, r *http.Request) (err 
 
 // HandleIncompleteListing returns all items with incomplete data
 func (s *server) HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return s.renderTemplate(w, r, "listing.html", Listing{
+	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Incomplete",
 		Groups: s.m.Incomplete(),
 	})
@@ -52,7 +52,7 @@ func (s *server) HandleIncompleteListing(w http.ResponseWriter, r *http.Request)
 
 // HandleUnsyncedListing returns all items with that are not synced
 func (s *server) HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (err error) {
-	return s.renderTemplate(w, r, "listing.html", Listing{
+	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Unsynced",
 		Groups: s.m.Unsynced(),
 	})
@@ -95,7 +95,7 @@ type albumPage struct {
 func (s *server) HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need an artist and album",
 		}
@@ -103,7 +103,7 @@ func (s *server) HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err er
 
 	al, ok := s.m.GetAlbum(v["artist"], v["album"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    fmt.Sprintf("Cannot find album %s for artist %s", v["album"], v["artist"]),
 		}
@@ -126,7 +126,7 @@ type artistPage struct {
 func (s *server) HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusPreconditionFailed,
 			Message:    "Need an artist",
 		}
@@ -134,7 +134,7 @@ func (s *server) HandleShowArtist(w http.ResponseWriter, r *http.Request) (err e
 
 	artistInfo, ok := s.m.Artist(v["artist"])
 	if !ok {
-		return HTTPError{
+		return httpError{
 			StatusCode: http.StatusNotFound,
 			Message:    fmt.Sprintf("Cannot find any albums for %s", v["artist"]),
 		}
