@@ -13,10 +13,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/music"
-
-	"github.com/gorilla/websocket"
 )
 
 const (

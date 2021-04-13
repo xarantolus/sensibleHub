@@ -3,9 +3,8 @@ package ftp
 import (
 	"strings"
 
-	"xarantolus/sensibleHub/store"
-
 	"goftp.io/server"
+	"xarantolus/sensibleHub/store"
 )
 
 // musicDriverFactory is the ftp driver factory for this program.
@@ -18,7 +17,7 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 	entries := m.AllEntries()
 
 	d := &musicDriver{
-		Artists: make(map[string]Album),
+		Artists: make(map[string]album),
 		manager: m.Manager,
 		cfg:     m.GetConfig(),
 	}
@@ -44,7 +43,7 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 
 		_, ok = d.Artists[artistName]
 		if !ok {
-			d.Artists[artistName] = make(Album)
+			d.Artists[artistName] = make(album)
 		}
 
 		aname := store.CleanName(e.AlbumName())

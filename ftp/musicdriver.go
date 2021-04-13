@@ -10,10 +10,9 @@ import (
 	"sort"
 	"strings"
 
+	"goftp.io/server"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
-
-	"goftp.io/server"
 )
 
 var (
@@ -30,14 +29,14 @@ const (
 )
 
 type musicDriver struct {
-	Artists map[string]Album
+	Artists map[string]album
 
 	manager *store.Manager
 	cfg     config.Config
 }
 
-// Album is part of the virtual file system
-type Album map[string][]*fileInfo
+// album is part of the virtual file system
+type album map[string][]*fileInfo
 
 func (m *musicDriver) Init(c *server.Conn) {
 	log.Println("[FTP] Connected client from", c.RemoteAddr())

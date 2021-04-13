@@ -10,9 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"xarantolus/sensibleHub/store"
-
 	"github.com/gorilla/mux"
+	"xarantolus/sensibleHub/store"
 )
 
 // HandleCover displays the cover image for the song with the `songID` given in the URL.

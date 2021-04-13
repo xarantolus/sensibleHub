@@ -7,7 +7,7 @@ import (
 	"xarantolus/sensibleHub/store/music"
 )
 
-// Album represents a music album. Songs is gurranteed to have one or more items
+// Album represents a music album. Songs is guaranteed to have one or more items
 type Album struct {
 	Title  string
 	Artist string
