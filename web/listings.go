@@ -57,6 +57,14 @@ func (s *server) HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (
 	})
 }
 
+// HandleUnsyncedListing returns all items with that are not synced
+func (s *server) HandleRecentlyEditedListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", listingPage{
+		Title:  "Recently edited",
+		Groups: s.m.RecentlyEdited(),
+	})
+}
+
 type searchListing struct {
 	Title string
 	Songs []music.Entry

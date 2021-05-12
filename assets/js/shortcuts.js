@@ -19,6 +19,7 @@ window.addEventListener('keydown', function (ev) {
         89: "years", // 'y': years listing
         73: "incomplete", // 'i' incomplete songs listing
         85: "unsynced", // 'u' unsynced songs
+        69: "edits", // 'e' for recent edits
     }
 
     var destination = keyMap[ev.keyCode];

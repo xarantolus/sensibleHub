@@ -359,6 +359,33 @@ func (m *Manager) Unsynced() (groups []Group) {
 	return
 }
 
+// RecentlyEdited returns a group of songs that were edited within
+// the last two weeks, sorted by newest edit
+func (m *Manager) RecentlyEdited() (groups []Group) {
+	g := Group{
+		Title:       "Recently edited",
+		Description: "Songs edited within the last two weeks",
+	}
+
+	twoWeeksAgo := time.Now().Add(-14 * 24 * time.Hour)
+
+	for _, song := range m.AllEntries() {
+		if song.LastEdit.After(twoWeeksAgo) {
+			g.Songs = append(g.Songs, song)
+		}
+	}
+
+	if len(g.Songs) > 0 {
+		sort.Slice(g.Songs, func(i, j int) bool {
+			return g.Songs[i].LastEdit.After(g.Songs[j].LastEdit)
+		})
+
+		groups = []Group{g}
+	}
+
+	return
+}
+
 // NewestSong returns the most recently added song
 func (m *Manager) NewestSong() (e music.Entry, ok bool) {
 	m.SongsLock.RLock()

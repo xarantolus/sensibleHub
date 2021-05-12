@@ -69,6 +69,7 @@ func RunServer(manager *store.Manager, cfg config.Config, debugMode bool) (err e
 	server.route("/years", server.HandleYearListing).Methods(http.MethodGet)
 	server.route("/incomplete", server.HandleIncompleteListing).Methods(http.MethodGet)
 	server.route("/unsynced", server.HandleUnsyncedListing).Methods(http.MethodGet)
+	server.route("/edits", server.HandleRecentlyEditedListing).Methods(http.MethodGet)
 
 	// Search listing
 	server.route("/search", server.HandleSearchListing).Methods(http.MethodGet)
