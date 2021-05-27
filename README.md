@@ -242,14 +242,23 @@ My recommended music player for Windows is [Dopamine](https://github.com/digimez
 On Android, you can use any FTP app that doesn't look at the file size or lets you disable that. One of them is [FolderSync](https://play.google.com/store/apps/details?id=dk.tacit.android.foldersync.lite).
 
 Add a new "account" (in-app, there's no registration) with the following attributes:
- * **Server address**: `ftp://yourserver:1280`
- * **Login**: Your login credentials from one of the FTP users set in the [config file](#Configuration)
+ * **Server address**: the server name, e.g. `yourserver`.
+ * **Port**: the FTP port you set in the configuration file, e.g. `1280` 
+ * **Login name/password**: Your login credentials from one of the FTP users set in the [config file](#Configuration)
+ * The path can be left empty
 
 Now you can create a new *Folder pair* with these settings:
  * **Account**: The one created above
- * **Local Folder**: Your music folder, might be `/storage/emulated/0/Music`
+ * **Sync type**: to local folder
+ * **Remote folder**: should be empty or just `/`
+ * **Local Folder**: Your Android music folder, might be `/storage/emulated/0/Music` 
  * **Scheduling**: Here you can set *when* it should sync your files
- * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. Disable *Only resync source files if modified (ignore target deletion)*. Set *Overwrite old files* to *Always* and set *If conflicting modifications* to *Use remote file*. Now the most important part, **you must enable _Disable file-size check_** or it will not work. You can also enable *Rescan media library* to make sure new files are recognized.
+ * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. 
+ * **Advanced settings**
+   * **Overwrite old files**: always
+   * **If both local and remote file are modified**: *Use remote file*
+   * **Rescan media library** should be on, that way new files are imported
+   * **Disable file-size check** should be on, **this is the most important setting**
 
 For Android, any music player will probably work. I recommend [Music](https://f-droid.org/packages/com.maxfour.music/), it is quite customizable and colorful. You can enable *Ignore Media Store covers* in settings if some cover images aren't displayed.
 
