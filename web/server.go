@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/config"
 )
 
 type server struct {

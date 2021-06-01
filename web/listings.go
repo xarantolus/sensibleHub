@@ -3,10 +3,10 @@ package web
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/gorilla/mux"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/gorilla/mux"
 )
 
 // listingPage defines a listing of grouped songs
@@ -17,7 +17,7 @@ type listingPage struct {
 	Groups []store.Group
 }
 
-// HandleTitleListing returns the song listing, sorted by titles
+// HandleTitleListing renders the song listing, sorted by titles
 func (s *server) HandleTitleListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Songs",
@@ -25,7 +25,7 @@ func (s *server) HandleTitleListing(w http.ResponseWriter, r *http.Request) (err
 	})
 }
 
-// HandleArtistListing returns the artist listing, sorted by artist names
+// HandleArtistListing renders the artist listing, sorted by artist names
 func (s *server) HandleArtistListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Artists",
@@ -33,7 +33,7 @@ func (s *server) HandleArtistListing(w http.ResponseWriter, r *http.Request) (er
 	})
 }
 
-// HandleYearListing returns the year listing
+// HandleYearListing renders the year listing
 func (s *server) HandleYearListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Years",
@@ -41,7 +41,7 @@ func (s *server) HandleYearListing(w http.ResponseWriter, r *http.Request) (err 
 	})
 }
 
-// HandleIncompleteListing returns all items with incomplete data
+// HandleIncompleteListing renders a listing that contains all items with incomplete data
 func (s *server) HandleIncompleteListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Incomplete",
@@ -49,7 +49,7 @@ func (s *server) HandleIncompleteListing(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// HandleUnsyncedListing returns all items with that are not synced
+// HandleUnsyncedListing renders a listing with all items that are not synced
 func (s *server) HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Unsynced",
@@ -57,7 +57,7 @@ func (s *server) HandleUnsyncedListing(w http.ResponseWriter, r *http.Request) (
 	})
 }
 
-// HandleUnsyncedListing returns all items with that are not synced
+// HandleRecentlyEditedListing renders a listing of all songs that were edited recently
 func (s *server) HandleRecentlyEditedListing(w http.ResponseWriter, r *http.Request) (err error) {
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Recently edited",
@@ -72,14 +72,19 @@ type searchListing struct {
 	Query string
 }
 
-// HandleSearchListing returns a search listing
+// HandleSearchListing renders a search listing
 func (s *server) HandleSearchListing(w http.ResponseWriter, r *http.Request) (err error) {
 	query := r.URL.Query().Get("q")
 	if query == "" {
-		return fmt.Errorf("Empty query")
+		return httpError{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Empty query",
+		}
 	}
 
 	res := s.m.Search(query)
+
+	// If we find exactly one song, we can just redirect
 	if len(res) == 1 {
 		http.Redirect(w, r, "/song/"+res[0].ID, http.StatusTemporaryRedirect)
 		return
@@ -98,7 +103,7 @@ type albumPage struct {
 	A store.Album
 }
 
-// HandleShowAlbum shows the album page for the artist and album that's given in the url
+// HandleShowAlbum renders the album page for the artist and album that's given in the url
 func (s *server) HandleShowAlbum(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" || v["album"] == "" {
@@ -129,7 +134,7 @@ type artistPage struct {
 	Info store.ArtistInfo
 }
 
-// HandleShowArtist shows the artist page for the artist given in the url
+// HandleShowArtist renders the artist page for the artist given in the url
 func (s *server) HandleShowArtist(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["artist"] == "" {

@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/vitali-fedulov/images"
-	"xarantolus/sensibleHub/store/music"
 )
 
 const (

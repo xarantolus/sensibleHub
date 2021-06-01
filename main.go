@@ -9,12 +9,12 @@ import (
 	_ "image/png"
 	"log"
 	"os/exec"
-
-	_ "golang.org/x/image/webp"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web"
+
+	_ "golang.org/x/image/webp"
 )
 
 var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
@@ -57,7 +57,7 @@ func main() {
 		log.Printf("Error while importing: %s\n", err.Error())
 	}
 
-	// At first, we clean up all unused data on disk.
+	// Clean up all unused data on disk.
 	// Also if a song directory was deleted we delete it from our dataset
 	n := manager.CleanUp()
 	if n == 0 {
@@ -70,7 +70,7 @@ func main() {
 		}
 	}
 
-	// Kick off cover preview generaiton.
+	// Kick off cover preview generation.
 	// That way they aren't all generated on the first load of the /songs page
 	go manager.GenerateCoverPreviews()
 
