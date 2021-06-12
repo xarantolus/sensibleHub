@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/vitali-fedulov/images"
+	"xarantolus/sensibleHub/store/music"
 )
 
 const (
@@ -59,7 +59,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 	// when searching for a specific song, we want to reject Instrumental versions.
 	// This leads to youtube-dl selecting the second search result if the instrumental is first
 	// Don't add it when we explicitly want them though
-	if strings.Contains(downloadURL, "youtube.com/results?search_query") && !strings.Contains(strings.ToUpper(downloadURL), "INSTRUMENTAL") {
+	if strings.HasPrefix(downloadURL, "ytsearch:") && !strings.Contains(strings.ToUpper(downloadURL), "INSTRUMENTAL") {
 		cmd.Args = append(cmd.Args, "--reject-title", "(Instrumental)")
 	}
 

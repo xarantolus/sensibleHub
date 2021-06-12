@@ -12,10 +12,10 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"xarantolus/sensibleHub/store/config"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/websocket"
+	"xarantolus/sensibleHub/store/config"
+	"xarantolus/sensibleHub/store/music"
 )
 
 const (
@@ -173,7 +173,7 @@ func (m *Manager) Enqueue(u string) (err error) {
 	} else {
 		// Search youtube music - these are auto generated videos that exist for *some* artists
 		// Only the first item will be downloaded by m.download because of options passed to youtube-dl
-		u = fmt.Sprintf(searchURL, url.QueryEscape(strings.TrimSpace(u)+" \"auto generated\""))
+		u = fmt.Sprintf("ytsearch:%s %q", strings.TrimSpace(u), "auto generated")
 	}
 
 	select {
