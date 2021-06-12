@@ -3,10 +3,10 @@ package web
 import (
 	"fmt"
 	"net/http"
-	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/music"
 
 	"github.com/gorilla/mux"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // listingPage defines a listing of grouped songs
