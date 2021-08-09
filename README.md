@@ -60,7 +60,7 @@ If no recent build is available, you can also build for yourself.
 
 ### Build for yourself
 
-As a first step, you clone this repository (or download a zip file), then you open a terminal/command promt in the root directory of the repository:
+As a first step, you clone this repository (or download a zip file), then you open a terminal/command prompt in the root directory of the repository:
 
 ```
 git clone https://github.com/xarantolus/sensibleHub.git && cd sensibleHub
