@@ -11,12 +11,11 @@ import (
 	"log"
 	"os/exec"
 
+	_ "golang.org/x/image/webp"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web"
-
-	_ "golang.org/x/image/webp"
 )
 
 var (
