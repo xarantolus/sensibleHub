@@ -56,7 +56,8 @@ You can download releases from the [releases section](https://github.com/xaranto
 
 Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
 
-If no recent build is available, you can also build for yourself.
+<details>
+<summary>If no recent build is available, you can also build for yourself.</summary>
 
 ### Build for yourself
 
@@ -89,6 +90,7 @@ If you want to build for another operating system, it's quite easy. Search the c
 GOOS=linux GOARCH=arm GOARM=7 ./pack.sh
 ```
 
+</details>
 
 #### Additional requirements
 This program relies on some other programs that need to be installed and be available in your $PATH:
