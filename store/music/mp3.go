@@ -13,9 +13,11 @@ import (
 	"strconv"
 	"strings"
 
+	"xarantolus/sensibleHub/store/config"
+	"xarantolus/sensibleHub/store/file"
+
 	"github.com/nfnt/resize"
 	"golang.org/x/sync/singleflight"
-	"xarantolus/sensibleHub/store/config"
 )
 
 var mp3Group singleflight.Group
@@ -149,7 +151,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 			return
 		}
 		// if everything goes right, we can now move it to its destination
-		err = os.Rename(tempAudio, outName)
+		err = file.Move(tempAudio, outName)
 		if err != nil {
 			return
 		}

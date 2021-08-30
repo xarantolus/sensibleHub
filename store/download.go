@@ -13,8 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vitali-fedulov/images"
+	"xarantolus/sensibleHub/store/file"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/vitali-fedulov/images"
 )
 
 const (
@@ -281,7 +283,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 					// Everything went well, we can move it to its real destination
 					destPath := filepath.Join(songDir, e.PictureData.Filename)
 
-					err = os.Rename(tmp, destPath)
+					err = file.Move(tmp, destPath)
 					if err != nil {
 						e.PictureData.Filename = ""
 						return
@@ -331,7 +333,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 
 	// Move all kinds of files - this may not work on all platforms as they aren't in the same directory
 	if jsonErr == nil {
-		err = os.Rename(jsonPath, filepath.Join(songDir, e.MetaFile.Filename))
+		err = file.Move(jsonPath, filepath.Join(songDir, e.MetaFile.Filename))
 		if err != nil {
 			return
 		}
@@ -339,7 +341,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 		e.MetaFile.Filename = ""
 	}
 
-	err = os.Rename(audioPath, filepath.Join(songDir, e.FileData.Filename))
+	err = file.Move(audioPath, filepath.Join(songDir, e.FileData.Filename))
 	if err != nil {
 		return
 	}

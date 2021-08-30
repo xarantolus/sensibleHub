@@ -12,9 +12,11 @@ import (
 	"strings"
 	"time"
 
+	"xarantolus/sensibleHub/store/file"
+	"xarantolus/sensibleHub/store/music"
+
 	"github.com/bogem/id3v2"
 	"github.com/vitali-fedulov/images"
-	"xarantolus/sensibleHub/store/music"
 )
 
 // ImportFiles imports files from the given directory. It tries to get as much metadata as possible
@@ -183,7 +185,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		}
 	}
 
-	err = os.Rename(musicFile, e.AudioPath())
+	err = file.Move(musicFile, e.AudioPath())
 	if err != nil {
 		return
 	}

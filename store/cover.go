@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"xarantolus/sensibleHub/store/file"
 
 	"github.com/edwvee/exiffix"
 	"github.com/vitali-fedulov/images"
@@ -93,7 +94,7 @@ func cropCover(f io.ReadCloser, sourceFile string, destination string) (err erro
 				return ioutil.WriteFile(destination, data, 0o644)
 			}
 
-			return os.Rename(sourceFile, destination)
+			return file.Move(sourceFile, destination)
 		}
 
 		croppedImg = img // work with the normal image
@@ -137,7 +138,7 @@ noNeedToCrop:
 		return
 	}
 
-	return os.Rename(fn, destination)
+	return file.Move(fn, destination)
 }
 
 func encodeImageToTemp(img image.Image, fn string) (outpath string, err error) {
