@@ -13,10 +13,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vitali-fedulov/images"
 	"xarantolus/sensibleHub/store/file"
 	"xarantolus/sensibleHub/store/music"
-
-	"github.com/vitali-fedulov/images"
 )
 
 const (

@@ -12,10 +12,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"xarantolus/sensibleHub/store/file"
 
 	"github.com/edwvee/exiffix"
 	"github.com/vitali-fedulov/images"
+	"xarantolus/sensibleHub/store/file"
 )
 
 // GenerateCoverPreviews starts generating all cover previews.
