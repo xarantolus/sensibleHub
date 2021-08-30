@@ -2,15 +2,17 @@ package web
 
 import (
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
 
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
 type server struct {
@@ -18,6 +20,9 @@ type server struct {
 
 	m         *store.Manager
 	templates *template.Template
+
+	assetFS    fs.FS
+	templateFS fs.FS
 
 	router *mux.Router
 
@@ -27,18 +32,22 @@ type server struct {
 
 // RunServer runs the web server on the port specified in `cfg`.
 // `debugMode` sets whether to start the server in debug mode
-func RunServer(manager *store.Manager, cfg config.Config, debugMode bool) (err error) {
+func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs.FS, debugMode bool) (err error) {
 	r := mux.NewRouter()
 	r.StrictSlash(true)
 
 	var server = server{
-		debug:            debugMode,
-		m:                manager,
+		debug: debugMode,
+		m:     manager,
+
+		assetFS:    assetFS,
+		templateFS: templateFS,
+
 		router:           r,
 		connectedSockets: make(map[*websocket.Conn]chan struct{}),
 	}
 
-	err = server.parseTemplates()
+	err = server.parseTemplates(templateFS)
 	if err != nil {
 		return
 	}
@@ -49,9 +58,9 @@ func RunServer(manager *store.Manager, cfg config.Config, debugMode bool) (err e
 	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
 
 	// serve static assets and a favicon
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))).Methods(http.MethodGet)
+	r.PathPrefix("/assets/").Handler(http.FileServer(http.FS(assetFS))).Methods(http.MethodGet)
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "assets/fav/favicon.ico")
+		http.Redirect(w, r, "assets/fav/favicon.ico", http.StatusMovedPermanently)
 	}).Methods(http.MethodGet)
 
 	// Index page
@@ -113,7 +122,7 @@ func (s *server) debugWrap(f func(w http.ResponseWriter, r *http.Request) error)
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) error {
-		err := s.parseTemplates()
+		err := s.parseTemplates(s.templateFS)
 		if err != nil {
 			return err
 		}

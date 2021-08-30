@@ -73,9 +73,7 @@ go build -mod vendor
 ```
 
 If you want to move this executable elsewhere on your system, make sure to move the following files and directories to the same location: 
- * `templates`
  * `data` (if you want to keep imported songs)
- * `assets`
  * `config.json`
  * `sensibleHub` (the executable)
 

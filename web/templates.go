@@ -2,6 +2,7 @@ package web
 
 import (
 	"html/template"
+	"io/fs"
 	"net/http"
 	"strings"
 
@@ -41,8 +42,8 @@ var (
 	}
 )
 
-func (s *server) parseTemplates() (err error) {
-	temp, err := template.New("base").Funcs(funcMap).ParseGlob("templates/*.html")
+func (s *server) parseTemplates(fs fs.FS) (err error) {
+	temp, err := template.New("base").Funcs(funcMap).ParseFS(fs, "templates/*.html")
 	if err != nil {
 		return
 	}

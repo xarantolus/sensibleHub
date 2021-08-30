@@ -1,6 +1,8 @@
 package main
 
 import (
+	"embed"
+	_ "embed"
 	"flag"
 
 	// Supported image formats
@@ -10,16 +12,24 @@ import (
 	"log"
 	"os/exec"
 
-	_ "golang.org/x/image/webp"
 	"xarantolus/sensibleHub/ftp"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web"
+
+	_ "golang.org/x/image/webp"
 )
 
-var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
+var (
+	//go:embed templates
+	templateFS embed.FS
+
+	//go:embed assets
+	assetFS embed.FS
+)
 
 func main() {
+	var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
 	flag.Parse()
 
 	if *flagDebug {
@@ -83,7 +93,7 @@ func main() {
 	}()
 
 	// And the web server of course
-	err = web.RunServer(manager, cfg, *flagDebug)
+	err = web.RunServer(manager, cfg, assetFS, templateFS, *flagDebug)
 	if err != nil {
 		panic("while running web server: " + err.Error())
 	}
