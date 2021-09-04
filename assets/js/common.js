@@ -98,7 +98,7 @@ function registerCover() {
             return;
         }
 
-        document.getElementById('cover-upload-button').innerHTML = files[0].name;
+        document.getElementById('cover-upload-button').innerText = files[0].name;
 
 
         var img = document.getElementById('song-cover');
