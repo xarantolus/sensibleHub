@@ -80,18 +80,13 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	server.route("/unsynced", server.HandleUnsyncedListing).Methods(http.MethodGet)
 	server.route("/edits", server.HandleRecentlyEditedListing).Methods(http.MethodGet)
 
-	server.route("/api/v1/listing/{listing}", server.HandleAPIListing).Methods(http.MethodGet)
-
 	// Search listing
 	server.route("/search", server.HandleSearchListing).Methods(http.MethodGet)
 	// Search API for search suggestions
-	server.route("/api/v1/search", server.HandleAPISongSearch).Methods(http.MethodGet)
 
 	// Song html page and handler for editing
 	server.route("/song/{songID}", server.HandleShowSong).Methods(http.MethodGet)
 	server.route("/song/{songID}", server.HandleEditSong).Methods(http.MethodPost)
-
-	server.route("/api/v1/song/{songID}", server.HandleAPISong).Methods(http.MethodGet)
 
 	// Song Data retrieval
 	server.route("/song/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
@@ -108,7 +103,11 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	// Artist listing
 	server.route("/artist/{artist}", server.HandleShowArtist).Methods(http.MethodGet)
 
-	// Websocket
+	// API
+	server.route("/api/v1/listing/{listing}", server.HandleAPIListing).Methods(http.MethodGet)
+	server.route("/api/v1/song/{songID}", server.HandleAPISong).Methods(http.MethodGet)
+
+	server.route("/api/v1/search", server.HandleAPISongSearch).Methods(http.MethodGet)
 	server.route("/api/v1/events/ws", server.HandleWebsocket)
 
 	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
