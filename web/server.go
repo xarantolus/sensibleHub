@@ -8,10 +8,11 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
 type server struct {
@@ -78,6 +79,8 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	server.route("/incomplete", server.HandleIncompleteListing).Methods(http.MethodGet)
 	server.route("/unsynced", server.HandleUnsyncedListing).Methods(http.MethodGet)
 	server.route("/edits", server.HandleRecentlyEditedListing).Methods(http.MethodGet)
+
+	server.route("/api/v1/listing/{listing}", server.HandleAPIListing).Methods(http.MethodGet)
 
 	// Search listing
 	server.route("/search", server.HandleSearchListing).Methods(http.MethodGet)

@@ -33,12 +33,12 @@ func (m *Manager) AllEntries() (list []music.Entry) {
 // Group is a struct that stores songs that are grouped together,
 // e.g. because they have the same prefix or artist
 type Group struct {
-	Title       string
-	Description string
+	Title       string `json:"title"`
+	Description string `json:"description"`
 
-	Link string
+	Link string `json:"link"`
 
-	Songs []music.Entry
+	Songs []music.Entry `json:"songs"`
 }
 
 // GroupByTitle groups titles by the first letter of their title
