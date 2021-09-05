@@ -91,6 +91,8 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	server.route("/song/{songID}", server.HandleShowSong).Methods(http.MethodGet)
 	server.route("/song/{songID}", server.HandleEditSong).Methods(http.MethodPost)
 
+	server.route("/api/v1/song/{songID}", server.HandleAPISong).Methods(http.MethodGet)
+
 	// Song Data retrieval
 	server.route("/song/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
 	server.route("/song/{songID}/audio", server.HandleAudio).Methods(http.MethodGet)
