@@ -3,6 +3,8 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"io/fs"
 	"mime"
 	"net/http"
 	"os"
@@ -78,18 +80,25 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 		// This is because ServeFile overwrites the last-modified header to the last time the file has been edited and sends 304 Not modified
 		// The browser will continue to use an old/cached and already deleted image if we use ServeFile, at least until
 		// the website has been reloaded. Since that isn't good, we need to do it manually and correctly
-		coF, err := os.Open(cp)
+
+		var coverFile fs.File
+		if isMissing {
+			// Need to load this from the asset fs
+			coverFile, err = s.assetFS.Open(cp)
+		} else {
+			coverFile, err = os.Open(cp)
+		}
 		if err != nil {
 			return err
 		}
-		defer coF.Close()
+		defer coverFile.Close()
 
 		mtype := mime.TypeByExtension(strings.TrimPrefix(filepath.Ext(e.PictureData.Filename), "."))
 		if mtype != "" {
 			w.Header().Set("Content-Type", mtype)
 		}
 
-		info, err := coF.Stat()
+		info, err := coverFile.Stat()
 		if err == nil {
 			w.Header().Set("Content-Length", strconv.FormatInt(info.Size(), 10))
 		}
@@ -100,7 +109,12 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", fn))
 
-		http.ServeContent(w, r, fn, e.LastEdit, coF)
+		rs, ok := coverFile.(io.ReadSeeker)
+		if ok {
+			http.ServeContent(w, r, fn, e.LastEdit, rs)
+		} else {
+			return fmt.Errorf("cannot use cover file as io.ReadSeeker (is %T)", coverFile)
+		}
 
 		return nil
 	}
