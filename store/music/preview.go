@@ -25,6 +25,26 @@ type cover struct {
 	bytes []byte
 }
 
+// PreviewSize returns the size of all preview items in bytes
+func PreviewSize() (size int64) {
+	cstoreLock.RLock()
+	defer cstoreLock.RUnlock()
+
+	for _, cov := range coverStore {
+		size += int64(len(cov.bytes))
+	}
+
+	return
+}
+
+// PreviewLen returns how many covers are currently in the cache
+func PreviewLen() int {
+	cstoreLock.RLock()
+	defer cstoreLock.RUnlock()
+
+	return len(coverStore)
+}
+
 // CoverPreview generates a cover preview
 func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 	imageFormat = "image/jpeg"
