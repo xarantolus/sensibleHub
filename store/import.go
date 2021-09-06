@@ -3,7 +3,6 @@ package store
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -12,10 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bogem/id3v2"
-	"github.com/vitali-fedulov/images"
 	"xarantolus/sensibleHub/store/file"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/bogem/id3v2"
+	"github.com/vitali-fedulov/images"
 )
 
 // ImportFiles imports files from the given directory. It tries to get as much metadata as possible
@@ -166,7 +166,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	}()
 
 	if picBuf.Len() > 0 {
-		err = cropCover(ioutil.NopCloser(&picBuf), "", e.CoverPath())
+		err = cropCover(&picBuf, "", e.CoverPath())
 	} else {
 		e.PictureData.Filename = ""
 	}

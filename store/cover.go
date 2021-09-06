@@ -46,7 +46,7 @@ func (m *Manager) GenerateCoverPreviews() {
 		_, _, _ = e.CoverPreview()
 	}
 
-	log.Println("[Startup]: Finished cover preview generation")
+	log.Printf("[Startup]: Finished cover preview generation, currently holding %d covers with a size of %d bytes\n", music.PreviewLen(), music.PreviewSize())
 }
 
 // cropMoveCover tries to create a squared cover image from the image located at `sourceFile`.
