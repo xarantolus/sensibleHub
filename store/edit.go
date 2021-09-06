@@ -97,6 +97,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		if err != nil {
 			return
 		}
+		_ = data.CoverImage.Close()
 
 		if oldCover != coverFN && oldCover != "" {
 			err = os.Remove(oldCoverPath)
@@ -160,6 +161,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 	if err != nil {
 		return
 	}
+	_ = coverImage.Close()
 
 	hex, _ := music.CalculateDominantColor(tmpCoverPath)
 
