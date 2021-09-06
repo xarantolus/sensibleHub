@@ -13,9 +13,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"xarantolus/sensibleHub/store/file"
+	"xarantolus/sensibleHub/store/music"
+
 	"github.com/edwvee/exiffix"
 	"github.com/vitali-fedulov/images"
-	"xarantolus/sensibleHub/store/file"
 )
 
 // GenerateCoverPreviews starts generating all cover previews.
@@ -56,24 +58,20 @@ func cropMoveCover(sourceFile, destination string) (err error) {
 	if err != nil {
 		return
 	}
+	defer f.Close()
 
 	return cropCover(f, sourceFile, destination)
 }
 
 // cropCover crops a cover image stored in `f` to a square and writes it to a file at `destination`.
 // sourceFile can be "" (empty string) if the cover has been read e.g. from an http request
-func cropCover(f io.ReadCloser, sourceFile string, destination string) (err error) {
+func cropCover(f io.Reader, sourceFile string, destination string) (err error) {
 	data, err := ioutil.ReadAll(f)
 	if err != nil {
-		f.Close()
 		return
 	}
 
-	err = f.Close()
-	if err != nil {
-		return
-	}
-
+	// Since we need an io.ReadSeeker, we need to know all bytes
 	img, format, err := exiffix.Decode(bytes.NewReader(data))
 	if err != nil {
 		return
