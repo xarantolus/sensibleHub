@@ -1,7 +1,7 @@
 # Mark generated files as vendored
-*.min.js linguist-vendored
-*.js.map linguist-vendored
+**.min.js linguist-vendored
+**.js.map linguist-vendored
 
-*.min.css linguist-vendored
-*.css.map linguist-vendored
-assets/css/bulma.css*
+**.min.css linguist-vendored
+**.css.map linguist-vendored
+assets/css/bulma*
