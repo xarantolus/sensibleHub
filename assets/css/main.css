@@ -1,3 +1,41 @@
+:root {
+    --song-title-color: #222;
+    --song-link-bgcolor: #eee;
+    --song-link-bgcolor-hover: #ddd;
+    --navbar-drop-shadow: #1d1d1d1c;
+    --image-hover-bg: #b6b6b6;
+    --image-hover-bg-gradient-target: #646464;
+}
+
+#main-progress {
+    background-image: linear-gradient(to right, #00d1b2 30%, #ededed 30%) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --song-title-color: #ddd;
+        --song-link-bgcolor: #212121;
+        --song-link-bgcolor-hover: #313131;
+        --navbar-drop-shadow: #e2e2e21c;
+        --image-hover-bg: #494949;
+        --image-hover-bg-gradient-target: #646464;
+    }
+    .button.is-static {
+        background-color: #202020;
+        border-color: #414141;
+        color: #cccccc;
+    }
+    .box {
+        box-shadow: 0 2px 3px rgba(150, 150, 150, .1), 0 0 0 1px rgba(50, 50, 50, .1)
+    }
+    #main-progress {
+        background-image: linear-gradient(to right, #00d1b2 30%, #363636 30%) !important;
+    }
+    .logo-image {
+        filter: invert();
+    }
+}
+
 .song-container, .album-container {
     width: 70%;
     margin: 0 auto;
@@ -26,7 +64,7 @@
 }
 
 .song-title-link {
-    color: #222;
+    color: var(--song-title-color);
 }
 
 .song-title-link::after {
@@ -77,7 +115,7 @@
 
 .cover-image-size {
     padding: 0.5%;
-    color: #121212;
+    color: var(--song-title-color);
 }
 
 .album-songs {
@@ -115,12 +153,12 @@
 
 .song-link {
     overflow-y: hidden;
-    background-color: #eee;
+    background-color: var(--song-link-bgcolor);
     transition: background-color .1s ease-in;
 }
 
 .song-link:hover {
-    background-color: #ddd;
+    background-color: var(--song-link-bgcolor-hover);
 }
 
 .song-media {
@@ -192,7 +230,7 @@ a.box:focus, a.box:hover {
     width: 100%;
     height: 3%;
     top: 0px;
-    filter: drop-shadow(0 0 0.25rem #1d1d1d1c);
+    filter: drop-shadow(0 0 0.25rem var(--navbar-drop-shadow));
 }
 
 #search-suggestions {
@@ -214,7 +252,7 @@ a.box:focus, a.box:hover {
 }
 
 .search-selected {
-    background: #dddddd;
+    background: var(--song-link-bgcolor-hover);
 }
 
 .content-container {
@@ -230,8 +268,8 @@ a.button.is-static {
 }
 
 .song-image-container, .album-image-container {
-    background: rgb(182, 182, 182);
-    background: linear-gradient(45deg, rgba(182, 182, 182, 1) 0%, rgba(101, 101, 101, 1) 100%);
+    background: var(--image-hover-bg);
+    background: linear-gradient(45deg, var(--image-hover-bg) 0%, var(--image-hover-bg-gradient-target) 100%);
     border-radius: 10px;
 }
 
@@ -266,6 +304,7 @@ pre {
 #song-cover {
     object-fit: cover;
     border-radius: 10px;
+    /* No need to color this for dark/light, will be overwritten by the primary cover color anyways */
     border: 3px solid #ddd;
 }
 

@@ -16,7 +16,7 @@ and syncing using external programs.
    - `esc` for going to the main page
  * [Import](#Importing) songs you already have
  * Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
-
+* Automatic dark mode: the site applies a light or dark theme depending on your system settings
 
 ### Screenshots
 
@@ -30,7 +30,7 @@ Show all songs that are in an album. On this page, you can also set an album ima
   
 ##### Song page
   ![Song page](.github/screenshots/shub-song.png?raw=true)
-This page lets you see and edit metadata (including the cover image) that will be included in the MP3 files. 
+This page lets you see and edit metadata (including the cover image) that will be included in the MP3 files. The image shows both the dark and light mode.
 
 ##### Song listing
   ![Listing page](.github/screenshots/shub-listing.png?raw=true)
@@ -288,9 +288,9 @@ Everything also works *without JavaScript*, but the experience is *much better* 
 
 Mobile support also works great, menus are collapsed at the top right.
 
-Song listing             |  Song listing with opened menu
-:-------------------------:|:-------------------------:
-![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true) | ![Mobile Menu](.github/screenshots/shub-mobile-menu.png?raw=true)
+|                              Song listing                               |                   Song listing with opened menu                   |
+| :---------------------------------------------------------------------: | :---------------------------------------------------------------: |
+| ![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true) | ![Mobile Menu](.github/screenshots/shub-mobile-menu.png?raw=true) |
 
 
 ### Limitations
