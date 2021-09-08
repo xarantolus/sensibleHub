@@ -25,7 +25,7 @@
         border-color: #414141;
         color: #cccccc;
     }
-    .button.is-danger {
+    .notification.is-danger, .button.is-danger {
         background-color: #b30024;
     }
     .box {
