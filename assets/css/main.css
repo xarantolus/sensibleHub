@@ -28,6 +28,10 @@
     .notification.is-danger, .button.is-danger {
         background-color: #b30024;
     }
+    a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover {
+        background-color: #2e2e2e !important;
+        color: #aecdff !important;
+    }
     .box {
         box-shadow: 0 2px 3px rgba(150, 150, 150, .1), 0 0 0 1px rgba(50, 50, 50, .1)
     }
