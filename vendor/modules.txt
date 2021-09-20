@@ -1,3 +1,78 @@
+# github.com/RoaringBitmap/roaring v0.9.4
+github.com/RoaringBitmap/roaring
+github.com/RoaringBitmap/roaring/internal
+# github.com/bits-and-blooms/bitset v1.2.1
+## explicit
+github.com/bits-and-blooms/bitset
+# github.com/blevesearch/bleve/v2 v2.1.1
+## explicit
+github.com/blevesearch/bleve/v2
+github.com/blevesearch/bleve/v2/analysis
+github.com/blevesearch/bleve/v2/analysis/analyzer/standard
+github.com/blevesearch/bleve/v2/analysis/datetime/flexible
+github.com/blevesearch/bleve/v2/analysis/datetime/optional
+github.com/blevesearch/bleve/v2/analysis/lang/en
+github.com/blevesearch/bleve/v2/analysis/token/lowercase
+github.com/blevesearch/bleve/v2/analysis/token/porter
+github.com/blevesearch/bleve/v2/analysis/token/stop
+github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode
+github.com/blevesearch/bleve/v2/document
+github.com/blevesearch/bleve/v2/geo
+github.com/blevesearch/bleve/v2/index/scorch
+github.com/blevesearch/bleve/v2/index/scorch/mergeplan
+github.com/blevesearch/bleve/v2/index/upsidedown
+github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb
+github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap
+github.com/blevesearch/bleve/v2/mapping
+github.com/blevesearch/bleve/v2/numeric
+github.com/blevesearch/bleve/v2/registry
+github.com/blevesearch/bleve/v2/search
+github.com/blevesearch/bleve/v2/search/collector
+github.com/blevesearch/bleve/v2/search/facet
+github.com/blevesearch/bleve/v2/search/highlight
+github.com/blevesearch/bleve/v2/search/highlight/format/html
+github.com/blevesearch/bleve/v2/search/highlight/fragmenter/simple
+github.com/blevesearch/bleve/v2/search/highlight/highlighter/html
+github.com/blevesearch/bleve/v2/search/highlight/highlighter/simple
+github.com/blevesearch/bleve/v2/search/query
+github.com/blevesearch/bleve/v2/search/scorer
+github.com/blevesearch/bleve/v2/search/searcher
+github.com/blevesearch/bleve/v2/size
+# github.com/blevesearch/bleve_index_api v1.0.1
+github.com/blevesearch/bleve_index_api
+# github.com/blevesearch/go-porterstemmer v1.0.3
+github.com/blevesearch/go-porterstemmer
+# github.com/blevesearch/mmap-go v1.0.3
+github.com/blevesearch/mmap-go
+# github.com/blevesearch/scorch_segment_api/v2 v2.1.0
+github.com/blevesearch/scorch_segment_api/v2
+# github.com/blevesearch/segment v0.9.0
+github.com/blevesearch/segment
+# github.com/blevesearch/snowballstem v0.9.0
+github.com/blevesearch/snowballstem
+github.com/blevesearch/snowballstem/english
+# github.com/blevesearch/upsidedown_store_api v1.0.1
+github.com/blevesearch/upsidedown_store_api
+# github.com/blevesearch/vellum v1.0.6
+github.com/blevesearch/vellum
+github.com/blevesearch/vellum/levenshtein
+github.com/blevesearch/vellum/regexp
+github.com/blevesearch/vellum/utf8
+# github.com/blevesearch/zapx/v11 v11.3.0
+## explicit
+github.com/blevesearch/zapx/v11
+# github.com/blevesearch/zapx/v12 v12.3.0
+## explicit
+github.com/blevesearch/zapx/v12
+# github.com/blevesearch/zapx/v13 v13.3.0
+## explicit
+github.com/blevesearch/zapx/v13
+# github.com/blevesearch/zapx/v14 v14.3.0
+## explicit
+github.com/blevesearch/zapx/v14
+# github.com/blevesearch/zapx/v15 v15.3.0
+## explicit
+github.com/blevesearch/zapx/v15
 # github.com/bogem/id3v2 v1.2.0
 ## explicit
 github.com/bogem/id3v2
@@ -10,6 +85,12 @@ github.com/disintegration/imaging
 # github.com/edwvee/exiffix v0.0.0-20190810152521-16aac9658f23
 ## explicit
 github.com/edwvee/exiffix
+# github.com/golang/protobuf v1.5.2
+## explicit
+github.com/golang/protobuf/proto
+# github.com/golang/snappy v0.0.4
+## explicit
+github.com/golang/snappy
 # github.com/gorilla/mux v1.8.0
 ## explicit
 github.com/gorilla/mux
@@ -47,6 +128,8 @@ github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 ## explicit
 github.com/modern-go/reflect2
+# github.com/mschoch/smat v0.2.0
+github.com/mschoch/smat
 # github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 ## explicit
 github.com/nfnt/resize
@@ -54,11 +137,16 @@ github.com/nfnt/resize
 ## explicit
 github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
+# github.com/steveyen/gtreap v0.1.0
+github.com/steveyen/gtreap
 # github.com/stretchr/testify v1.6.1
 ## explicit
 # github.com/vitali-fedulov/images v2.0.1+incompatible
 ## explicit
 github.com/vitali-fedulov/images
+# go.etcd.io/bbolt v1.3.6
+## explicit
+go.etcd.io/bbolt
 # goftp.io/server v0.4.1
 ## explicit
 goftp.io/server
@@ -87,9 +175,12 @@ golang.org/x/net/publicsuffix
 # golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 ## explicit
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf
+# golang.org/x/sys v0.0.0-20210917161153-d61c044b1678
 ## explicit
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.7
 ## explicit
 golang.org/x/text/encoding
@@ -103,6 +194,35 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# google.golang.org/protobuf v1.27.1
+## explicit
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genid
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/order
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protodesc
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
+google.golang.org/protobuf/types/descriptorpb
 # gopkg.in/ini.v1 v1.62.0
 ## explicit
 gopkg.in/ini.v1
