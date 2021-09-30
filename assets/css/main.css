@@ -2,7 +2,7 @@
     --song-title-color: #222;
     --song-link-bgcolor: #eee;
     --song-link-bgcolor-hover: #ddd;
-    --navbar-drop-shadow: #1d1d1d1c;
+    --navbar-drop-shadow: #1d1d1d45;
     --image-hover-bg: #b6b6b6;
     --image-hover-bg-gradient-target: #646464;
 }
@@ -16,7 +16,7 @@
         --song-title-color: #ddd;
         --song-link-bgcolor: #212121;
         --song-link-bgcolor-hover: #313131;
-        --navbar-drop-shadow: #e2e2e21c;
+        --navbar-drop-shadow: #e2e2e245;
         --image-hover-bg: #494949;
         --image-hover-bg-gradient-target: #646464;
     }
@@ -85,10 +85,6 @@
 
 .title-container {
     padding-bottom: 1%;
-}
-
-.removepadding {
-    padding-bottom: 0 !important;
 }
 
 .cover-center {
@@ -223,7 +219,6 @@ a.box:focus, a.box:hover {
 .title {
     padding-top: 1.5%;
     padding-bottom: 1.5%;
-    margin-bottom: .5% !important;
 }
 
 .title.is-6 {
@@ -233,7 +228,7 @@ a.box:focus, a.box:hover {
 }
 
 .navbar {
-    position: fixed;
+    position: sticky;
     width: 100%;
     height: 3%;
     top: 0px;
@@ -260,10 +255,6 @@ a.box:focus, a.box:hover {
 
 .search-selected {
     background: var(--song-link-bgcolor-hover);
-}
-
-.content-container {
-    padding-top: 3.5%;
 }
 
 .audio-controls {
