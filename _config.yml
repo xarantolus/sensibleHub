@@ -1,2 +1,2 @@
-theme: jekyll-theme-dinky
+theme: jekyll-theme-primer
 include: [.github, README.md, pack.sh]
