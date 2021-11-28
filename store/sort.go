@@ -386,6 +386,26 @@ func (m *Manager) RecentlyEdited() (groups []Group) {
 	return
 }
 
+// SortedByAddDate returns all songs in a single group that is sorted by the date added (inverse)
+func (m *Manager) SortedByAddDate() (groups []Group) {
+	g := Group{
+		Title:       "Date added",
+		Description: "Songs ordered inversely by the date added",
+	}
+
+	entries := m.AllEntries()
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Added.After(entries[j].Added)
+	})
+
+	if len(entries) > 0 {
+		g.Songs = entries
+		groups = []Group{g}
+	}
+
+	return
+}
+
 // NewestSong returns the most recently added song
 func (m *Manager) NewestSong() (e music.Entry, ok bool) {
 	m.SongsLock.RLock()

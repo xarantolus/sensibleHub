@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/music"
+
+	"github.com/gorilla/mux"
 )
 
 // listingPage defines a listing of grouped songs
@@ -62,6 +63,14 @@ func (s *server) HandleRecentlyEditedListing(w http.ResponseWriter, r *http.Requ
 	return s.renderTemplate(w, r, "listing.html", listingPage{
 		Title:  "Recently edited",
 		Groups: s.m.RecentlyEdited(),
+	})
+}
+
+// HandleSortedByAddDateListing returns a listing of all songs, sorted by add date
+func (s *server) HandleSortedByAddDateListing(w http.ResponseWriter, r *http.Request) (err error) {
+	return s.renderTemplate(w, r, "listing.html", listingPage{
+		Title:  "Date added",
+		Groups: s.m.SortedByAddDate(),
 	})
 }
 
