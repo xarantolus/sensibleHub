@@ -5,10 +5,10 @@
     {{if have .Title}}<div class="title-container">
         {{if have .Link }}
             <a href="{{.Link}}">
-                <h4 class="title is-4">{{.Title}}</h4>
+                <h4 class="title is-4 no-bottom">{{.Title}}</h4>
             </a>
         {{else}}
-            <h4 class="title is-4">{{.Title}}</h4>
+            <h4 class="title is-4 no-bottom">{{.Title}}</h4>
         {{end}}
         {{with .Description}}<p class="help">{{.}}</p>{{end}}
     </div>{{end}}

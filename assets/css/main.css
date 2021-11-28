@@ -87,6 +87,11 @@
     padding-bottom: 1%;
 }
 
+.no-bottom {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 .cover-center {
     display: flex;
     justify-content: center;
