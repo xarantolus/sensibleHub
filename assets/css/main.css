@@ -92,6 +92,10 @@
     margin-bottom: 0 !important;
 }
 
+.small-bottom {
+    padding-bottom: .25% !important;
+}
+
 .cover-center {
     display: flex;
     justify-content: center;
