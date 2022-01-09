@@ -4,21 +4,26 @@ and syncing using external programs.
 
 
 ### Features
+ * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
+ * [Import](#Importing) songs you already have
+ * Set up FTP clients to [sync](#Syncing) your music to all your devices
  * Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
  * Automagic metadata extraction (including cover images)
- * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
- * Set up FTP clients to [sync](#Syncing) your music to all your devices
  * List and search your songs by title, artist, album or year
- * Keyboard shortcuts allow faster navigation
+ * Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
+ * Automatic dark mode: the site applies a light or dark theme depending on your system settings
+ * Keyboard shortcuts for faster navigation
    - `n` for loading the page where you can add new songs
    - Listings: `s` for all songs, `a` for artists, `y` for years, `i` for incomplete, `e` for recent edits and `u` for unsynced songs
    - `/` for focusing on the search bar
    - `esc` for going to the main page
- * [Import](#Importing) songs you already have
- * Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
-* Automatic dark mode: the site applies a light or dark theme depending on your system settings
+
 
 ### Screenshots
+
+##### Song page
+  ![Song page](.github/screenshots/shub-song.png?raw=true)
+This page lets you see and edit metadata, including the cover image, that will be included in the generated MP3 file. The image shows both the dark and light mode.
 
 ##### Add page
   ![Add Songs](.github/screenshots/shub-add.png?raw=true)
@@ -28,10 +33,6 @@ The page used for adding new songs. When a download is already running, new urls
   ![Album page](.github/screenshots/shub-album.png?raw=true)
 Show all songs that are in an album. On this page, you can also set an album image for *all* songs in it so you don't have to set it manually for every song.
   
-##### Song page
-  ![Song page](.github/screenshots/shub-song.png?raw=true)
-This page lets you see and edit metadata (including the cover image) that will be included in the MP3 files. The image shows both the dark and light mode.
-
 ##### Song listing
   ![Listing page](.github/screenshots/shub-listing.png?raw=true)
 Listings show songs sorted by some criteria, e.g. by title, artist, year or search score. 
@@ -194,21 +195,22 @@ This program can import songs that should be included in its library in a few di
 ##### From disk
 
 1. Create a directory called `import` that is at the same location as the executable.
-2. Move songs in there and start the server. 
-3. Songs will be imported, existing metadata embedded in files is extracted.
+2. **Copy** songs into the `import` directory. It does not matter if you copy the files directly or directories containing them (the server will search everything in there). Please note that **the server will delete files from the import directory** once they are added to its library. 
+3. (Re)start the server. 
+4. Songs will be imported, existing metadata embedded in files is extracted.
 
-Please note that these imports will only happen on startup, not while the software is running.
+These imports will only happen on startup, not while the software is running.
 
 ##### Over network/FTP
-You can also import files by putting them in *any* directory over FTP. On windows, you can [create a FTP network connection](https://superuser.com/a/88572) quite nicely.
+You can also import files by putting them in *any* directory over FTP. On Windows, you can [create a FTP network connection](https://superuser.com/a/88572) quite nicely.
 
-Now any music file that is moved there will be imported. It seems like import errors are **not** shown, so you might need to watch the log file if anything went wrong.
+Now any music file that is moved there will be imported. It seems like import errors are **not** shown, so you might need to watch the server output to see if anything went wrong.
 
 Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup. 
 
 
 ### Syncing
-Obviously one wants to have their music with them on all devices, even when they are offline. Here's a guide on how to achieve that.
+Obviously one wants to have their music with them on all devices, even when offline. Here's a guide on how to achieve that on Windows/Linux desktop and Android.
 
 
 ##### Desktop
