@@ -26,7 +26,8 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 	outName := filepath.Join("data", "songs", e.ID, "latest.mp3")
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
-	if fi, ferr := os.Stat(outName); !os.IsNotExist(ferr) && fi.ModTime().After(e.LastEdit) {
+	if fi, ferr := os.Stat(outName); !os.IsNotExist(ferr) &&
+		fi != nil && fi.ModTime().After(e.LastEdit) {
 		return outName, ferr
 	}
 
