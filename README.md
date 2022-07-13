@@ -48,7 +48,7 @@ In the "More" menu at the upper right side, you can find other listings that can
 While typing in the search box, your collection is already searched and suggestions are shown:
 
 <p align="center">
-<img src=".github/screenshots/suggestions.gif?raw=true" width="30%">
+<img src=".github/screenshots/suggestions.gif?raw=true" >
 </p>
 
 
@@ -270,7 +270,7 @@ This program tries not to need *too much* memory.
 
 I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster. 
 
-RAM usage is a bit weird. While on windows (where I develop) everything seems to be around 50Mb, it looks like there's a problem on ARM computers (like the Raspberry Pi):
+RAM usage is a bit weird. While on windows (where I develop) everything seems to be around 50MB, it looks like there's a problem on ARM computers (like the Raspberry Pi):
 using the same music library it needs about ten times as much memory. I have *not* found out where this issue comes from.
 
 
