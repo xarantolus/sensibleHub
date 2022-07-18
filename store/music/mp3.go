@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"xarantolus/sensibleHub/store/config"
@@ -37,6 +38,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 	}
 
 	_, err, _ = mp3Group.Do(e.ID, func() (res interface{}, err error) {
+		defer runtime.GC()
 		defer mp3Group.Forget(e.ID)
 
 		td, err := ioutil.TempDir("", "sh-mp3")

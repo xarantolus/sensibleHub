@@ -6,10 +6,11 @@ import (
 	"image/jpeg"
 	"io"
 	"os"
+	"runtime"
 	"sync"
 	"time"
 
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 	"golang.org/x/sync/singleflight"
 )
 
@@ -18,6 +19,8 @@ var (
 
 	cstoreLock sync.RWMutex
 	coverStore = make(map[string]cover)
+
+	semaphore = make(chan struct{}, runtime.NumCPU()*2)
 )
 
 type cover struct {
@@ -53,22 +56,24 @@ func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 	cov, ok := coverStore[e.ID]
 	if ok {
 		if cov.date.Equal(e.LastEdit) {
-			// we have to initialize it
-			c = make([]byte, len(cov.bytes))
-
-			copy(c, cov.bytes)
 			cstoreLock.RUnlock()
-			return
+			return cov.bytes, imageFormat, nil
 		}
 		// we need to re-generate it
 		coverGroup.Forget(e.ID)
 	}
 	cstoreLock.RUnlock()
 
+	// Limit parallel processing
+	semaphore <- struct{}{}
+	defer func() {
+		<-semaphore
+	}()
+
 	coverBytes, err, _ := coverGroup.Do(e.ID, func() (res interface{}, err error) {
 		var b bytes.Buffer
 
-		// always returns a png image
+		// always returns a jpeg image
 		err = resizeCover(e.CoverPath(), 120, &b)
 		if err != nil {
 			return
@@ -94,6 +99,8 @@ func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 
 	c = coverBytes.([]byte)
 
+	runtime.GC()
+
 	return
 }
 
@@ -109,7 +116,7 @@ func resizeCover(coverPath string, width uint, out io.Writer) (err error) {
 		return
 	}
 
-	resized := resize.Resize(width, 0, img, resize.Bicubic)
+	resized := imaging.Fit(img, int(width), int(width), imaging.Lanczos)
 
 	return jpeg.Encode(out, resized, &jpeg.Options{
 		Quality: jpeg.DefaultQuality,
