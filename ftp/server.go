@@ -4,10 +4,10 @@ import (
 	"crypto/subtle"
 	"fmt"
 	"log"
-
-	"goftp.io/server"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
+
+	"goftp.io/server"
 )
 
 // RunServer runs the FTP server until it crashes

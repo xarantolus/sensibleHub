@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"xarantolus/sensibleHub/store/file"
+	"xarantolus/sensibleHub/store/music"
 
 	"github.com/bogem/id3v2"
 	"github.com/vitali-fedulov/images"
-	"xarantolus/sensibleHub/store/file"
-	"xarantolus/sensibleHub/store/music"
 )
 
 // ImportFiles imports files from the given directory. It tries to get as much metadata as possible

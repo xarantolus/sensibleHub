@@ -3,19 +3,20 @@ package main
 import (
 	"embed"
 	"flag"
+	"log"
+	"os/exec"
+
+	"xarantolus/sensibleHub/ftp"
+	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/config"
+	"xarantolus/sensibleHub/web"
 
 	// Supported image formats
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
-	"os/exec"
 
 	_ "golang.org/x/image/webp"
-	"xarantolus/sensibleHub/ftp"
-	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/config"
-	"xarantolus/sensibleHub/web"
 )
 
 var (

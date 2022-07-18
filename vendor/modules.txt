@@ -1,7 +1,7 @@
 # github.com/bogem/id3v2 v1.2.0
 ## explicit
 github.com/bogem/id3v2
-# github.com/cenkalti/dominantcolor v0.0.0-20211126221809-b695f665ba35
+# github.com/cenkalti/dominantcolor v1.0.0
 ## explicit
 github.com/cenkalti/dominantcolor
 # github.com/disintegration/imaging v1.6.2
@@ -13,7 +13,7 @@ github.com/edwvee/exiffix
 # github.com/gorilla/mux v1.8.0
 ## explicit
 github.com/gorilla/mux
-# github.com/gorilla/websocket v1.4.2
+# github.com/gorilla/websocket v1.5.0
 ## explicit
 github.com/gorilla/websocket
 # github.com/jlaffaye/ftp v0.0.0-20200602180915-5563613968bf
@@ -21,7 +21,7 @@ github.com/gorilla/websocket
 # github.com/json-iterator/go v1.1.12
 ## explicit
 github.com/json-iterator/go
-# github.com/klauspost/cpuid/v2 v2.0.9
+# github.com/klauspost/cpuid/v2 v2.1.0
 ## explicit
 github.com/klauspost/cpuid/v2
 # github.com/minio/md5-simd v1.1.2
@@ -64,11 +64,11 @@ goftp.io/server
 goftp.io/server/core
 goftp.io/server/driver/file
 goftp.io/server/driver/minio
-# golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
+# golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 ## explicit
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
-# golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+# golang.org/x/image v0.0.0-20220617043117-41969df76e82
 ## explicit
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
@@ -78,17 +78,19 @@ golang.org/x/image/tiff/lzw
 golang.org/x/image/vp8
 golang.org/x/image/vp8l
 golang.org/x/image/webp
-# golang.org/x/net v0.0.0-20211123203042-d83791d6bcd9
+# golang.org/x/net v0.0.0-20220708220712-1185a9018129
 ## explicit
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
-# golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+# golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 ## explicit
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20211124211545-fe61309f8881
+# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
 ## explicit
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
 # golang.org/x/text v0.3.7
 ## explicit
 golang.org/x/text/encoding
@@ -102,6 +104,6 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# gopkg.in/ini.v1 v1.65.0
+# gopkg.in/ini.v1 v1.66.6
 ## explicit
 gopkg.in/ini.v1

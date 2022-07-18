@@ -60,13 +60,16 @@ const (
 	nIterations   = 50
 	maxBrightness = 665
 	minDarkness   = 100
+
+	nClustersDefault = 4
 )
 
-var (
-	nCluster      = 4
-)
+type Color struct {
+	color.RGBA
+	Weight float64
+}
 
-func findClusters(img image.Image) kMeanClusterGroup {
+func findClusters(img image.Image, nCluster int) (kMeanClusterGroup, float64) {
 	// Shrink image for faster processing.
 	img = resize.Thumbnail(resizeTo, resizeTo, img, resize.NearestNeighbor)
 
@@ -131,64 +134,57 @@ func findClusters(img image.Image) kMeanClusterGroup {
 	// Sort the clusters by population so we can tell what the most popular
 	// color is.
 	sort.Sort(byWeight(clusters))
-	return clusters
+	return clusters, float64(width) * float64(height)
 }
 
 // Find returns the dominant color in img.
 func Find(img image.Image) color.RGBA {
-	clusters := findClusters(img)
+	colors := FindN(img, nClustersDefault)
 
 	// Loop through the clusters to figure out which cluster has an appropriate
 	// color. Skip any that are too bright/dark and go in order of weight.
-	var col color.RGBA
-	for i, c := range clusters {
-		r, g, b := c.Centroid()
+	for _, c := range colors {
 		// Sum the RGB components to determine if the color is too bright or too dark.
-		var summedColor uint16 = uint16(r) + uint16(g) + uint16(b)
+		summedColor := uint16(c.R) + uint16(c.G) + uint16(c.B)
 
 		if summedColor < maxBrightness && summedColor > minDarkness {
 			// If we found a valid color just set it and break. We don't want to
 			// check the other ones.
-			col.R = r
-			col.G = g
-			col.B = b
-			col.A = 0xFF
-			break
-		} else if i == 0 {
-			// We haven't found a valid color, but we are at the first color so
-			// set the color anyway to make sure we at least have a value here.
-			col.R = r
-			col.G = g
-			col.B = b
-			col.A = 0xFF
+			return c
 		}
 	}
-	return col
+	// We haven't found a valid color, return the first one.
+	return colors[0]
 }
 
 // FindN returns the first-N dominant colors in an image.
 // If nClusters is less than or equal to 0, the value defaults to 4.
 // Clusters are returned in their order of dominance.
 func FindN(img image.Image, nClusters int) []color.RGBA {
-	if nClusters > 0 {
-		nCluster = nClusters
-	}
-	clusters := findClusters(img)
-
+	colors := FindWeight(img, nClusters)
 	cols := []color.RGBA{}
-	for _, c := range clusters {
-		var col color.RGBA
-
-		r, g, b := c.Centroid()
-
-		col.R = r
-		col.G = g
-		col.B = b
-		col.A = 0xff
-
-		cols = append(cols, col)
+	for _, c := range colors {
+		cols = append(cols, c.RGBA)
 	}
 	return cols
+}
+
+func FindWeight(img image.Image, nClusters int) []Color {
+	if nClusters <= 0 {
+		nClusters = nClustersDefault
+	}
+
+	clusters, totalWeight := findClusters(img, nClusters)
+
+	colors := []Color{}
+	for _, c := range clusters {
+		r, g, b := c.Centroid()
+		colors = append(colors, Color{
+			RGBA:   color.RGBA{R: r, G: g, B: b, A: 0xff},
+			Weight: float64(c.weight) / totalWeight,
+		})
+	}
+	return colors
 }
 
 // Hex returns a string representing the color in "#AABBCC" format.
