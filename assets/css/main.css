@@ -126,8 +126,7 @@
 }
 
 .cover-image-size {
-    padding: 0.5%;
-    color: var(--song-title-color);
+    text-align: center;
 }
 
 .album-songs {

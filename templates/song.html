@@ -9,7 +9,7 @@
         <div class="columns">
             <!-- Left Side: Image -->
             <div class="column image-column">
-                <figure class="image is-square song-image-container">
+                <figure class="image is-square song-image-container" {{with .PictureData.DominantColorHEX}} style="background:{{.}}" {{end}}>
                     <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.BorderColor}}" {{end}} id="song-cover" id="img-{{.ID}}" data-size="{{.PictureData.Size}}" src="/song/{{.ID}}/cover" alt="Cover">
                         <div class="middle">
                             <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
@@ -23,16 +23,17 @@
                                             </svg>
                                         </span>
                                         <label for="song-cover-input" class="file-label" id="cover-upload-button">
-                                            Choose a cover image…
+                                            Upload a new cover image
                                         </label>
                                     </span>
                                 </span>
                             </div>
                             {{if have .PictureData.Filename}}
-                            {{with .PictureData.Size}}<span class="cover-image-size">{{.}}x{{.}}px</span><br>{{end}}
                             <button id="delete-cover" name="delete-cover" class="delete-cover button is-small is-danger" value="delete-cover">Delete current cover</button>{{end}}
                         </div>
                 </figure>
+                {{if have .PictureData.Filename}}
+                {{with .PictureData.Size}}<span class="help cover-image-size">The cover image size is {{.}}x{{.}}px</span><br>{{end}}{{end}}
             </div>
 
             <!-- Right Side: Entry data -->

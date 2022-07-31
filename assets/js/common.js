@@ -109,10 +109,17 @@ function registerCover() {
         img.style.border = 0;
         img.style.borderWidth = 0;
 
+        // Also remove the hover-shinethrough background
+        var imgBg = document.querySelector('figure.image');
+        if (imgBg) {
+            imgBg.style.background = "";
+        }
+
+
         // we also no longer know the cover size - this is only present on song pages
         var sizeSpan = document.querySelector(".cover-image-size");
         if (sizeSpan) {
-            sizeSpan.remove();
+            sizeSpan.style.visibility = "hidden";
         }
     }
 
