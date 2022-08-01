@@ -28,7 +28,10 @@ var (
 )
 
 func main() {
-	var flagDebug = flag.Bool("debug", false, "Start the server in debug mode")
+	var (
+		flagDebug  = flag.Bool("debug", false, "Start the server in debug mode")
+		flagConfig = flag.String("config", config.DefaultConfigFile, "Path to the configuration file")
+	)
 	flag.Parse()
 
 	if *flagDebug {
@@ -36,7 +39,7 @@ func main() {
 	}
 
 	// Let's load our config file
-	cfg, err := config.Parse()
+	cfg, err := config.Parse(*flagConfig)
 	if err != nil {
 		panic("while parsing config: " + err.Error())
 	}
