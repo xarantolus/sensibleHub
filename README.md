@@ -57,7 +57,7 @@ You can download releases from the [releases section](https://github.com/xaranto
 
 If you prefer to use Docker, you can run the following in a directory that contains a `data` directory and a `config.json` file (described below):
 
-    docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensible_hub:latest
+    docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensiblehub:master
 
 Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
 
