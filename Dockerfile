@@ -4,7 +4,7 @@ FROM golang:1.18 as builder
 RUN mkdir /build
 COPY . /build
 WORKDIR /build
-RUN CGO_ENABLED=0 GOOS=linux go build -a -v -mod vendor -ldflags "-s -w" -o sensibleHub .
+RUN CGO_ENABLED=0 go build -a -v -mod vendor -ldflags "-s -w" -o sensibleHub .
 
 
 # Now for the image we actually run the server in
