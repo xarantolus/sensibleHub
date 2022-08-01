@@ -1,0 +1,10 @@
+debug**
+*.zip
+**.exe
+data/
+import/
+releases/
+sensibleHub
+d
+deploy/
+.git

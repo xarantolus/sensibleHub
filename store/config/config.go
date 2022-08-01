@@ -38,11 +38,11 @@ type Config struct {
 }
 
 const (
-	configFile = "config.json"
+	DefaultConfigFile = "config.json"
 )
 
-func Parse() (c Config, err error) {
-	f, err := os.Open(configFile)
+func Parse(path string) (c Config, err error) {
+	f, err := os.Open(path)
 	if err != nil {
 		return
 	}

@@ -1,5 +1,5 @@
 # sensibleHub
-sensibleHub is a self-hosted music management server. It allows managing your music collection from any device (that has a web browser) 
+sensibleHub is a self-hosted music management server. It allows managing your music collection from any device (that has a web browser)
 and syncing using external programs.
 
 
@@ -28,14 +28,14 @@ This page lets you see and edit metadata, including the cover image, that will b
 ##### Add page
   ![Add Songs](.github/screenshots/shub-add.png?raw=true)
 The page used for adding new songs. When a download is already running, new urls will be put in a queue. A progress bar will appear on all pages to indicate if a download is running.
-  
+
 ##### Album page
   ![Album page](.github/screenshots/shub-album.png?raw=true)
 Show all songs that are in an album. On this page, you can also set an album image for *all* songs in it so you don't have to set it manually for every song.
-  
+
 ##### Song listing
   ![Listing page](.github/screenshots/shub-listing.png?raw=true)
-Listings show songs sorted by some criteria, e.g. by title, artist, year or search score. 
+Listings show songs sorted by some criteria, e.g. by title, artist, year or search score.
 
 ##### Additional listings
 In the "More" menu at the upper right side, you can find other listings that can be useful for metadata editing.
@@ -54,6 +54,10 @@ While typing in the search box, your collection is already searched and suggesti
 
 ### Installation
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
+
+If you prefer to use Docker, you can run the following in a directory that contains a `data` directory and a `config.json` file (described below):
+
+    docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensible_hub:latest
 
 Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
 
@@ -74,7 +78,7 @@ Since this is a `Go` program, you can compile it quite easily after [installing 
 go build -mod vendor
 ```
 
-If you want to move this executable elsewhere on your system, make sure to move the following files and directories to the same location: 
+If you want to move this executable elsewhere on your system, make sure to move the following files and directories to the same location:
  * `data` (if you want to keep imported songs)
  * `config.json`
  * `sensibleHub` (the executable)
@@ -109,18 +113,18 @@ You should however check if the youtube-dl version is recent (run `youtube-dl --
 You can also put both executables in the same directory this program is installed into. That way, it should be able to find them just fine.
 
 ### Configuration
-Now you can edit `config.json` (if you want to), don't include comments (after `//`): 
+Now you can edit `config.json` (if you want to), don't include comments (after `//`):
 
 ```jsonc
 {
     // HTTP server port (used for accessing the website)
-    "port": 128, 
+    "port": 128,
 
     // FTP settings
     "ftp": {
         // FTP port the server will listen on. You will need this when setting up syncing
-        "port": 1280, 
-        
+        "port": 1280,
+
         // Valid FTP username/password combinations
         "users": [
             {
@@ -146,7 +150,7 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
         // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
         "apple": true
     },
-    
+
     // Settings for cover images. Affects only those in generated MP3 files
     "cover": {
         // Cover images of generated/synced songs will have this as maximum size in pixels, larger ones are downscaled.
@@ -155,21 +159,21 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     },
 
     // Alternatives for programs used by this server. Leave blank to use default values.
-    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/yt-dlp/yt-dlp) or [this one](https://github.com/blackjack4494/yt-dlc)
+    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/yt-dlp/yt-dlp)
     "alternatives": {
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
-        "youtube-dl": "youtube-dlc"
+        "youtube-dl": "yt-dlp"
     },
 
     // Whether to generate cover previews when starting up.
-    // If this is false, cover previews are first generated the first time a page is loaded, which 
+    // If this is false, cover previews are first generated the first time a page is loaded, which
     // can lead to pages where previews come in after serveral seconds
     "generate_on_startup": true
 }
 ```
 
-Depending on your system a firewall might block some ports, so make sure to run the server with sufficient permissions (`sudo`). You might also need to mark it as executable (using `chmod +x sensibleHub`). 
+Depending on your system a firewall might block some ports, so make sure to run the server with sufficient permissions (`sudo`). You might also need to mark it as executable (using `chmod +x sensibleHub`).
 
 After that, you are ready to start the server.
 
@@ -189,14 +193,14 @@ After that, you can visit the website at `http://yourserver:128/`.
 You can also connect via FTP at `ftp://yourserver:1280/` using one of the accounts set in the config file.
 
 
-### Importing 
-This program can import songs that should be included in its library in a few different ways. 
+### Importing
+This program can import songs that should be included in its library in a few different ways.
 
 ##### From disk
 
 1. Create a directory called `import` that is at the same location as the executable.
-2. **Copy** songs into the `import` directory. It does not matter if you copy the files directly or directories containing them (the server will search everything in there). Please note that **the server will delete files from the import directory** once they are added to its library. 
-3. (Re)start the server. 
+2. **Copy** songs into the `import` directory. It does not matter if you copy the files directly or directories containing them (the server will search everything in there). Please note that **the server will delete files from the import directory** once they are added to its library.
+3. (Re)start the server.
 4. Songs will be imported, existing metadata embedded in files is extracted.
 
 These imports will only happen on startup, not while the software is running.
@@ -206,7 +210,7 @@ You can also import files by putting them in *any* directory over FTP. On Window
 
 Now any music file that is moved there will be imported. It seems like import errors are **not** shown, so you might need to watch the server output to see if anything went wrong.
 
-Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup. 
+Also, a warning: any file in the `data/` and `import/` directories may be deleted by the software at any time. It happens when inconsistencies are found (e.g. a song exists in the `data/` directory on disk but isn't in the index) or a song is edited. While it doesn't delete files that are used for songs (images, audio etc.), you should make a backup anyways. As all data (except the configuration file) is stored in the `data/` directory, you can just zip it and call it a backup.
 
 
 ### Syncing
@@ -245,7 +249,7 @@ On Android, you can use any FTP app that doesn't look at the file size or lets y
 
 Add a new "account" (in-app, there's no registration) with the following attributes:
  * **Server address**: the server name, e.g. `yourserver`.
- * **Port**: the FTP port you set in the configuration file, e.g. `1280` 
+ * **Port**: the FTP port you set in the configuration file, e.g. `1280`
  * **Login name/password**: Your login credentials from one of the FTP users set in the [config file](#Configuration)
  * The path can be left empty
 
@@ -253,9 +257,9 @@ Now you can create a new *Folder pair* with these settings:
  * **Account**: The one created above
  * **Sync type**: to local folder
  * **Remote folder**: should be empty or just `/`
- * **Local Folder**: Your Android music folder, might be `/storage/emulated/0/Music` 
+ * **Local Folder**: Your Android music folder, might be `/storage/emulated/0/Music`
  * **Scheduling**: Here you can set *when* it should sync your files
- * **Sync options**: Enable *Sync subfolders* and *Sync deletions*. 
+ * **Sync options**: Enable *Sync subfolders* and *Sync deletions*.
  * **Advanced settings**
    * **Overwrite old files**: always
    * **If both local and remote file are modified**: *Use remote file*
@@ -268,7 +272,7 @@ For Android, any music player will probably work. I recommend [Music](https://f-
 ### Resources
 This program tries not to need *too much* memory.
 
-I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster. 
+I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster.
 
 RAM usage is a bit weird. While on windows (where I develop) everything seems to be around 50MB, it looks like there's a problem on ARM computers (like the Raspberry Pi):
 using the same music library it needs about ten times as much memory. I have *not* found out where this issue comes from.
@@ -284,7 +288,7 @@ There are several assumptions made so the program will work as expected in most 
 
 
 ### Browser support
-The website should work in most modern browsers. It uses [native image lazy loading](https://caniuse.com/#feat=loading-lazy-attr) which is not yet supported by all browsers, but images will load without it regardless. If you use a recent browser version, it will be just a bit snappier. 
+The website should work in most modern browsers. It uses [native image lazy loading](https://caniuse.com/#feat=loading-lazy-attr) which is not yet supported by all browsers, but images will load without it regardless. If you use a recent browser version, it will be just a bit snappier.
 
 Everything also works *without JavaScript*, but the experience is *much better* if it's enabled ([Progressive enhancement](https://en.wikipedia.org/wiki/Progressive_enhancement)).
 
@@ -300,7 +304,7 @@ Compared to other music servers this one is very basic. Here are some things you
 
 * It does **not** support the [SubSonic API](http://www.subsonic.org/pages/api.jsp). You can not use this software as a back-end for SubSonic-compatible music players.
 * Some **metadata will be lost** when importing: everything except for the cover image, title, artist, album and year will be **discarded**. Keep a backup of your music before importing.
-* Does not support HTTPS. The software is intended to be hosted inside a local network *only*.  
+* Does not support HTTPS. The software is intended to be hosted inside a local network *only*.
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
 * The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616‬ songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
