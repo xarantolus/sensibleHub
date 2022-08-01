@@ -56,7 +56,7 @@
     /* Inherits from .box */
     color: inherit !important;
     /* Make it easier to click */
-    padding: 10px 10px 10px 0;
+    padding: 10px 10px 0 0;
     position: relative;
 }
 
