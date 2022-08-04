@@ -102,7 +102,7 @@ func (s *server) HandleEditSong(w http.ResponseWriter, r *http.Request) (err err
 	}
 
 	var coverName string
-	if coverFile != nil {
+	if coverFile != nil && fh != nil {
 		coverName = fh.Filename
 	}
 
