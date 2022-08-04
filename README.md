@@ -55,11 +55,11 @@ While typing in the search box, your collection is already searched and suggesti
 ### Installation
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
 
-If you prefer to use Docker, you can run the following in a directory that contains a `data` directory and a `config.json` file (described below):
+Unzip the downloaded file to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
+
+If you prefer using Docker, you can run the following in a directory that contains a `data` directory and a `config.json` file (described below):
 
     docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensiblehub:master
-
-Unzip it to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
 
 <details>
 <summary>If no recent build is available, you can also build for yourself.</summary>
