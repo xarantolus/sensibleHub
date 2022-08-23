@@ -35,6 +35,9 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		}
 
 		art := store.CleanName(e.Artist())
+		if art == "" {
+			art = "Other Artist"
+		}
 		artistName, ok := normalizedArtists[strings.ToUpper(art)]
 		if !ok {
 			normalizedArtists[strings.ToUpper(e.Artist())] = art
@@ -47,6 +50,9 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 		}
 
 		aname := store.CleanName(e.AlbumName())
+		if aname == "" {
+			aname = "Other Album"
+		}
 		if a, ok := normalizedAlbums[strings.ToUpper(aname)]; !ok {
 			normalizedAlbums[strings.ToUpper(aname)] = aname
 		} else {
