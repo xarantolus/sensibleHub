@@ -160,10 +160,8 @@ InstantClick.on('change', function () {
 
     // Present on album, artist & song page
     var sc = document.getElementById("song-cover");
-    if (sc) {
-        sc.addEventListener("load", loadCovers);
-    } else if (document.location.pathname == "/" || document.location.pathname == "/search") {
-        loadCovers();
+    if (sc || document.location.pathname == "/" || document.location.pathname == "/search") {
+        (sc || window).addEventListener("load", () => setTimeout(loadCovers, 2500));
     }
 })
 
