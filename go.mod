@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/jlaffaye/ftp v0.0.0-20200602180915-5563613968bf // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v6 v6.0.57 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -19,12 +19,12 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
-	github.com/vitali-fedulov/images v2.0.1+incompatible
+	github.com/vitali-fedulov/images4 v1.1.3
 	goftp.io/server v0.4.1
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/image v0.0.0-20220617043117-41969df76e82
-	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
-	gopkg.in/ini.v1 v1.66.6 // indirect
+	golang.org/x/crypto v0.0.0-20220824171710-5757bc0c5503 // indirect
+	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539
+	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
+	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 )

@@ -15,7 +15,7 @@ import (
 	"xarantolus/sensibleHub/store/file"
 	"xarantolus/sensibleHub/store/music"
 
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images4"
 )
 
 const (
@@ -152,7 +152,8 @@ func (m *Manager) download(downloadURL string) (err error) {
 	}
 
 	// For songs with multiple artists, there is a comma-separated list
-	title, artist := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename)), cascadeStrings(minfo.Artist, minfo.Creator, strings.TrimSuffix(minfo.Uploader, " - Topic"))
+	title := cascadeStrings(minfo.Track, minfo.Title, filepath.Base(minfo.Filename))
+	artist := cascadeStrings(minfo.Artist, minfo.Creator, strings.TrimSuffix(minfo.Uploader, " - Topic"))
 
 	album := cascadeStrings(minfo.Album, minfo.Playlist, minfo.PlaylistTitle)
 	// If the album couldn't be determined, the playlist title will be the search string. That should not happen
@@ -263,6 +264,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 	}
 
 	if m.cfg.AllowExternal.Apple {
+		// TODO: Pass context
 		externalSongData, err := music.SearchITunes(title, album, artist, filepath.Ext(thumbPath))
 		if err != nil {
 			log.Println("[Warning]: Error downloading external song data:", err)
@@ -299,7 +301,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 					// check if the downloaded cover is better than the one we already have
 					currentCoverPath := filepath.Join(songDir, e.PictureData.Filename)
 
-					currCov, err := images.Open(currentCoverPath)
+					currCov, err := images4.Open(currentCoverPath)
 					if err == nil {
 						currSize := currCov.Bounds()
 						newSize := externalSongData.Artwork.Bounds()
@@ -349,7 +351,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 		hex, _ := music.CalculateDominantColor(e.CoverPath())
 		e.PictureData.DominantColorHEX = music.Color(hex)
 
-		i, err := images.Open(e.CoverPath())
+		i, err := images4.Open(e.CoverPath())
 		if err == nil {
 			e.PictureData.Size = i.Bounds().Dx()
 		}

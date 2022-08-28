@@ -14,7 +14,7 @@ import (
 	"xarantolus/sensibleHub/store/music"
 
 	"github.com/bogem/id3v2"
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images4"
 )
 
 // ImportFiles imports files from the given directory. It tries to get as much metadata as possible
@@ -177,7 +177,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 		hex, _ := music.CalculateDominantColor(e.CoverPath())
 		e.PictureData.DominantColorHEX = music.Color(hex)
 
-		i, err := images.Open(e.CoverPath())
+		i, err := images4.Open(e.CoverPath())
 		if err == nil {
 			e.PictureData.Size = i.Bounds().Dx()
 		}
