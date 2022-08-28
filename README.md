@@ -113,7 +113,8 @@ You should however check if the youtube-dl version is recent (run `youtube-dl --
 You can also put both executables in the same directory this program is installed into. That way, it should be able to find them just fine.
 
 ### Configuration
-Now you can edit `config.json` (if you want to), don't include comments (after `//`):
+
+<details><summary>You can now edit <code>config.json</code>, click here to get more info.</summary>
 
 ```jsonc
 {
@@ -172,6 +173,8 @@ Now you can edit `config.json` (if you want to), don't include comments (after `
     "generate_on_startup": true
 }
 ```
+
+</details>
 
 Depending on your system a firewall might block some ports, so make sure to run the server with sufficient permissions (`sudo`). You might also need to mark it as executable (using `chmod +x sensibleHub`).
 

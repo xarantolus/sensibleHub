@@ -1,9 +1,10 @@
 package config
 
 import (
-	"encoding/json"
 	"os"
 	"strings"
+
+	"github.com/muhammadmuzzammil1998/jsonc"
 )
 
 type Config struct {
@@ -42,13 +43,12 @@ const (
 )
 
 func Parse(path string) (c Config, err error) {
-	f, err := os.Open(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return
 	}
-	defer f.Close()
 
-	err = json.NewDecoder(f).Decode(&c)
+	err = jsonc.Unmarshal(content, &c)
 	if err != nil {
 		return
 	}

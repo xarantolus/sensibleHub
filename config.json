@@ -1,29 +1,48 @@
 {
+    // HTTP server port (used for accessing the website)
     "port": 128,
+    // FTP settings
     "ftp": {
+        // FTP port the server will listen on. You will need this when setting up syncing
         "port": 1280,
+        // Valid FTP username/password combinations
         "users": [
             {
                 "name": "user1",
-                "passwd": "user1pw"
+                "passwd": "user1-password"
             },
             {
                 "name": "user2",
-                "passwd": "user2pw"
+                "passwd": "user2-password"
             }
         ]
     },
+    // How long generated files are kept, in days.
+    // A small number means that less storage is used in general, but files will be generated with every sync/download (if there are changes).
+    // If negative, they will be kept forever, if zero they will not be kept.
+    // Files are checked every day at 0:00.
+    // If you use multiple devices that sync at different intervals, it is recommended to keep files for a few days.
     "keep_generated_days": 3,
+    // External data sources can be disabled
     "allow_external": {
+        // If set to true, a search query to iTunes will be sent to get a high-quality cover image when downloading a new song.
         "apple": true
     },
+    // Settings for cover images. Affects only those in generated MP3 files
     "cover": {
+        // Cover images of generated/synced songs will have this as maximum size in pixels, larger ones are downscaled.
+        // If omitted, 0 or lower, this setting will be ignored and image sizes are not changed.
         "max_size": 2000
     },
+    // Alternatives for programs used by this server. Leave blank to use default values.
+    // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/yt-dlp/yt-dlp)
     "alternatives": {
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
         "youtube-dl": "yt-dlp"
     },
+    // Whether to generate cover previews when starting up.
+    // If this is false, cover previews are first generated the first time a page is loaded, which
+    // can lead to pages where previews come in after serveral seconds
     "generate_on_startup": true
 }
