@@ -16,7 +16,7 @@ import (
 	"xarantolus/sensibleHub/store/music"
 
 	"github.com/edwvee/exiffix"
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images4"
 )
 
 // GenerateCoverPreviews starts generating all cover previews.
@@ -186,12 +186,12 @@ func (m *Manager) betterCover(artist, album, currentPath string) (path string, e
 		return
 	}
 
-	orig, err := images.Open(currentPath)
+	orig, err := images4.Open(currentPath)
 	if err != nil {
 		return
 	}
 
-	origHash, origSize := images.Hash(orig)
+	origIcon := images4.Icon(orig)
 
 	// Try every song in that album
 	for _, song := range coverCandidates.Songs {
@@ -201,7 +201,7 @@ func (m *Manager) betterCover(artist, album, currentPath string) (path string, e
 		}
 
 		// Open & hash the image we already have
-		curr, err := images.Open(song.CoverPath())
+		curr, err := images4.Open(song.CoverPath())
 		if err != nil {
 			return "", err
 		}
@@ -211,9 +211,9 @@ func (m *Manager) betterCover(artist, album, currentPath string) (path string, e
 			continue
 		}
 
-		currHash, currSize := images.Hash(curr)
+		currIcon := images4.Icon(curr)
 
-		if images.Similar(origHash, currHash, origSize, currSize) {
+		if images4.Similar(origIcon, currIcon) {
 			return song.CoverPath(), nil
 		}
 	}

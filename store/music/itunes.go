@@ -171,7 +171,8 @@ retry:
 
 // relevantInfo returns the relevant info from a string
 // e.g: Title (feat ...) => Title
-//      Artist1 & Artist2 => Artist1
+//
+//	Artist1 & Artist2 => Artist1
 func relevantInfo(s string) string {
 	if i := strings.IndexAny(s, "&("); i != -1 {
 		s = s[:i]

@@ -11,7 +11,7 @@ import (
 	"time"
 	"xarantolus/sensibleHub/store/music"
 
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images4"
 )
 
 // ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are
@@ -109,7 +109,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		hex, _ := music.CalculateDominantColor(covDest)
 		entry.PictureData.DominantColorHEX = music.Color(hex)
 
-		i, err := images.Open(covDest)
+		i, err := images4.Open(covDest)
 		if err == nil {
 			entry.PictureData.Size = i.Bounds().Dx()
 		}
@@ -166,7 +166,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 	hex, _ := music.CalculateDominantColor(tmpCoverPath)
 
 	var imageSize int
-	i, err := images.Open(tmpCoverPath)
+	i, err := images4.Open(tmpCoverPath)
 	if err == nil {
 		imageSize = i.Bounds().Dx()
 	}
