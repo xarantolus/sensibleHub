@@ -114,7 +114,9 @@ You can also put both executables in the same directory this program is installe
 
 ### Configuration
 
-<details><summary>You can now edit <code>config.json</code>, click here to get more info.</summary>
+<details><summary>You can now edit <code>config.json</code>, open this to get more info.</summary>
+
+The following file details the configuration options. You can use comments (`//`) in the configuration file.
 
 ```jsonc
 {
