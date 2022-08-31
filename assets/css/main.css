@@ -20,32 +20,44 @@
         --image-hover-bg: #494949;
         --image-hover-bg-gradient-target: #646464;
     }
+
     .button.is-static {
         background-color: #202020;
         border-color: #414141;
         color: #cccccc;
     }
+
     .notification.is-danger, .button.is-danger {
         background-color: #b30024;
     }
+
     a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover {
         background-color: #2e2e2e !important;
         color: #aecdff !important;
     }
+
     .box {
         box-shadow: 0 2px 3px rgba(150, 150, 150, .1), 0 0 0 1px rgba(50, 50, 50, .1)
     }
+
     #main-progress {
         background-image: linear-gradient(to right, #00d1b2 30%, #363636 30%) !important;
     }
+
     .logo-image {
         filter: invert();
     }
 }
 
 .song-container, .album-container {
-    width: 70%;
     margin: 0 auto;
+}
+
+.song-container {
+    width: 75%;
+}
+.album-container {
+    width: 65%;
 }
 
 .hidden {
@@ -191,10 +203,6 @@ a.box:focus, a.box:hover {
 .file-label {
     display: block !important;
     width: 100%;
-}
-
-.image-column {
-    padding-top: 6.5%;
 }
 
 .album-image-column {
@@ -389,9 +397,11 @@ div.field.has-addons {
         width: 90%;
         margin-top: 10%;
     }
+
     .subtitle {
         padding-top: 5%;
     }
+
     .search-image-div {
         display: none;
     }
