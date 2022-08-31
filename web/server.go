@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"xarantolus/sensibleHub/store"
@@ -44,6 +45,12 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 
 		router:           r,
 		connectedSockets: make(map[*websocket.Conn]chan struct{}),
+	}
+
+	if debugMode {
+		log.Printf("[Debug] Using local templates and assets because of debug mode")
+		server.templateFS = os.DirFS(".")
+		server.assetFS = server.templateFS
 	}
 
 	err = server.parseTemplates(templateFS)

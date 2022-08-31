@@ -6,10 +6,10 @@
         <!-- The first button in a form will be used for submitting. Since that would be the delete cover button, we prevent it here -->
         <input class="hidden" type="submit" value="Save">
 
-        <div class="columns">
+        <div class="columns" style="margin-top: 2.5%">
             <!-- Left Side: Image -->
-            <div class="column image-column">
-                <figure class="image is-square song-image-container"{{with .PictureData.DominantColorHEX}} style="background:{{.}}"{{end}}>
+            <div class="column">
+                <figure class="image is-square song-image-container" {{with .PictureData.DominantColorHEX}} style="background:{{.}}" {{end}}>
                     <img{{with .PictureData.DominantColorHEX}} style="background-color:{{.}};border-color:{{.BorderColor}}" {{end}} id="song-cover" id="img-{{.ID}}" data-size="{{.PictureData.Size}}" src="/song/{{.ID}}/cover" alt="Cover">
                         <div class="middle">
                             <noscript class="label" style="color:red">Enable JavaScript to see an image preview</noscript>
@@ -38,138 +38,123 @@
 
             <!-- Right Side: Entry data -->
             <div class="column">
-                <fieldset>
-                    <div id="song-notif" class="notification is-danger notif"></div>
+                <div id="song-notif" class="notification is-danger notif"></div>
 
-                    <legend class="title normal-title is-5">Tags</legend>
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        <a class="button is-static">
+                            Title
+                        </a>
+                    </div>
+                    <div class="control wide">
+                        <input value="{{.MusicData.Title}}" id="song-title" name="song-title" class="input" placeholder="Title" type="text">
+                    </div>
+                </div>
 
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        {{if have .MusicData.Artist }}<a class="button is-static link-button" href="/artist/{{.MusicData.Artist | clean}}">{{else}}<a class="button is-static">{{end}}
+                                Artist
+                            </a>
+                    </div>
+                    <div class="control wide">
+                        <input value="{{.MusicData.Artist}}" id="song-artist" name="song-artist" class="input" placeholder="Artist" type="text">
+                    </div>
+                </div>
+
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        {{if have .MusicData.Artist .MusicData.Album}}<a class="button is-static link-button" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{else}}<a class="button is-static">{{end}}
+                                Album
+                            </a>
+                    </div>
+                    <div class="control wide">
+                        <input value="{{.MusicData.Album}}" id="song-album" name="song-album" class="input" placeholder="Album" type="text">
+                    </div>
+                </div>
+
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        <a class="button is-static">
+                            Year
+                        </a>
+                    </div>
+                    <div class="control wide">
+                        <input value="{{with .MusicData.Year}}{{.}}{{end}}" id="song-year" name="song-year" class="input" placeholder="Year" type="number">
+                    </div>
+                </div>
+
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        <a class="button is-static">
+                            Source
+                        </a>
+                    </div>
+                    <div class="control wide">
+                        {{ if .IsImported}}<span class="input overflow-ignore">{{.SourceURL}}</span>{{else}}<a href="{{.SourceURL}}" class="input overflow-ignore">{{.SourceURL}}</a>{{end}}
+                    </div>
+                </div>
+
+                <div class="field has-addons">
+                    <div class="control control-label">
+                        <a class="button is-static">
+                            Duration
+                        </a>
+                    </div>
+                    <div class="control wide">
+                        <span class="input overflow-ignore">{{.FormatDuration}}</span>
+                    </div>
+                </div>
+
+                <div class="field has-addons">
                     <div class="field has-addons">
                         <div class="control control-label">
                             <a class="button is-static">
-                                Title
+                                Start
                             </a>
                         </div>
                         <div class="control wide">
-                            <input value="{{.MusicData.Title}}" id="song-title" name="song-title" class="input" placeholder="Title" type="text">
+                            <input name="audio-start" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.Start -1.0}}0{{else}}{{.AudioSettings.Start}}{{end}}">
                         </div>
                     </div>
-
-                    <div class="field has-addons">
-                        <div class="control control-label">
-                            {{if have .MusicData.Artist }}<a class="button is-static link-button" href="/artist/{{.MusicData.Artist | clean}}">{{else}}<a class="button is-static">{{end}}
-                                    Artist
-                                </a>
-                        </div>
-                        <div class="control wide">
-                            <input value="{{.MusicData.Artist}}" id="song-artist" name="song-artist" class="input" placeholder="Artist" type="text">
-                        </div>
-                    </div>
-
-                    <div class="field has-addons">
-                        <div class="control control-label">
-                            {{if have .MusicData.Artist .MusicData.Album}}<a class="button is-static link-button" href="/album/{{.MusicData.Artist | clean}}/{{.MusicData.Album | clean}}">{{else}}<a class="button is-static">{{end}}
-                                    Album
-                                </a>
-                        </div>
-                        <div class="control wide">
-                            <input value="{{.MusicData.Album}}" id="song-album" name="song-album" class="input" placeholder="Album" type="text">
-                        </div>
-                    </div>
-
                     <div class="field has-addons">
                         <div class="control control-label">
                             <a class="button is-static">
-                                Year
+                                End
                             </a>
                         </div>
                         <div class="control wide">
-                            <input value="{{with .MusicData.Year}}{{.}}{{end}}" id="song-year" name="song-year" class="input" placeholder="Year" type="number">
+                            <input name="audio-end" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.End -1.0}}{{.MusicData.Duration}}{{else}}{{.AudioSettings.End}}{{end}}">
                         </div>
                     </div>
-                </fieldset>
+                </div>
 
-                <fieldset>
-                    <legend class="title normal-title is-5">Audio</legend>
-
-                    <div class="field has-addons">
-                        <div class="control control-label">
-                            <a class="button is-static">
-                                Source
-                            </a>
-                        </div>
-                        <div class="control wide">
-                            {{ if .IsImported}}<span class="input overflow-ignore">{{.SourceURL}}</span>{{else}}<a href="{{.SourceURL}}" class="input overflow-ignore">{{.SourceURL}}</a>{{end}}
-                        </div>
+                <div class="field">
+                    <div class="control">
+                        <audio preload="none" class="audio-controls" controls="">
+                            <source src="/song/{{.ID}}/audio">
+                            <source src="/song/{{.ID}}/mp3" type="audio/mpeg">
+                            It seems like your browser doesn't support playing audio.
+                        </audio>
                     </div>
+                </div>
 
-                    <div class="field has-addons">
-                        <div class="control control-label">
-                            <a class="button is-static">
-                                Duration
-                            </a>
-                        </div>
-                        <div class="control wide">
-                            <span class="input overflow-ignore">{{.FormatDuration}}</span>
-                        </div>
+                <div class="field">
+                    <div class="control">
+                        <a id="download-song-button" download href="/song/{{.ID}}/mp3" class="button is-info">Download MP3</a>
                     </div>
+                </div>
 
-                    <div class="field has-addons">
-                        <div class="field has-addons">
-                            <div class="control control-label">
-                                <a class="button is-static">
-                                    Start
-                                </a>
-                            </div>
-                            <div class="control wide">
-                                <input name="audio-start" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.Start -1.0}}0{{else}}{{.AudioSettings.Start}}{{end}}">
-                            </div>
-                        </div>
-                        <div class="field has-addons">
-                            <div class="control control-label">
-                                <a class="button is-static">
-                                    End
-                                </a>
-                            </div>
-                            <div class="control wide">
-                                <input name="audio-end" type="number" class="input overflow-ignore" step="any" min="0" max="{{.MusicData.Duration}}" novalidate value="{{if eq .AudioSettings.End -1.0}}{{.MusicData.Duration}}{{else}}{{.AudioSettings.End}}{{end}}">
-                            </div>
-                        </div>
-                    </div>
+                <div class="field has-addons is-switch">
+                    <input class="switch" type="checkbox" name="should-sync" id="should-sync" {{if .SyncSettings.Should}} checked="checked" {{end}}>
+                    <label for="should-sync">Enable synchronization</label>
+                </div>
 
-                    <div class="field">
-                        <div class="control">
-                            <audio preload="none" class="audio-controls" controls="">
-                                <source src="/song/{{.ID}}/audio">
-                                <source src="/song/{{.ID}}/mp3" type="audio/mpeg">
-                                It seems like your browser doesn't support playing audio.
-                            </audio>
-                        </div>
-                    </div>
-                </fieldset>
+                <div class="is-fullwidth has-text-centered">
+                    <button class="button is-primary" style="width: 70%;" type="submit" value="Save">Save</button>
 
-                <fieldset>
-                    <legend class="title normal-title is-5">Download</legend>
-                    <div class="field">
-                        <div class="control">
-                            <a id="download-song-button" download href="/song/{{.ID}}/mp3" class="button is-info">Download MP3</a>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <fieldset>
-                    <legend class="title normal-title is-5">Sync</legend>
-
-                    <div class="field has-addons is-switch">
-                        <input class="switch" type="checkbox" name="should-sync" id="should-sync" {{if .SyncSettings.Should}} checked="checked" {{end}}>
-                        <label for="should-sync">Enable synchronization</label>
-                    </div>
-
-                    <div class="is-fullwidth has-text-centered">
-                        <button class="button is-primary" style="width: 70%;" type="submit" value="Save">Save</button>
-
-                        <button id="delete-button" name="delete" value="delete" style="width: 27.5%;" class="button is-danger">Delete</button>
-                    </div>
-                </fieldset>
+                    <button id="delete-button" name="delete" value="delete" style="width: 27.5%;" class="button is-danger">Delete</button>
+                </div>
             </div>
         </div>
     </form>
