@@ -68,7 +68,7 @@ Then you can already download/run the server for the first time:
 
 The volume mounted at `/config` must contain a `config.json` file. To change the exposed ports, you can modify the first port (before the `:`) in the command to another port. If you didn't change the configuration file `128` is the default HTTP port, `1280` is used for FTP.
 
-You can now continue with the [configuration section](#configuration). You need to restart the container for it to use the new configuraiton.
+You can now continue with the [configuration section](#configuration). You need to restart the container for it to use the new configuration.
 
 #### Binaries
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
