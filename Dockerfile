@@ -8,19 +8,12 @@ RUN CGO_ENABLED=0 go build -a -v -mod vendor -ldflags "-s -w" -o sensibleHub .
 
 
 # Now for the image we actually run the server in
-FROM python:3-alpine
-
-# Install ffmpeg
-RUN apk add ca-certificates ffmpeg
-ENV PATH="/bin:${PATH}"
-
-RUN apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev
-
-# Install youtube-dl
-RUN pip install yt-dlp
-
-RUN apk del .pynacl_deps
-
+FROM alpine:latest
+RUN apk add ca-certificates ffmpeg python3
 # Copy main executable
 COPY --from=builder /build/sensibleHub .
+# Download yt-dlp
+RUN wget -qO /bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp && chmod +x /bin/yt-dlp
+ENV PATH="/bin:${PATH}"
+ENV RUNNING_IN_DOCKER=true
 ENTRYPOINT [ "./sensibleHub", "-config", "/config/config.json" ]

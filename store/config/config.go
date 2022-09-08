@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strings"
 
@@ -53,18 +54,26 @@ func Parse(path string) (c Config, err error) {
 		return
 	}
 
-	// Set default paths/names if none are set
-	c.Alternatives.FFmpeg = strings.TrimSpace(c.Alternatives.FFmpeg)
-	if c.Alternatives.FFmpeg == "" {
+	rid, ok := os.LookupEnv("RUNNING_IN_DOCKER")
+	if ok && strings.ToLower(rid) == "true" {
 		c.Alternatives.FFmpeg = "ffmpeg"
-	}
-	c.Alternatives.FFprobe = strings.TrimSpace(c.Alternatives.FFprobe)
-	if c.Alternatives.FFprobe == "" {
 		c.Alternatives.FFprobe = "ffprobe"
-	}
-	c.Alternatives.YoutubeDL = strings.TrimSpace(c.Alternatives.YoutubeDL)
-	if c.Alternatives.YoutubeDL == "" {
-		c.Alternatives.YoutubeDL = "youtube-dl"
+		c.Alternatives.YoutubeDL = "yt-dlp"
+		log.Println("[Info] Running in Docker, using local binaries. This means that the \"alternatives\" config part is ignored!")
+	} else {
+		// Set default paths/names if none are set
+		c.Alternatives.FFmpeg = strings.TrimSpace(c.Alternatives.FFmpeg)
+		if c.Alternatives.FFmpeg == "" {
+			c.Alternatives.FFmpeg = "ffmpeg"
+		}
+		c.Alternatives.FFprobe = strings.TrimSpace(c.Alternatives.FFprobe)
+		if c.Alternatives.FFprobe == "" {
+			c.Alternatives.FFprobe = "ffprobe"
+		}
+		c.Alternatives.YoutubeDL = strings.TrimSpace(c.Alternatives.YoutubeDL)
+		if c.Alternatives.YoutubeDL == "" {
+			c.Alternatives.YoutubeDL = "youtube-dl"
+		}
 	}
 
 	return

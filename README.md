@@ -61,6 +61,8 @@ If you prefer using Docker, you can run the following in a directory that contai
 
     docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensiblehub:master
 
+The volume mounted at `/config` must contain a `config.json` file. To change the exposed ports, you can modify the first port (before the `:`) in the command to another port.
+
 <details>
 <summary>If no recent build is available, you can also build for yourself.</summary>
 
