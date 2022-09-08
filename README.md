@@ -53,20 +53,64 @@ While typing in the search box, your collection is already searched and suggesti
 
 
 ### Installation
-You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
+There are several methods for installing this software. Using Docker is the easiest, but you can also download release binaries or build from source.
 
-Unzip the downloaded file to a directory of your choice on your server. Then you can start looking into the [additional requirements and configuration sections](#additional-requirements).
+After installing, look into the [configuration](#configuration) section below.
 
-If you prefer using Docker, you can run the following in a directory that contains a `data` directory and a `config.json` file (described below):
+#### Docker
+If you prefer using Docker, you can first run the following command to download the default configuration file:
+
+    curl -L https://raw.githubusercontent.com/xarantolus/sensibleHub/master/config.json > config.json
+
+Then you can already download/run the server for the first time:
 
     docker run -v"$(pwd):/config" -v"$(pwd)/data:/data" -p 128:128 -p 1280:1280 ghcr.io/xarantolus/sensiblehub:master
 
 The volume mounted at `/config` must contain a `config.json` file. To change the exposed ports, you can modify the first port (before the `:`) in the command to another port. If you didn't change the configuration file `128` is the default HTTP port, `1280` is used for FTP.
 
+You can now continue with the [configuration section](#configuration). You need to restart the container for it to use the new configuraiton.
+
+#### Binaries
+You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
+
+Unzip the downloaded file to a directory of your choice on your server. Afterwards you should make sure that `youtube-dl` (or another compatible downloader) and `ffmpeg` are installed.
+
+**Additional requirements**
+This program relies on some other programs that need to be installed and be available in your $PATH:
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): Used for downloading files from [all kinds of sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html). Since websites change frequently and break it, you should update it from time to time or set up automatic updates (e.g. using a cron job).
+- [FFmpeg](http://ffmpeg.org/) and FFprobe: Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports and transcoding MP3 files for downloads
+
+You might be able to install them using the following command:
+
+```
+apt-get install ffmpeg python3 python3-pip && pip3 install -U yt-dlp
+```
+
+You should however check that the `yt-dlp` version is recent (run `yt-dlp --version`) as there are frequent changes. Alternatively, try running `yt-dlp --update` to get the newest version or check out [their releases](https://github.com/yt-dlp/yt-dlp/releases).
+
+You can also put both executables in the same directory this program is installed into. That way, it should be able to find them just fine.
+
+Depending on your system some ports might be restricted, so make sure to set sufficient permissions (see [here](https://stackoverflow.com/q/413807)). You might also need to mark the binary as executable (using `chmod +x sensibleHub`).
+
+After that, you are ready to start the server.
+
+```
+./sensibleHub
+```
+
+Expected output:
+
+```
+2020/05/26 20:01:48 [Cleanup] No cleanup necessary
+2020/05/26 20:01:48 [FTP] Server listening on port 1280
+2020/05/26 20:01:48 [Web] Server listening on port 128
+```
+
+You can now continue with the [configuration section](#configuration).
+
+#### Build from source
 <details>
 <summary>If no recent build is available, you can also build for yourself.</summary>
-
-### Build for yourself
 
 As a first step, you clone this repository (or download a zip file), then you open a terminal/command prompt in the root directory of the repository:
 
@@ -99,20 +143,6 @@ GOOS=linux GOARCH=arm GOARM=7 ./pack.sh
 
 </details>
 
-#### Additional requirements
-This program relies on some other programs that need to be installed and be available in your $PATH:
-- [youtube-dl](https://github.com/ytdl-org/youtube-dl): Used for downloading files from [all kinds of sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html). Since websites change frequently and break youtube-dl, you should update it from time to time or set up an automatic update (e.g. using a cron job)
-- [FFmpeg](http://ffmpeg.org/) and FFprobe: Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports and transcoding MP3 files for downloads
-
-You might be able to install them using the following command:
-
-```
-apt-get install ffmpeg youtube-dl
-```
-
-You should however check if the youtube-dl version is recent (run `youtube-dl --version`) as there are frequent changes. Alternatively, try running `youtube-dl -U` to get the newest version or check out [their releases](https://github.com/ytdl-org/youtube-dl/releases/).
-
-You can also put both executables in the same directory this program is installed into. That way, it should be able to find them just fine.
 
 ### Configuration
 
@@ -165,6 +195,7 @@ The following file details the configuration options. You can use comments (`//`
 
     // Alternatives for programs used by this server. Leave blank to use default values.
     // Allows you to set alternative paths for programs, e.g. if you want to use an alternative youtube-dl fork such as [this one](https://github.com/yt-dlp/yt-dlp)
+    // This section is ignored if running in Docker
     "alternatives": {
         "ffmpeg": "ffmpeg",
         "ffprobe": "ffprobe",
@@ -180,37 +211,21 @@ The following file details the configuration options. You can use comments (`//`
 
 </details>
 
-Depending on your system a firewall might block some ports, so make sure to run the server with sufficient permissions (`sudo`). You might also need to mark it as executable (using `chmod +x sensibleHub`).
 
-After that, you are ready to start the server.
-
-```
-./sensibleHub
-```
-
-Expected output:
-
-```
-2020/05/26 20:01:48 [Cleanup] No cleanup necessary
-2020/05/26 20:01:48 [FTP] Server listening on port 1280
-2020/05/26 20:01:48 [Web] Server listening on port 128
-```
-
-After that, you can visit the website at `http://yourserver:128/`.
-You can also connect via FTP at `ftp://yourserver:1280/` using one of the accounts set in the config file.
+Assuming you kept the default ports, you can visit the website at `http://yourserver:128/`. You can also connect via FTP at `ftp://yourserver:1280/` using one of the accounts set in the config file.
 
 
 ### Importing
 This program can import songs that should be included in its library in a few different ways.
 
-##### From disk
+##### From disk (usually for initially importing your library)
 
 1. Create a directory called `import` that is at the same location as the executable.
 2. **Copy** songs into the `import` directory. It does not matter if you copy the files directly or directories containing them (the server will search everything in there). Please note that **the server will delete files from the import directory** once they are added to its library.
 3. (Re)start the server.
 4. Songs will be imported, existing metadata embedded in files is extracted.
 
-These imports will only happen on startup, not while the software is running.
+These imports will only happen on startup, not while the software is running, so you have to restart the server every time with this method.
 
 ##### Over network/FTP
 You can also import files by putting them in *any* directory over FTP. On Windows, you can [create a FTP network connection](https://superuser.com/a/88572) quite nicely.
