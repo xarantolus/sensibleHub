@@ -7,21 +7,21 @@ import (
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 
-	"goftp.io/server"
+	"goftp.io/server/core"
 )
 
 // RunServer runs the FTP server until it crashes
 func RunServer(manager *store.Manager, cfg config.Config) (err error) {
-	opts := &server.ServerOpts{
+	opts := &core.ServerOpts{
 		Factory: &musicDriverFactory{
 			Manager: manager,
 		},
 		Port:   cfg.FTP.Port,
 		Auth:   &configAuth{cfg: cfg},
-		Logger: &server.DiscardLogger{},
+		Logger: &core.DiscardLogger{},
 	}
 
-	server := server.NewServer(opts)
+	server := core.NewServer(opts)
 
 	log.Printf("[FTP] Server listening on port %d\n", cfg.FTP.Port)
 	return server.ListenAndServe()
