@@ -2,6 +2,7 @@ package music
 
 import (
 	"fmt"
+	"math"
 	"path/filepath"
 	"strings"
 	"time"
@@ -126,6 +127,29 @@ type AudioSettings struct {
 	Start float64 `json:"start"`
 	// Start is the end time of the song in the given audio. If not set, it is < 0
 	End float64 `json:"end"`
+}
+
+// TimeRange returns the playback range for HTML media elements
+// See https://developer.mozilla.org/en-US/docs/Web/Guide/Audio_and_video_delivery#specifying_playback_range
+func (e *Entry) PlaybackRange() string {
+	// if end time == duration
+	if e.AudioSettings.End <= 0 || math.Abs(e.AudioSettings.End-e.MusicData.Duration) < 0.001 {
+		// if we also have no start time, then neither was set -- return nothing
+		if e.AudioSettings.Start <= 0.001 {
+			return ""
+		}
+
+		// Only the start time is set
+		return fmt.Sprintf("#t=%f", e.AudioSettings.Start)
+	}
+
+	if e.AudioSettings.Start <= 0.001 {
+		// Only the end time is set
+		return fmt.Sprintf("#t=0,%f", e.AudioSettings.End)
+	}
+
+	// both are set
+	return fmt.Sprintf("#t=%f,%f", e.AudioSettings.Start, e.AudioSettings.End)
 }
 
 type MusicData struct {

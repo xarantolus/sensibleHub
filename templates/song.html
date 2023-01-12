@@ -132,8 +132,8 @@
                 <div class="field">
                     <div class="control">
                         <audio preload="none" class="audio-controls" controls="">
-                            <source src="/song/{{.ID}}/audio">
-                            <source src="/song/{{.ID}}/mp3" type="audio/mpeg">
+                            <source src="/song/{{.ID}}/audio{{.PlaybackRange}}">
+                            <source src="/song/{{.ID}}/mp3{{.PlaybackRange}}" type="audio/mpeg">
                             It seems like your browser doesn't support playing audio.
                         </audio>
                     </div>

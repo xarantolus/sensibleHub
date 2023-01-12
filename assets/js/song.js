@@ -59,11 +59,6 @@ function songPage() {
     if (audioElement.duration == NaN) {
         audioElement.src = document.getElementsByClassName("source")[0].src;
     }
-    
-    var start = document.getElementsByName("audio-start");
-    if (start.length > 0 && start[0].value > 0) {
-        audioElement.currentTime = start[0].value
-    }
 
     // initialize mediaSession metadata
     if ('mediaSession' in navigator) {
@@ -75,7 +70,7 @@ function songPage() {
             artwork.push({ src: coverImage.src + "?size=small", sizes: "120x120" });
             artwork.push({ src: coverImage.src, sizes: coverImage.dataset.size + "x" + coverImage.dataset.size });
         }
-        
+
         navigator.mediaSession.metadata = new MediaMetadata({
             title: document.getElementById("song-title").value,
             artist: document.getElementById("song-artist").value,
