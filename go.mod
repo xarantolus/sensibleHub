@@ -24,8 +24,7 @@ require (
 	goftp.io/server v0.4.1
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
-	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
-	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
