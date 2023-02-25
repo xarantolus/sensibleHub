@@ -1,7 +1,8 @@
 debug**
 *.zip
 **.exe
-data*/
+data/
+!vendor/**/data/
 import/
 releases/
 sensibleHub
