@@ -1,5 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
 mkdir -p releases
-rm releases/*
+rm releases/* || true
 
 chmod +x pack.sh
 

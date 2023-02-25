@@ -1,11 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 
-rm sensibleHub.zip || true 
-rm sensibleHub || true 
-rm sensibleHub.exe || true 
+rm sensibleHub.zip || true
+rm sensibleHub || true
+rm sensibleHub.exe || true
 
 # Use first argument for name if possible, fallback to sensibleHub.zip
-NAME=${1:-sensibleHub.zip}    
+NAME=${1:-sensibleHub.zip}
 
 go build -a -v -mod vendor -ldflags "-s -w"
 
