@@ -4,19 +4,16 @@ and syncing using external programs.
 
 
 ### Features
- * Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
- * [Import](#Importing) songs you already have
- * Set up FTP clients to [sync](#Syncing) your music to all your devices
- * Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
- * Automagic metadata extraction (including cover images)
- * List and search your songs by title, artist, album or year
- * Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
- * Automatic dark mode: the site applies a light or dark theme depending on your system settings
- * Keyboard shortcuts for faster navigation
-   - `n` for loading the page where you can add new songs
-   - Listings: `s` for all songs, `a` for artists, `y` for years, `i` for incomplete, `e` for recent edits and `u` for unsynced songs
-   - `/` for focusing on the search bar
-   - `esc` for going to the main page
+* Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
+* [Import](#Importing) songs you already have
+* Set up FTP clients to [sync](#Syncing) your music to all your devices
+* Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+* Automagic metadata extraction (including cover images)
+* List and search your songs by title, artist, album or year
+* Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
+* Automatic dark mode: the site applies a light or dark theme depending on your system settings
+* Keyboard shortcuts for faster navigation
+* No JavaScript required
 
 
 ### Screenshots
@@ -307,6 +304,14 @@ There are several assumptions made so the program will work as expected in most 
 - Two songs are in the same album if that attribute is not empty, the above applies for the artist and the same applies for the album name.
 - A song should have *one* artist, every other performer is mentioned in brackets in the song title, e.g. like `Title (feat. Artist2 & Artist3)`. If this is not done, the "Featured in" listing of the artists' page might not display all relevant songs.
 - All cover images are squared. Any that aren't will be cropped and some part of the image will be removed.
+
+
+### Keyboard shortcuts
+These are keyboard shortcuts that can be used on any page:
+- `n` for loading the page where you can add new songs
+- Listings: `s` for all songs, `a` for artists, `y` for years, `i` for incomplete, `e` for recent edits and `u` for unsynced songs
+- `/` for focusing on the search bar
+- `esc` for going to the main page
 
 
 ### Browser support
