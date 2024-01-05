@@ -1,4 +1,4 @@
-FROM golang:1.18 as builder
+FROM golang:1-alpine as builder
 
 # Build the normal executable
 RUN mkdir /build
@@ -19,7 +19,7 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 	ln /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl && \
 	ln /usr/local/bin/yt-dlp /usr/local/bin/youtube-dlp && \
 	ln /usr/local/bin/yt-dlp /usr/local/bin/youtube-dlc && \
-	ln /usr/local/bin/yt-dlp /usr/local/bin/yt-dlc && \
+	ln /usr/local/bin/yt-dlp /usr/local/bin/yt-dlc
 
 ENV PATH="/bin:${PATH}"
 ENV RUNNING_IN_DOCKER=true
