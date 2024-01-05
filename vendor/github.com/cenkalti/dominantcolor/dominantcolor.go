@@ -8,8 +8,9 @@
 // colors in RGB space.
 //
 // The algorithm is ported from Chromium source code:
-//     https://src.chromium.org/svn/trunk/src/ui/gfx/color_analysis.h
-//     https://src.chromium.org/svn/trunk/src/ui/gfx/color_analysis.cc
+//
+//	https://src.chromium.org/svn/trunk/src/ui/gfx/color_analysis.h
+//	https://src.chromium.org/svn/trunk/src/ui/gfx/color_analysis.cc
 //
 // RGB KMean Algorithm (N clusters, M iterations):
 //
@@ -51,7 +52,7 @@ import (
 	"math/rand"
 	"sort"
 
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 )
 
 const (
@@ -71,7 +72,7 @@ type Color struct {
 
 func findClusters(img image.Image, nCluster int) (kMeanClusterGroup, float64) {
 	// Shrink image for faster processing.
-	img = resize.Thumbnail(resizeTo, resizeTo, img, resize.NearestNeighbor)
+	img = imaging.Fit(img, resizeTo, resizeTo, imaging.NearestNeighbor)
 
 	bounds := img.Bounds()
 	width, height := bounds.Dx(), bounds.Dy()
@@ -140,7 +141,9 @@ func findClusters(img image.Image, nCluster int) (kMeanClusterGroup, float64) {
 // Find returns the dominant color in img.
 func Find(img image.Image) color.RGBA {
 	colors := FindN(img, nClustersDefault)
-
+	if len(colors) == 0 {
+		return color.RGBA{0, 0, 0, 0}
+	}
 	// Loop through the clusters to figure out which cluster has an appropriate
 	// color. Skip any that are too bright/dark and go in order of weight.
 	for _, c := range colors {
