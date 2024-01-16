@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -16,7 +16,7 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-      
+
     - name: Download tags which the git command needs later
       run: git fetch --prune --unshallow
 
@@ -24,12 +24,12 @@ jobs:
       shell: bash
       run: |
         bash ./release.sh
-        
+
     - name: Generate tag name
-      run: echo "TAG_NAME=$(git rev-parse --short HEAD)" >> $GITHUB_ENV  
+      run: echo "TAG_NAME=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
     - name: Generate release title
       run: echo "RTITLE=$(git log -n 1 --oneline | cut -d' ' -f2- -)"  >> $GITHUB_ENV
-      
+
     - name: Upload release
       uses: softprops/action-gh-release@v1
       with:
@@ -40,12 +40,12 @@ jobs:
         body_path: release.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-        
+
+
     - name: Delete older releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
       with:
         keep_latest: 7
-        delete_tags: true 
+        delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
