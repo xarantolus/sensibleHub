@@ -1,19 +1,19 @@
 # github.com/bogem/id3v2 v1.2.0
 ## explicit
 github.com/bogem/id3v2
-# github.com/cenkalti/dominantcolor v1.0.2
+# github.com/cenkalti/dominantcolor v1.0.3
 ## explicit
 github.com/cenkalti/dominantcolor
 # github.com/disintegration/imaging v1.6.2
 ## explicit
 github.com/disintegration/imaging
-# github.com/edwvee/exiffix v0.0.0-20210922235313-0f6cbda5e58f
+# github.com/edwvee/exiffix v0.0.0-20240229113213-0dbb146775be
 ## explicit
 github.com/edwvee/exiffix
 # github.com/gorilla/mux v1.8.1
 ## explicit
 github.com/gorilla/mux
-# github.com/gorilla/websocket v1.5.1
+# github.com/gorilla/websocket v1.5.3
 ## explicit
 github.com/gorilla/websocket
 # github.com/jlaffaye/ftp v0.0.0-20200602180915-5563613968bf
@@ -21,7 +21,7 @@ github.com/gorilla/websocket
 # github.com/json-iterator/go v1.1.12
 ## explicit
 github.com/json-iterator/go
-# github.com/klauspost/cpuid/v2 v2.2.6
+# github.com/klauspost/cpuid/v2 v2.2.8
 ## explicit
 github.com/klauspost/cpuid/v2
 # github.com/minio/md5-simd v1.1.2
@@ -60,7 +60,7 @@ github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/tiff
 # github.com/stretchr/testify v1.6.1
 ## explicit
-# github.com/vitali-fedulov/images4 v1.2.2
+# github.com/vitali-fedulov/images4 v1.3.1
 ## explicit
 github.com/vitali-fedulov/images4
 # goftp.io/server v0.4.1
@@ -69,35 +69,33 @@ goftp.io/server
 goftp.io/server/core
 goftp.io/server/driver/file
 goftp.io/server/driver/minio
-# golang.org/x/crypto v0.17.0
-## explicit
+# golang.org/x/crypto v0.27.0
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
-# golang.org/x/image v0.15.0
+# golang.org/x/image v0.20.0
 ## explicit
 golang.org/x/image/bmp
 golang.org/x/image/ccitt
+golang.org/x/image/draw
+golang.org/x/image/math/f64
 golang.org/x/image/riff
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
 golang.org/x/image/vp8
 golang.org/x/image/vp8l
 golang.org/x/image/webp
-# golang.org/x/net v0.19.0
+# golang.org/x/net v0.29.0
 ## explicit
 golang.org/x/net/http/httpguts
 golang.org/x/net/idna
-golang.org/x/net/internal/socks
-golang.org/x/net/proxy
 golang.org/x/net/publicsuffix
-# golang.org/x/sync v0.6.0
+# golang.org/x/sync v0.8.0
 ## explicit
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.16.0
-## explicit
+# golang.org/x/sys v0.25.0
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
-# golang.org/x/text v0.14.0
+# golang.org/x/text v0.18.0
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/internal
