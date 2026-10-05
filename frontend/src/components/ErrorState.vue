@@ -20,13 +20,13 @@ const notFound = computed(() => isApiError(props.error, 'not_found'))
       v-if="notFound"
       class="has-text-weight-semibold"
     >
-      This doesn't exist (anymore).
+      Not found
     </p>
     <p
       v-else-if="offline"
       class="has-text-weight-semibold"
     >
-      The server cannot be reached. Check your connection.
+      Server unreachable
     </p>
     <p
       v-else

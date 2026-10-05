@@ -79,23 +79,6 @@ onBeforeUnmount(() => {
           {{ list.name === 'queue' ? 'Clear' : 'Refresh' }}
         </button>
       </div>
-      <p
-        v-if="list.name === 'queue' && player.queue.length === 0"
-        class="queue-note"
-      >
-        Songs you add with "Play next" or "Add to queue" play before autoplay. Drag songs here to keep them.
-      </p>
-      <p
-        v-if="list.name === 'autoplay'"
-        class="queue-note"
-      >
-        <template v-if="player.refilling && player.autoplay.length === 0">
-          Finding songs that fit…
-        </template>
-        <template v-else>
-          Picked to fit what's playing.
-        </template>
-      </p>
 
       <ol
         :ref="(el) => setListEl(list.name, el)"
@@ -174,12 +157,6 @@ onBeforeUnmount(() => {
 
 .queue-head:first-child {
   margin-top: 0;
-}
-
-.queue-note {
-  padding: 0.25rem 0 0.5rem;
-  font-size: 0.8rem;
-  color: var(--bulma-text-weak);
 }
 
 .queue {

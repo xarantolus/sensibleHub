@@ -47,7 +47,7 @@ function submit(): void {
             ? { message: 'This song has already been downloaded.' }
             : { message: 'This song has already been downloaded.', songId }
       } else if (isApiError(err, 'queue_full')) {
-        inlineError.value = { message: 'The download queue is full. Try again once a download has finished.' }
+        inlineError.value = { message: 'Download queue is full' }
       }
     },
   })

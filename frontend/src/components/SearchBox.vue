@@ -83,7 +83,7 @@ defineExpose({
       > {{ option.item.artist }}</span>
     </template>
     <template #empty>
-      No matching songs, press enter to search
+      No matching songs
     </template>
   </o-autocomplete>
 </template>

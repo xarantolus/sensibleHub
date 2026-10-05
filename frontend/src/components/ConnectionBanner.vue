@@ -11,14 +11,14 @@ const online = useOnline()
     class="connection-banner has-background-warning-light has-text-warning-dark"
     role="status"
   >
-    You're offline. Cached songs keep playing; editing is unavailable.
+    Offline
   </div>
   <div
     v-else-if="connectionState === 'reconnecting'"
     class="connection-banner has-background-warning-light has-text-warning-dark"
     role="status"
   >
-    Lost connection to the server, reconnecting…
+    Reconnecting…
   </div>
 </template>
 
