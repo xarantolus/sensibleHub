@@ -4,9 +4,8 @@ import { computed } from 'vue'
 import { useSong, useSongIndex } from '@/api/queries'
 import AnalysisStats from '@/components/AnalysisStats.vue'
 import QueryView from '@/components/QueryView.vue'
-import SongEditPanel from '@/components/SongEditPanel.vue'
 import SongGrid from '@/components/SongGrid.vue'
-import SongHero from '@/components/SongHero.vue'
+import SongEditor from '@/components/song/SongEditor.vue'
 import { useSettings } from '@/composables/useSettings'
 
 const props = defineProps<{ id: string }>()
@@ -28,7 +27,7 @@ const summary = computed(() => index.value.get(props.id))
         :refetch="query.refetch"
       >
         <template #loading>
-          <SongHero
+          <SongEditor
             v-if="summary"
             :song="summary"
           />
@@ -43,10 +42,9 @@ const summary = computed(() => index.value.get(props.id))
           </div>
         </template>
         <template #default="{ data }">
-          <SongHero
+          <SongEditor
             :song="data"
-            :source-url="data.sourceUrl"
-            :imported="data.imported"
+            :detail="data"
           />
           <section
             v-if="settings.statsForNerds"
@@ -60,10 +58,6 @@ const summary = computed(() => index.value.get(props.id))
               :listening="data.listening"
             />
           </section>
-          <SongEditPanel
-            :song="data"
-            class="mt-5"
-          />
           <template v-if="resolve(data.related).length > 0">
             <h2 class="title is-4 mt-6">
               Similar songs
