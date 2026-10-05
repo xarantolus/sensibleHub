@@ -21,10 +21,12 @@
     "openapi-fetch": "^0.17.0",
     "pinia": "^4.0.3",
     "vue": "^3.5.42",
+    "vue-draggable-plus": "^0.6.1",
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
+    "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/test-utils": "^2.5.1",
