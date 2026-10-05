@@ -16,6 +16,7 @@ require (
 	goftp.io/server v0.4.1
 	golang.org/x/image v0.25.0
 	golang.org/x/sync v0.22.0
+	gonum.org/v1/gonum v0.17.0
 )
 
 require (
