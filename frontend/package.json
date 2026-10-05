@@ -13,8 +13,11 @@
   "dependencies": {
     "@oruga-ui/oruga-next": "^0.14.4",
     "@oruga-ui/theme-bulma": "^0.10.1",
+    "@tanstack/query-async-storage-persister": "^5.104.1",
+    "@tanstack/query-persist-client-core": "^5.104.1",
     "@tanstack/vue-query": "^5.104.1",
     "bulma": "^1.0.4",
+    "idb-keyval": "^6.3.0",
     "openapi-fetch": "^0.17.0",
     "pinia": "^4.0.3",
     "vue": "^3.5.42",
@@ -38,6 +41,13 @@
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^4.1.11",
     "vue-tsc": "^3.3.11",
+    "workbox-cacheable-response": "^7.4.1",
+    "workbox-core": "^7.4.1",
+    "workbox-expiration": "^7.4.1",
+    "workbox-precaching": "^7.4.1",
+    "workbox-range-requests": "^7.4.1",
+    "workbox-routing": "^7.4.1",
+    "workbox-strategies": "^7.4.1",
     "workbox-window": "^7.4.1"
   }
 }
