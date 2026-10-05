@@ -4,8 +4,10 @@ import {
   classifyMediaError,
   failureAction,
   fileTime,
+  isSkip,
   loudnessGain,
   needsRefill,
+  refillCount,
   refillExclude,
   refillSeed,
   retryDelay,
@@ -19,10 +21,13 @@ describe('refill', () => {
     expect(refillSeed(undefined, [])).toBeUndefined()
   })
 
-  it('refills only when the queue runs low', () => {
+  it('tops the queue up to 50 songs in batches', () => {
     expect(needsRefill(0)).toBe(true)
-    expect(needsRefill(2)).toBe(true)
-    expect(needsRefill(3)).toBe(false)
+    expect(needsRefill(39)).toBe(true)
+    expect(needsRefill(40)).toBe(false)
+    expect(refillCount(0)).toBe(50)
+    expect(refillCount(39)).toBe(11)
+    expect(refillCount(70)).toBe(0)
   })
 
   it('excludes current, queued and recent songs without duplicates', () => {
@@ -33,6 +38,23 @@ describe('refill', () => {
     expect(ex).toContain('h79')
     expect(ex).not.toContain('h0')
     expect(new Set(ex).size).toBe(ex.length)
+  })
+})
+
+describe('skips', () => {
+  it('counts leaving within the first 30 seconds as a skip', () => {
+    expect(isSkip(5, 240)).toBe(true)
+    expect(isSkip(29, 240)).toBe(true)
+    expect(isSkip(31, 240)).toBe(false)
+  })
+
+  it('uses half the song for short songs', () => {
+    expect(isSkip(15, 40)).toBe(true)
+    expect(isSkip(21, 40)).toBe(false)
+  })
+
+  it('falls back to 30 seconds when the duration is unknown', () => {
+    expect(isSkip(10, 0)).toBe(true)
   })
 })
 

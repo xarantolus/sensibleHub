@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"slices"
 	"strings"
+	"time"
 	"xarantolus/sensibleHub/store/analysis"
 	"xarantolus/sensibleHub/store/music"
 )
@@ -25,12 +26,13 @@ type Suggestion struct {
 }
 
 // NextSongs proposes up to count synced songs to play after current (which may be empty).
-// Songs in exclude are skipped unless nothing else is left. Picks are random, weighted
-// towards recently added songs and, for analysed songs, towards ones that fit current
-// musically. All picks are scored against current, not against each other.
+// Songs in exclude are skipped unless nothing else is left. The picks form a chain:
+// each is drawn at random, weighted by how well it follows the previous pick
+// (key, tempo, energy, timbre once analysed), by how recently it was added and
+// by how rarely the listener skips it.
 func (m *Manager) NextSongs(current string, count int, exclude []string) []Suggestion {
 	m.SongsLock.RLock()
-	cur, hasCur := m.Songs[current]
+	prev, hasPrev := m.Songs[current]
 	var pool []music.Entry
 	for _, e := range m.Songs {
 		if e.SyncSettings.Should && e.ID != current {
@@ -48,33 +50,42 @@ func (m *Manager) NextSongs(current string, count int, exclude []string) []Sugge
 		candidates = pool
 	}
 
+	now := time.Now()
 	recency := recencyWeights(pool)
-	var stats analysis.TimbreStats
-	if hasCur && cur.Analysis.Usable() {
-		analyses := make([]*music.Analysis, 0, len(pool)+1)
-		for _, e := range pool {
-			analyses = append(analyses, e.Analysis)
-		}
-		stats = analysis.NewTimbreStats(append(analyses, cur.Analysis))
+	analyses := make([]*music.Analysis, 0, len(pool)+1)
+	for _, e := range pool {
+		analyses = append(analyses, e.Analysis)
 	}
+	if hasPrev {
+		analyses = append(analyses, prev.Analysis)
+	}
+	stats := analysis.NewTimbreStats(analyses)
 
-	scored := make([]Suggestion, len(candidates))
-	for i, e := range candidates {
-		f := map[string]float64{"recency": recency[e.ID]}
-		if hasCur {
-			if cur.MusicData.Artist != "" && strings.EqualFold(cur.MusicData.Artist, e.MusicData.Artist) {
-				f["sameArtist"] = sameArtistFactor
+	var out []Suggestion
+	for len(out) < count && len(candidates) > 0 {
+		scored := make([]Suggestion, len(candidates))
+		for i, e := range candidates {
+			f := map[string]float64{"recency": recency[e.ID], "skips": skipFactor(e.Listening, now)}
+			if hasPrev {
+				if prev.MusicData.Artist != "" && strings.EqualFold(prev.MusicData.Artist, e.MusicData.Artist) {
+					f["sameArtist"] = sameArtistFactor
+				}
+				maps.Copy(f, analysis.Transition(prev.Analysis, e.Analysis, stats))
 			}
-			maps.Copy(f, analysis.Transition(cur.Analysis, e.Analysis, stats))
+			score := 1.0
+			for _, v := range f {
+				score *= v
+			}
+			scored[i] = Suggestion{ID: e.ID, Score: score, Factors: f}
 		}
-		score := 1.0
-		for _, v := range f {
-			score *= v
-		}
-		scored[i] = Suggestion{ID: e.ID, Score: score, Factors: f}
-	}
 
-	return weightedSample(scored, count, rand.Float64)
+		pick := weightedSample(scored, 1, rand.Float64)[0]
+		out = append(out, pick)
+		i := slices.IndexFunc(candidates, func(e music.Entry) bool { return e.ID == pick.ID })
+		prev, hasPrev = candidates[i], true
+		candidates = slices.Delete(candidates, i, i+1)
+	}
+	return out
 }
 
 // recencyWeights boosts the newest songs: the newest gets recentBoostMax, fading

@@ -1,9 +1,11 @@
 import type { Playback } from '@/api/schema'
 
-export const refillThreshold = 3
-export const refillCount = 5
+/** How many songs "up next" holds; it is topped up in batches once it drops below refillThreshold. */
+export const queueTarget = 50
+export const refillThreshold = 40
 export const excludeRecent = 50
 export const restartThreshold = 3
+export const skipWindow = 30
 
 /** The song that suggestions should follow: the last queued one, else the current one. */
 export function refillSeed(current: string | undefined, queue: readonly string[]): string | undefined {
@@ -12,6 +14,19 @@ export function refillSeed(current: string | undefined, queue: readonly string[]
 
 export function needsRefill(queueLength: number): boolean {
   return queueLength < refillThreshold
+}
+
+export function refillCount(queueLength: number): number {
+  return Math.max(0, queueTarget - queueLength)
+}
+
+/**
+ * Whether leaving a song after `listened` seconds counts as skipping it: within
+ * the first 30 seconds, or the first half of a shorter song.
+ */
+export function isSkip(listened: number, duration: number): boolean {
+  const window = duration > 0 ? Math.min(skipWindow, duration / 2) : skipWindow
+  return listened < window
 }
 
 /** Songs the server should not suggest: what is playing, queued, or played recently. */

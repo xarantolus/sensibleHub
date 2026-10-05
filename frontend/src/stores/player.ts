@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 import { call, client, isApiError } from '@/api/client'
-import { needsRefill, refillCount, refillExclude, refillSeed, restartThreshold } from '@/lib/playerLogic'
+import { isSkip, needsRefill, refillCount, refillExclude, refillSeed, restartThreshold } from '@/lib/playerLogic'
+import { reportPlay } from '@/lib/playReports'
 import { shuffled } from '@/lib/shuffle'
 
 const storageKey = 'sh-player-v1'
@@ -97,7 +98,30 @@ export const usePlayer = defineStore('player', () => {
     }
   }
 
-  function setCurrent(id: string | undefined): void {
+  /**
+   * How the current song was left: it 'ended', the listener chose to move on
+   * ('skipped' if that happened early), or something else replaced it ('neutral',
+   * e.g. starting an album), which only counts if it was listened to properly.
+   */
+  type Leave = 'ended' | 'moved-on' | 'neutral'
+
+  function reportLeaving(how: Leave): void {
+    const id = currentId.value
+    if (id === undefined) {
+      return
+    }
+    const listened = position.value
+    const early = isSkip(listened, duration.value)
+    if (how === 'neutral' && early) {
+      return
+    }
+    reportPlay({ songId: id, at: new Date().toISOString(), listened, skipped: how === 'moved-on' && early })
+  }
+
+  function setCurrent(id: string | undefined, how: Leave = 'neutral'): void {
+    if (currentId.value !== id) {
+      reportLeaving(how)
+    }
     if (currentId.value !== undefined && currentId.value !== id) {
       history.value.push(currentId.value)
       if (history.value.length > maxHistory) {
@@ -174,20 +198,28 @@ export const usePlayer = defineStore('player', () => {
     void refill()
   }
 
-  /** Skips to the next song; when nothing is queued it waits for suggestions. */
-  async function next(): Promise<void> {
+  /**
+   * Moves to the next song; when nothing is queued it waits for suggestions.
+   * `ended` is for the audio engine when a song finished and `failed` when it
+   * could not be played; the default is the listener moving on, which counts as
+   * a skip when it happens early.
+   */
+  async function next(reason: 'user' | 'ended' | 'failed' = 'user'): Promise<void> {
     if (queue.value.length === 0) {
       await refill()
     }
     const [head, ...rest] = queue.value
     if (head === undefined) {
+      if (reason === 'ended') {
+        reportLeaving('ended')
+      }
       playing.value = false
       status.value = currentId.value === undefined ? 'idle' : 'paused'
       return
     }
     queue.value = rest
     suggested.value.delete(head)
-    setCurrent(head)
+    setCurrent(head, reason === 'ended' ? 'ended' : reason === 'failed' ? 'neutral' : 'moved-on')
   }
 
   /** Restarts the song when it has played a while, else goes back one song. */
@@ -245,7 +277,7 @@ export const usePlayer = defineStore('player', () => {
       const res = await call(
         client.GET('/api/v1/player/next', {
           params: {
-            query: { count: refillCount, exclude, ...(seed === undefined ? {} : { current: seed }) },
+            query: { count: refillCount(queue.value.length), exclude, ...(seed === undefined ? {} : { current: seed }) },
           },
         }),
       )
@@ -259,7 +291,7 @@ export const usePlayer = defineStore('player', () => {
       }
       const exclude = new Set(refillExclude(currentId.value, queue.value, history.value))
       const offline = (await offlineCandidates()).filter((id) => !exclude.has(id))
-      addSuggestions(shuffled(offline).slice(0, refillCount), {})
+      addSuggestions(shuffled(offline).slice(0, refillCount(queue.value.length)), {})
     } finally {
       refilling.value = false
     }

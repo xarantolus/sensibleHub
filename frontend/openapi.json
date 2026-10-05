@@ -340,6 +340,34 @@
         ],
         "type": "object"
       },
+      "Listening": {
+        "additionalProperties": false,
+        "properties": {
+          "lastPlayed": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastSkipped": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "plays": {
+            "description": "Plays, decaying over time (half-life 30 days)",
+            "format": "double",
+            "type": "number"
+          },
+          "skips": {
+            "description": "Skips, decaying over time (half-life 30 days)",
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "required": [
+          "plays",
+          "skips"
+        ],
+        "type": "object"
+      },
       "NextSong": {
         "additionalProperties": false,
         "properties": {
@@ -378,6 +406,36 @@
         },
         "required": [
           "songs"
+        ],
+        "type": "object"
+      },
+      "PlayReport": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "description": "When the song stopped playing",
+            "format": "date-time",
+            "type": "string"
+          },
+          "listened": {
+            "description": "Seconds listened",
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
+          },
+          "skipped": {
+            "description": "The listener moved on early by choice",
+            "type": "boolean"
+          },
+          "songId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "songId",
+          "at",
+          "listened",
+          "skipped"
         ],
         "type": "object"
       },
@@ -480,6 +538,22 @@
         ],
         "type": "object"
       },
+      "ReportPlaysRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "plays": {
+            "items": {
+              "$ref": "#/components/schemas/PlayReport"
+            },
+            "maxItems": 1000,
+            "type": "array"
+          }
+        },
+        "required": [
+          "plays"
+        ],
+        "type": "object"
+      },
       "SearchResult": {
         "additionalProperties": false,
         "properties": {
@@ -557,6 +631,9 @@
             "format": "date-time",
             "type": "string"
           },
+          "listening": {
+            "$ref": "#/components/schemas/Listening"
+          },
           "loudness": {
             "description": "Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud",
             "format": "double",
@@ -592,6 +669,7 @@
           "file",
           "related",
           "analysis",
+          "listening",
           "id",
           "title",
           "duration",
@@ -1320,6 +1398,38 @@
           }
         },
         "summary": "Songs to play next"
+      }
+    },
+    "/api/v1/player/plays": {
+      "post": {
+        "description": "Feeds the next-song suggestions: often skipped songs come up less. Clients may batch reports made while offline; reports for deleted songs are ignored.",
+        "operationId": "reportPlays",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportPlaysRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Report listened and skipped songs"
       }
     },
     "/api/v1/search": {

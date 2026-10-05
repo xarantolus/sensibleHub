@@ -37,6 +37,7 @@ const factorRows = computed(() =>
     <AnalysisStats
       v-if="song.data.value"
       :analysis="song.data.value.analysis"
+      :listening="song.data.value.listening"
     />
     <p
       v-else

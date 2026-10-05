@@ -55,7 +55,10 @@ const summary = computed(() => index.value.get(props.id))
             <h2 class="title is-5">
               Stats for nerds
             </h2>
-            <AnalysisStats :analysis="data.analysis" />
+            <AnalysisStats
+              :analysis="data.analysis"
+              :listening="data.listening"
+            />
           </section>
           <SongEditPanel
             :song="data"

@@ -39,6 +39,18 @@ type Entry struct {
 	PictureData PictureData `json:"picture_data"`
 
 	Analysis *Analysis `json:"analysis,omitempty"`
+
+	Listening *Listening `json:"listening,omitempty"`
+}
+
+// Listening counts plays and skips. The counts decay over time (see
+// store.RecordPlays), so they are fractional and only valid as of Updated.
+type Listening struct {
+	Plays       float64   `json:"plays"`
+	Skips       float64   `json:"skips"`
+	Updated     time.Time `json:"updated"`
+	LastPlayed  time.Time `json:"last_played,omitzero"`
+	LastSkipped time.Time `json:"last_skipped,omitzero"`
 }
 
 func (e *Entry) IsImported() bool {

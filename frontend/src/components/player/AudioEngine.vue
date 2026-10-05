@@ -131,7 +131,7 @@ function onTimeUpdate(): void {
   resumeAt = player.position
   const trimmedEnd = s.playback.end < el.duration - 0.25
   if (trimmedEnd && el.currentTime >= s.playback.end - 0.15 && !el.paused) {
-    void player.next()
+    void player.next('ended')
   }
 }
 
@@ -153,7 +153,7 @@ function onError(): void {
       return
     case 'skip':
       notify(`Cannot play ${song.value?.title ?? 'this song'}, skipping it`, 'warning')
-      void player.next()
+      void player.next('failed')
   }
 }
 
@@ -201,7 +201,7 @@ function onWaiting(): void {
 }
 
 function onEnded(): void {
-  void player.next()
+  void player.next('ended')
 }
 
 onMounted(() => {

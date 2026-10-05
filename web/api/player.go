@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 	"xarantolus/sensibleHub/store"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -18,7 +19,34 @@ type NextSongs struct {
 	Songs []NextSong `json:"songs"`
 }
 
+type PlayReport struct {
+	SongID   string    `json:"songId"`
+	At       time.Time `json:"at" doc:"When the song stopped playing"`
+	Listened float64   `json:"listened" minimum:"0" doc:"Seconds listened"`
+	Skipped  bool      `json:"skipped" doc:"The listener moved on early by choice"`
+}
+
 func registerPlayer(api huma.API, m *store.Manager) {
+	huma.Register(api, huma.Operation{
+		OperationID: "reportPlays", Method: http.MethodPost, Path: base + "/player/plays",
+		Summary:       "Report listened and skipped songs",
+		Description:   "Feeds the next-song suggestions: often skipped songs come up less. Clients may batch reports made while offline; reports for deleted songs are ignored.",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, in *struct {
+		Body struct {
+			Plays []PlayReport `json:"plays" maxItems:"1000"`
+		}
+	}) (*struct{}, error) {
+		events := make([]store.PlayEvent, len(in.Body.Plays))
+		for i, p := range in.Body.Plays {
+			events[i] = store.PlayEvent{SongID: p.SongID, At: p.At, Listened: p.Listened, Skipped: p.Skipped}
+		}
+		if _, err := m.RecordPlays(events); err != nil {
+			return nil, toProblem("report plays", err)
+		}
+		return nil, nil
+	})
+
 	huma.Register(api, huma.Operation{
 		OperationID: "getAnalysisStatus", Method: http.MethodGet, Path: base + "/analysis",
 		Summary: "Progress of the background audio analysis",

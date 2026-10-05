@@ -184,6 +184,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/player/plays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report listened and skipped songs
+         * @description Feeds the next-song suggestions: often skipped songs come up less. Clients may batch reports made while offline; reports for deleted songs are ignored.
+         */
+        post: operations["reportPlays"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search": {
         parameters: {
             query?: never;
@@ -411,6 +431,22 @@ export interface components {
             /** @description Whether all songs were added today */
             today: boolean;
         };
+        Listening: {
+            /** Format: date-time */
+            lastPlayed?: string;
+            /** Format: date-time */
+            lastSkipped?: string;
+            /**
+             * Format: double
+             * @description Plays, decaying over time (half-life 30 days)
+             */
+            plays: number;
+            /**
+             * Format: double
+             * @description Skips, decaying over time (half-life 30 days)
+             */
+            skips: number;
+        };
         NextSong: {
             /** @description Why the song was picked; 1 is neutral. For debugging only. */
             factors: {
@@ -422,6 +458,21 @@ export interface components {
         };
         NextSongs: {
             songs: components["schemas"]["NextSong"][];
+        };
+        PlayReport: {
+            /**
+             * Format: date-time
+             * @description When the song stopped playing
+             */
+            at: string;
+            /**
+             * Format: double
+             * @description Seconds listened
+             */
+            listened: number;
+            /** @description The listener moved on early by choice */
+            skipped: boolean;
+            songId: string;
         };
         Playback: {
             /**
@@ -477,6 +528,9 @@ export interface components {
              */
             type: string;
         };
+        ReportPlaysRequest: {
+            plays: components["schemas"]["PlayReport"][];
+        };
         SearchResult: {
             /** @description Best match first */
             songIds: string[];
@@ -504,6 +558,7 @@ export interface components {
             imported: boolean;
             /** Format: date-time */
             lastEdit: string;
+            listening: components["schemas"]["Listening"];
             /**
              * Format: double
              * @description Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud
@@ -582,10 +637,13 @@ export type EnqueueDownloadRequest = components['schemas']['EnqueueDownloadReque
 export type ErrorDetail = components['schemas']['ErrorDetail'];
 export type Group = components['schemas']['Group'];
 export type Home = components['schemas']['Home'];
+export type Listening = components['schemas']['Listening'];
 export type NextSong = components['schemas']['NextSong'];
 export type NextSongs = components['schemas']['NextSongs'];
+export type PlayReport = components['schemas']['PlayReport'];
 export type Playback = components['schemas']['Playback'];
 export type Problem = components['schemas']['Problem'];
+export type ReportPlaysRequest = components['schemas']['ReportPlaysRequest'];
 export type SearchResult = components['schemas']['SearchResult'];
 export type SongAddedEvent = components['schemas']['SongAddedEvent'];
 export type SongDeletedEvent = components['schemas']['SongDeletedEvent'];
@@ -991,6 +1049,37 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["NextSongs"];
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    reportPlays: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportPlaysRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {

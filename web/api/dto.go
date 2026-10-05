@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"math"
 	"time"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/analysis"
@@ -68,6 +69,14 @@ type SongDetail struct {
 	File      AudioFile `json:"file"`
 	Related   []string  `json:"related" doc:"IDs of similar songs"`
 	Analysis  Analysis  `json:"analysis"`
+	Listening Listening `json:"listening"`
+}
+
+type Listening struct {
+	Plays       float64   `json:"plays" doc:"Plays, decaying over time (half-life 30 days)"`
+	Skips       float64   `json:"skips" doc:"Skips, decaying over time (half-life 30 days)"`
+	LastPlayed  time.Time `json:"lastPlayed,omitzero"`
+	LastSkipped time.Time `json:"lastSkipped,omitzero"`
 }
 
 type Group struct {
@@ -140,7 +149,17 @@ func songDetail(e music.Entry, related []music.Entry) SongDetail {
 		File:        AudioFile{Name: e.FileData.Filename, Size: e.FileData.Size},
 		Related:     ids(related),
 		Analysis:    analysisDTO(e.Analysis),
+		Listening:   listeningDTO(e.Listening),
 	}
+}
+
+func listeningDTO(l *music.Listening) Listening {
+	if l == nil {
+		return Listening{}
+	}
+	d := store.ListeningNow(*l)
+	round := func(v float64) float64 { return math.Round(v*100) / 100 }
+	return Listening{Plays: round(d.Plays), Skips: round(d.Skips), LastPlayed: l.LastPlayed, LastSkipped: l.LastSkipped}
 }
 
 func analysisDTO(a *music.Analysis) Analysis {

@@ -188,3 +188,34 @@ func TestSongSummaryLoudnessOnlyForUsableAnalyses(t *testing.T) {
 		t.Errorf("loudness = %v, want -12", l)
 	}
 }
+
+func TestReportPlaysUpdatesListeningAndSuggestions(t *testing.T) {
+	a := newTestAPI(t, syncedSong("skipped"), syncedSong("other"))
+
+	at := time.Now().Add(-time.Minute).UTC().Format(time.RFC3339)
+	rec := a.do(http.MethodPost, "/api/v1/player/plays", `{"plays":[
+		{"songId":"skipped","at":"`+at+`","listened":4,"skipped":true},
+		{"songId":"skipped","at":"`+at+`","listened":3,"skipped":true},
+		{"songId":"deleted-meanwhile","at":"`+at+`","listened":200,"skipped":false}
+	]}`)
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("status %d: %s", rec.Code, rec.Body)
+	}
+
+	detail := decode[SongDetail](t, a.do(http.MethodGet, "/api/v1/songs/skipped", ""))
+	if detail.Listening.Skips <= 0 || detail.Listening.LastSkipped.IsZero() || detail.Listening.Plays != 0 {
+		t.Fatalf("listening %+v", detail.Listening)
+	}
+
+	next := decode[NextSongs](t, a.do(http.MethodGet, "/api/v1/player/next?count=2", ""))
+	for _, s := range next.Songs {
+		if s.ID == "skipped" && s.Factors["skips"] >= 1 {
+			t.Fatalf("a skipped song must have a skip factor below 1: %+v", s)
+		}
+	}
+}
+
+func TestReportPlaysRejectsInvalidBody(t *testing.T) {
+	a := newTestAPI(t)
+	a.expectProblem(a.do(http.MethodPost, "/api/v1/player/plays", `{"plays":[{"songId":"x","at":"now","listened":-1,"skipped":false}]}`), http.StatusUnprocessableEntity, "validation")
+}

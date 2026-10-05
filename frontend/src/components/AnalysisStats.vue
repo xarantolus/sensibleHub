@@ -1,9 +1,23 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { Analysis } from '@/api/schema'
+import type { Analysis, Listening } from '@/api/schema'
 
-const props = defineProps<{ analysis: Analysis }>()
+const props = defineProps<{ analysis: Analysis; listening?: Listening }>()
+
+const listeningRows = computed(() => {
+  const l = props.listening
+  if (l === undefined) {
+    return []
+  }
+  const when = (iso: string | undefined) => (iso === undefined ? 'never' : new Date(iso).toLocaleString())
+  return [
+    ['Plays (decaying)', l.plays.toFixed(2)],
+    ['Skips (decaying)', l.skips.toFixed(2)],
+    ['Last played', when(l.lastPlayed)],
+    ['Last skipped', when(l.lastSkipped)],
+  ] as const
+})
 
 function fixed(value: number | undefined, digits: number, unit = ''): string {
   return value === undefined ? '–' : `${value.toFixed(digits)}${unit}`
@@ -47,6 +61,20 @@ const rows = computed(() => {
   >
     <template
       v-for="[label, value] in rows"
+      :key="label"
+    >
+      <dt class="has-text-grey">
+        {{ label }}
+      </dt>
+      <dd>{{ value }}</dd>
+    </template>
+  </dl>
+  <dl
+    v-if="listeningRows.length > 0"
+    class="stats mt-3"
+  >
+    <template
+      v-for="[label, value] in listeningRows"
       :key="label"
     >
       <dt class="has-text-grey">
