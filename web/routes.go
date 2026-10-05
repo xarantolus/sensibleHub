@@ -43,9 +43,14 @@ func (s *server) HandleAddSong(w http.ResponseWriter, r *http.Request) (err erro
 		nsp = &ns
 	}
 
+	var lastErr error
+	if e := s.m.LastError(); e != nil {
+		lastErr = e
+	}
+
 	return s.renderTemplate(w, r, "add.html", newPage{
 		Title:       "Add a new song",
-		LastError:   s.m.LastError(),
+		LastError:   lastErr,
 		Running:     okr,
 		DownloadURL: dl,
 		NewestSong:  nsp,

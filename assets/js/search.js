@@ -87,7 +87,7 @@ function searchSuggestions(loading) {
 
     loading(true);
 
-    ajax("/api/v1/search?q=" + encodeURIComponent(searchText)).get(function (status, obj) {
+    ajax("/legacy/search?q=" + encodeURIComponent(searchText)).get(function (status, obj) {
         if (status !== 200) {
             return;
         }

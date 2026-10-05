@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -41,7 +40,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 		defer runtime.GC()
 		defer mp3Group.Forget(e.ID)
 
-		td, err := ioutil.TempDir("", "sh-mp3")
+		td, err := os.MkdirTemp("", "sh-mp3")
 		if err != nil {
 			return
 		}
@@ -55,7 +54,7 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 		// If we have a cover image, we add it
 		if e.PictureData.Filename != "" {
-			b, err := ioutil.ReadFile(e.CoverPath())
+			b, err := os.ReadFile(e.CoverPath())
 			if err != nil {
 				return nil, err
 			}

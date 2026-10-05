@@ -1,9 +1,7 @@
 package store
 
 import (
-	"fmt"
 	"os"
-	"time"
 	"xarantolus/sensibleHub/store/music"
 )
 
@@ -14,7 +12,7 @@ func (m *Manager) DeleteEntry(id string) (err error) {
 
 	entry, ok := m.Songs[id]
 	if !ok {
-		return fmt.Errorf("Cannot edit entry with id %s as it doesn't exist", id)
+		return songNotFound(id)
 	}
 
 	delete(m.Songs, id)
@@ -31,9 +29,7 @@ func (m *Manager) DeleteEntry(id string) (err error) {
 		return
 	}
 
-	m.event("song-delete", map[string]interface{}{
-		"id": id,
-	})
+	m.publish(SongDeleted{ID: id})
 
 	return nil
 }
@@ -45,7 +41,7 @@ func (m *Manager) DeleteCoverImage(id string) (err error) {
 
 	entry, ok := m.Songs[id]
 	if !ok {
-		return fmt.Errorf("Cannot edit entry with id %s as it doesn't exist", id)
+		return songNotFound(id)
 	}
 
 	// If we don't have a cover image, we cannot remove one
@@ -54,26 +50,12 @@ func (m *Manager) DeleteCoverImage(id string) (err error) {
 	}
 
 	err = os.Remove(entry.CoverPath())
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return
 	}
 
-	// Clear PictureData
 	entry.PictureData = music.PictureData{}
-	entry.LastEdit = time.Now()
 
-	// Save this entry
-	m.Songs[id] = entry
-
-	err = m.Save(false)
-	if err != nil {
-		return
-	}
-
-	m.event("song-edit", map[string]interface{}{
-		"id":   id,
-		"song": entry,
-	})
-
-	return
+	_, err = m.commit(entry)
+	return err
 }

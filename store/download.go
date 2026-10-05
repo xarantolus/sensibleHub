@@ -3,8 +3,8 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -32,7 +32,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 		}
 	}()
 
-	tmpDir, err := ioutil.TempDir("", "shub")
+	tmpDir, err := os.MkdirTemp("", "shub")
 	if err != nil {
 		return
 	}
@@ -75,8 +75,11 @@ func (m *Manager) download(downloadURL string) (err error) {
 	m.downloadContextLock.Unlock()
 
 	// "exit status 101" means that the download limit has been reached (because of --max-downloads). We should just take this one song then, it's fine
+	if errors.Is(cmdCtx.Err(), context.Canceled) {
+		return &DownloadError{URL: downloadURL, Reason: DownloadAborted, Err: context.Canceled}
+	}
 	if err != nil && err.Error() != "exit status 101" {
-		return fmt.Errorf("Error while running youtube-dl: %s\nOutput: %s", err.Error(), string(out))
+		return &DownloadError{URL: downloadURL, Reason: DownloadToolFailed, Output: string(out), Err: err}
 	}
 
 	var (
@@ -126,23 +129,22 @@ func (m *Manager) download(downloadURL string) (err error) {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("%s\nyoutube-dl Output: %s", err.Error(), string(out))
+		return &DownloadError{URL: downloadURL, Reason: DownloadInternal, Output: string(out), Err: err}
 	}
 
 	if audioPath == "" {
-		// Well, what can we do?
-		return fmt.Errorf("invalid empty audio path, it seems like no audio was downloaded\nyoutube-dl Output: %s", string(out))
+		return &DownloadError{URL: downloadURL, Reason: DownloadNoAudio, Output: string(out), Err: errors.New("no audio file was downloaded")}
 	}
 
 	// the bad part about this is that still images also have a duration of 0
 	dur, err := m.getAudioDuration(audioPath)
 	if err != nil {
-		return fmt.Errorf("cannot get audio duration: %w", err)
+		return &DownloadError{URL: downloadURL, Reason: DownloadInvalidAudio, Err: fmt.Errorf("cannot get audio duration: %w", err)}
 	}
 
 	// this means that we have to assume. Also who would listen to a 0.5 seconds song?
 	if dur < 1 {
-		return fmt.Errorf("invalid audio (%s): duration too short", filepath.Base(audioPath))
+		return &DownloadError{URL: downloadURL, Reason: DownloadInvalidAudio, Err: fmt.Errorf("%s: duration too short", filepath.Base(audioPath))}
 	}
 
 	minfo, jsonErr := readInfoFile(jsonPath)
@@ -192,7 +194,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 
 	// If we have this link already, there's no point in downloading it again
 	if e, ok := m.hasLink(urlParsed); ok {
-		return fmt.Errorf("Already downloaded exact same song %q (id %s)", e.SongName(), e.ID)
+		return &DownloadError{URL: downloadURL, Reason: DownloadDuplicate, Err: &AlreadyDownloadedError{SongID: e.ID, SongName: e.SongName()}}
 	}
 
 	// Technically, we would need to lock `m.generateID`, but that doesn't play
@@ -233,7 +235,7 @@ func (m *Manager) download(downloadURL string) (err error) {
 
 	// Create song dir
 	songDir := fmt.Sprintf(songDirTemplate, e.ID)
-	err = os.MkdirAll(songDir, 0o644)
+	err = os.MkdirAll(songDir, 0o755)
 	if err != nil {
 		return
 	}
@@ -376,7 +378,7 @@ func (m *Manager) AbortDownload() (err error) {
 	defer m.downloadContextLock.Unlock()
 
 	if m.downloadCancelFunc == nil {
-		return fmt.Errorf("Cannot cancel downloading as no download is running")
+		return ErrNotDownloading
 	}
 
 	m.downloadCancelFunc()

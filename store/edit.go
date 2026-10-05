@@ -3,7 +3,6 @@ package store
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,7 +15,7 @@ import (
 
 // ErrAudioSameStartEnd is returned while editing a song if the Start and End properties are
 // the same because having a zero-second song doesn't make sense
-var ErrAudioSameStartEnd = fmt.Errorf("Audio start/end must not be the same")
+var ErrAudioSameStartEnd = &ValidationError{Field: "end", Reason: "audio start/end must not be the same"}
 
 // EditEntryData is used for editing an entry.
 // Not all fields must be set, most are optional
@@ -45,7 +44,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 
 	entry, ok := m.Songs[id]
 	if !ok {
-		return fmt.Errorf("Cannot edit entry with id %s as it doesn't exist", id)
+		return songNotFound(id)
 	}
 
 	entryBefore := entry
@@ -83,38 +82,11 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 
 	var editedImage bool
 	if data.CoverImage != nil && data.CoverFilename != "" {
-		oldCover, oldCoverPath := entry.PictureData.Filename, entry.CoverPath()
-
-		// If we have no extension, it will be converted to a jpeg image
-		ext := filepath.Ext(data.CoverFilename)
-		if ext == "" {
-			ext = ".jpg"
-		}
-		coverFN := "cover" + strings.ToLower(ext)
-
-		covDest := filepath.Join(entry.DirPath(), coverFN)
-		err = cropCover(data.CoverImage, "", covDest)
+		err = replaceCover(&entry, data.CoverImage, data.CoverFilename)
+		_ = data.CoverImage.Close()
 		if err != nil {
 			return
 		}
-		_ = data.CoverImage.Close()
-
-		if oldCover != coverFN && oldCover != "" {
-			err = os.Remove(oldCoverPath)
-			if err != nil {
-				return
-			}
-		}
-
-		hex, _ := music.CalculateDominantColor(covDest)
-		entry.PictureData.DominantColorHEX = music.Color(hex)
-
-		i, err := images4.Open(covDest)
-		if err == nil {
-			entry.PictureData.Size = i.Bounds().Dx()
-		}
-
-		entry.PictureData.Filename = coverFN
 		editedImage = true
 	}
 
@@ -132,11 +104,129 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 		return
 	}
 
-	m.event("song-edit", map[string]interface{}{
-		"id":   id,
-		"song": entry,
-	})
+	m.publish(SongUpdated{Song: entry})
 
+	return nil
+}
+
+// SongEdit holds every user-editable field of a song. A nil Year clears it.
+type SongEdit struct {
+	Title  string
+	Artist string
+	Album  string
+	Year   *int
+	Start  float64
+	End    float64
+	Sync   bool
+}
+
+// UpdateEntry replaces the editable fields of the song with the given ID.
+// Unlike EditEntry, it rejects invalid input with a *ValidationError instead of ignoring it.
+func (m *Manager) UpdateEntry(id string, edit SongEdit) (music.Entry, error) {
+	m.SongsLock.Lock()
+	defer m.SongsLock.Unlock()
+
+	entry, ok := m.Songs[id]
+	if !ok {
+		return music.Entry{}, songNotFound(id)
+	}
+
+	title := strings.TrimSpace(edit.Title)
+	if title == "" {
+		return music.Entry{}, &ValidationError{Field: "title", Reason: "must not be empty"}
+	}
+	dur := entry.MusicData.Duration
+	if edit.Start < 0 || edit.Start > dur {
+		return music.Entry{}, &ValidationError{Field: "start", Reason: fmt.Sprintf("must be between 0 and %.2f", dur)}
+	}
+	if edit.End < 0 || edit.End > dur {
+		return music.Entry{}, &ValidationError{Field: "end", Reason: fmt.Sprintf("must be between 0 and %.2f", dur)}
+	}
+	if edit.Start >= edit.End {
+		return music.Entry{}, &ValidationError{Field: "end", Reason: "must be after start"}
+	}
+
+	before := entry
+	entry.MusicData.Title = title
+	entry.MusicData.Artist = strings.TrimSpace(edit.Artist)
+	entry.MusicData.Album = strings.TrimSpace(edit.Album)
+	entry.MusicData.Year = edit.Year
+	entry.AudioSettings.Start = edit.Start
+	entry.AudioSettings.End = edit.End
+	entry.SyncSettings.Should = edit.Sync
+
+	if entryEqual(before, entry) {
+		return entry, nil
+	}
+
+	return m.commit(entry)
+}
+
+// SetCover replaces the cover of the song with the given ID with the image read from r.
+func (m *Manager) SetCover(id string, r io.Reader, filename string) (music.Entry, error) {
+	m.SongsLock.Lock()
+	defer m.SongsLock.Unlock()
+
+	entry, ok := m.Songs[id]
+	if !ok {
+		return music.Entry{}, songNotFound(id)
+	}
+
+	if err := replaceCover(&entry, r, filename); err != nil {
+		return music.Entry{}, err
+	}
+
+	return m.commit(entry)
+}
+
+// commit stores an edited entry and notifies subscribers. m.SongsLock must be held.
+func (m *Manager) commit(entry music.Entry) (music.Entry, error) {
+	entry.LastEdit = time.Now()
+	m.Songs[entry.ID] = entry
+
+	if err := m.Save(false); err != nil {
+		return music.Entry{}, err
+	}
+
+	m.publish(SongUpdated{Song: entry})
+	return entry, nil
+}
+
+func entryEqual(a, b music.Entry) bool {
+	ay, by := a.MusicData.Year, b.MusicData.Year
+	a.MusicData.Year, b.MusicData.Year = nil, nil
+	return a == b && (ay == by || (ay != nil && by != nil && *ay == *by))
+}
+
+func replaceCover(entry *music.Entry, r io.Reader, filename string) error {
+	oldCover, oldCoverPath := entry.PictureData.Filename, entry.CoverPath()
+
+	// If we have no extension, it will be converted to a jpeg image
+	ext := filepath.Ext(filename)
+	if ext == "" {
+		ext = ".jpg"
+	}
+	coverFN := "cover" + strings.ToLower(ext)
+
+	covDest := filepath.Join(entry.DirPath(), coverFN)
+	if err := cropCover(r, "", covDest); err != nil {
+		return err
+	}
+
+	if oldCover != coverFN && oldCover != "" {
+		if err := os.Remove(oldCoverPath); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+
+	hex, _ := music.CalculateDominantColor(covDest)
+	entry.PictureData.DominantColorHEX = music.Color(hex)
+
+	if i, err := images4.Open(covDest); err == nil {
+		entry.PictureData.Size = i.Bounds().Dx()
+	}
+
+	entry.PictureData.Filename = coverFN
 	return nil
 }
 
@@ -151,10 +241,11 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 	}
 	coverFN := "cover" + strings.ToLower(ext)
 
-	tmpDir, err := ioutil.TempDir("", "shub-")
+	tmpDir, err := os.MkdirTemp("", "shub-")
 	if err != nil {
 		return
 	}
+	defer os.RemoveAll(tmpDir)
 	tmpCoverPath := filepath.Join(tmpDir, coverFN)
 
 	err = cropCover(coverImage, "", tmpCoverPath)
@@ -173,6 +264,16 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 
 	m.SongsLock.Lock()
 	defer m.SongsLock.Unlock()
+
+	var updated []music.Entry
+	defer func() {
+		if err != nil {
+			return
+		}
+		for _, e := range updated {
+			m.publish(SongUpdated{Song: e})
+		}
+	}()
 
 	for sid, e := range m.Songs {
 		// Wrong artist?
@@ -209,13 +310,11 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 		e.LastEdit = time.Now()
 
 		m.Songs[sid] = e
+		updated = append(updated, e)
+	}
 
-		defer func(id string, s music.Entry) {
-			m.event("song-edit", map[string]interface{}{
-				"id":   id,
-				"song": s,
-			})
-		}(sid, e)
+	if len(updated) == 0 {
+		return &NotFoundError{Kind: "album", Key: artist + "/" + album}
 	}
 
 	return m.Save(false)

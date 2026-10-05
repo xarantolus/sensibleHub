@@ -152,7 +152,7 @@ func (m *Manager) ImportFile(musicFile string, info os.FileInfo) (e *music.Entry
 	}
 
 	songDir := fmt.Sprintf(songDirTemplate, e.ID)
-	err = os.MkdirAll(songDir, 0o644)
+	err = os.MkdirAll(songDir, 0o755)
 	if err != nil {
 		return
 	}

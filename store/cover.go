@@ -7,7 +7,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -65,7 +64,7 @@ func cropMoveCover(sourceFile, destination string) (err error) {
 // cropCover crops a cover image stored in `f` to a square and writes it to a file at `destination`.
 // sourceFile can be "" (empty string) if the cover has been read e.g. from an http request
 func cropCover(f io.Reader, sourceFile string, destination string) (err error) {
-	data, err := ioutil.ReadAll(f)
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return
 	}
@@ -73,7 +72,7 @@ func cropCover(f io.Reader, sourceFile string, destination string) (err error) {
 	// Since we need an io.ReadSeeker, we need to know all bytes
 	img, format, err := exiffix.Decode(bytes.NewReader(data))
 	if err != nil {
-		return
+		return &ValidationError{Field: "cover", Reason: "not a supported image: " + err.Error()}
 	}
 
 	bounds := img.Bounds()
@@ -88,7 +87,7 @@ func cropCover(f io.Reader, sourceFile string, destination string) (err error) {
 		if (desiredExtension == ".JPG" || desiredExtension == ".JPEG") && (format == "jpeg" || format == "jpg") || desiredExtension == ".PNG" && format == "png" {
 			// If yes, we don't need to worry about anything
 			if sourceFile == "" {
-				return ioutil.WriteFile(destination, data, 0o644)
+				return os.WriteFile(destination, data, 0o644)
 			}
 
 			return file.Move(sourceFile, destination)
@@ -123,7 +122,7 @@ func cropCover(f io.Reader, sourceFile string, destination string) (err error) {
 
 		// if we cannot crop, we won't use an image at all
 		if !ok {
-			return fmt.Errorf("cannot crop image")
+			return &ValidationError{Field: "cover", Reason: "image cannot be cropped"}
 		}
 
 		croppedImg = subImg.SubImage(defaultCrop)
@@ -139,7 +138,7 @@ noNeedToCrop:
 }
 
 func encodeImageToTemp(img image.Image, fn string) (outpath string, err error) {
-	file, err := ioutil.TempFile("", "shub-")
+	file, err := os.CreateTemp("", "shub-")
 	if err != nil {
 		return
 	}

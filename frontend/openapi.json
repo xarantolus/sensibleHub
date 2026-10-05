@@ -1,0 +1,1393 @@
+{
+  "components": {
+    "schemas": {
+      "Album": {
+        "additionalProperties": false,
+        "properties": {
+          "artist": {
+            "type": "string"
+          },
+          "songIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "artist",
+          "songIds"
+        ],
+        "type": "object"
+      },
+      "Artist": {
+        "additionalProperties": false,
+        "properties": {
+          "albums": {
+            "items": {
+              "$ref": "#/components/schemas/Album"
+            },
+            "type": "array"
+          },
+          "featured": {
+            "description": "IDs of songs by other artists featuring this one",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "playTime": {
+            "description": "Total length of all songs in seconds",
+            "format": "double",
+            "type": "number"
+          },
+          "yearEnd": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "yearStart": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "playTime",
+          "albums",
+          "featured"
+        ],
+        "type": "object"
+      },
+      "AudioFile": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "size"
+        ],
+        "type": "object"
+      },
+      "Cover": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "description": "Dominant color as #rrggbb",
+            "type": "string"
+          },
+          "size": {
+            "description": "Width and height in pixels; covers are square",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "size"
+        ],
+        "type": "object"
+      },
+      "DownloadFailure": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "output": {
+            "description": "Downloader output, for diagnosis",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "aborted",
+              "tool_failed",
+              "no_audio",
+              "invalid_audio",
+              "duplicate",
+              "internal"
+            ],
+            "type": "string"
+          },
+          "songId": {
+            "description": "The existing song when the reason is duplicate",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "message"
+        ],
+        "type": "object"
+      },
+      "DownloadFinishedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/DownloadFailure"
+          }
+        },
+        "type": "object"
+      },
+      "DownloadStartedEvent": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "DownloadStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "lastError": {
+            "$ref": "#/components/schemas/DownloadFailure"
+          },
+          "queued": {
+            "description": "Downloads waiting after the current one",
+            "format": "int64",
+            "type": "integer"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "url": {
+            "description": "What the downloader is fetching right now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "running",
+          "queued"
+        ],
+        "type": "object"
+      },
+      "EnqueueDownloadRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "description": "URL or search term",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "description": "Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'",
+            "type": "string"
+          },
+          "message": {
+            "description": "Error message text",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value at the given location"
+          }
+        },
+        "type": "object"
+      },
+      "Group": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "songIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "songIds"
+        ],
+        "type": "object"
+      },
+      "Home": {
+        "additionalProperties": false,
+        "properties": {
+          "songIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "today": {
+            "description": "Whether all songs were added today",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "songIds",
+          "today"
+        ],
+        "type": "object"
+      },
+      "Playback": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "description": "Seconds into the audio file where the song ends",
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
+          },
+          "start": {
+            "description": "Seconds into the audio file where the song starts",
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "Problem": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "description": "Machine-readable error code",
+            "enum": [
+              "bad_request",
+              "validation",
+              "not_found",
+              "already_downloaded",
+              "queue_full",
+              "not_downloading",
+              "internal",
+              "other"
+            ],
+            "type": "string"
+          },
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "examples": [
+              "Property foo is required but is missing."
+            ],
+            "type": "string"
+          },
+          "errors": {
+            "description": "Optional list of individual error details",
+            "items": {
+              "$ref": "#/components/schemas/ErrorDetail"
+            },
+            "type": "array"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem.",
+            "examples": [
+              "https://example.com/error-log/abc123"
+            ],
+            "format": "uri",
+            "type": "string"
+          },
+          "resource": {
+            "description": "Kind of resource that was not found (song, album, artist)",
+            "type": "string"
+          },
+          "songId": {
+            "description": "The existing song when the error is already_downloaded",
+            "type": "string"
+          },
+          "status": {
+            "description": "HTTP status code",
+            "examples": [
+              400
+            ],
+            "format": "int64",
+            "type": "integer"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type. This value should not change between occurrences of the error.",
+            "examples": [
+              "Bad Request"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "default": "about:blank",
+            "description": "A URI reference to human-readable documentation for the error.",
+            "examples": [
+              "https://example.com/errors/example"
+            ],
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "type": "object"
+      },
+      "SearchResult": {
+        "additionalProperties": false,
+        "properties": {
+          "songIds": {
+            "description": "Best match first",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "songIds"
+        ],
+        "type": "object"
+      },
+      "SongAddedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "song": {
+            "$ref": "#/components/schemas/SongSummary"
+          }
+        },
+        "required": [
+          "song"
+        ],
+        "type": "object"
+      },
+      "SongDeletedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "SongDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "added": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "album": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "cover": {
+            "$ref": "#/components/schemas/Cover"
+          },
+          "duration": {
+            "description": "Length of the audio file in seconds",
+            "format": "double",
+            "type": "number"
+          },
+          "file": {
+            "$ref": "#/components/schemas/AudioFile"
+          },
+          "id": {
+            "type": "string"
+          },
+          "imported": {
+            "type": "boolean"
+          },
+          "lastEdit": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "playback": {
+            "$ref": "#/components/schemas/Playback"
+          },
+          "related": {
+            "description": "IDs of similar songs",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceUrl": {
+            "type": "string"
+          },
+          "sync": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "year": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sourceUrl",
+          "imported",
+          "file",
+          "related",
+          "id",
+          "title",
+          "duration",
+          "playback",
+          "sync",
+          "added",
+          "lastEdit"
+        ],
+        "type": "object"
+      },
+      "SongEditBody": {
+        "additionalProperties": false,
+        "properties": {
+          "album": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "end": {
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
+          },
+          "start": {
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
+          },
+          "sync": {
+            "type": "boolean"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "year": {
+            "description": "Omit to clear the year",
+            "format": "int64",
+            "maximum": 9999,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "artist",
+          "album",
+          "start",
+          "end",
+          "sync"
+        ],
+        "type": "object"
+      },
+      "SongSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "added": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "album": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "cover": {
+            "$ref": "#/components/schemas/Cover"
+          },
+          "duration": {
+            "description": "Length of the audio file in seconds",
+            "format": "double",
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastEdit": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "playback": {
+            "$ref": "#/components/schemas/Playback"
+          },
+          "sync": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "year": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "duration",
+          "playback",
+          "sync",
+          "added",
+          "lastEdit"
+        ],
+        "type": "object"
+      },
+      "SongUpdatedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "song": {
+            "$ref": "#/components/schemas/SongSummary"
+          }
+        },
+        "required": [
+          "song"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "sensibleHub",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/albums/{artist}/{album}": {
+      "get": {
+        "operationId": "getAlbum",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artist",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "album",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Album"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "An album of an artist"
+      }
+    },
+    "/api/v1/albums/{artist}/{album}/cover": {
+      "put": {
+        "operationId": "setAlbumCover",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artist",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "album",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "encoding": {
+                "cover": {
+                  "contentType": "image/png,image/jpeg,image/webp,image/gif"
+                }
+              },
+              "schema": {
+                "properties": {
+                  "cover": {
+                    "contentEncoding": "binary",
+                    "contentMediaType": "application/octet-stream",
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "cover"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Set the cover of every song in an album"
+      }
+    },
+    "/api/v1/artists/{artist}": {
+      "get": {
+        "operationId": "getArtist",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artist",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Artist"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "An artist's albums and features"
+      }
+    },
+    "/api/v1/downloads": {
+      "get": {
+        "operationId": "getDownloads",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Download status"
+      },
+      "post": {
+        "description": "Accepts a link to any site yt-dlp supports, or a search term that is looked up on YouTube Music.",
+        "operationId": "enqueueDownload",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnqueueDownloadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadStatus"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Queue a download"
+      }
+    },
+    "/api/v1/downloads/current": {
+      "delete": {
+        "operationId": "abortDownload",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Abort the running download"
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "description": "Server-sent events for library and download changes. The stream ends if the client falls too far behind; reconnect and refetch.",
+        "operationId": "events",
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "description": "Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/DownloadFinishedEvent"
+                          },
+                          "event": {
+                            "const": "downloadFinished",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event downloadFinished",
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/DownloadStartedEvent"
+                          },
+                          "event": {
+                            "const": "downloadStarted",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event downloadStarted",
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/SongAddedEvent"
+                          },
+                          "event": {
+                            "const": "songAdded",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event songAdded",
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/SongDeletedEvent"
+                          },
+                          "event": {
+                            "const": "songDeleted",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event songDeleted",
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/SongUpdatedEvent"
+                          },
+                          "event": {
+                            "const": "songUpdated",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event songUpdated",
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "title": "Server Sent Events",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Live updates"
+      }
+    },
+    "/api/v1/home": {
+      "get": {
+        "operationId": "getHome",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Home"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Newest songs"
+      }
+    },
+    "/api/v1/listings/{kind}": {
+      "get": {
+        "operationId": "getListing",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "title",
+                "artist",
+                "year",
+                "incomplete",
+                "unsynced",
+                "edited",
+                "added"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Songs grouped by a criterion"
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "search",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "description": "0 means no limit",
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "0 means no limit",
+              "format": "int64",
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Search songs by title, artist, album and year"
+      }
+    },
+    "/api/v1/songs": {
+      "get": {
+        "description": "Every song in the collection, sorted by title. Other endpoints refer to songs by ID only.",
+        "operationId": "listSongs",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SongSummary"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "All songs"
+      }
+    },
+    "/api/v1/songs/random": {
+      "get": {
+        "operationId": "getRandomSong",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "A random song"
+      }
+    },
+    "/api/v1/songs/{id}": {
+      "delete": {
+        "operationId": "deleteSong",
+        "parameters": [
+          {
+            "description": "Song ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Song ID",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete a song and its files"
+      },
+      "get": {
+        "operationId": "getSong",
+        "parameters": [
+          {
+            "description": "Song ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Song ID",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongDetail"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Song details"
+      },
+      "put": {
+        "description": "Replaces all editable fields of a song.",
+        "operationId": "updateSong",
+        "parameters": [
+          {
+            "description": "Song ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Song ID",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongEditBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Edit a song"
+      }
+    },
+    "/api/v1/songs/{id}/cover": {
+      "delete": {
+        "operationId": "deleteSongCover",
+        "parameters": [
+          {
+            "description": "Song ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Song ID",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Remove a song's cover"
+      },
+      "put": {
+        "description": "The image is cropped to a square.",
+        "operationId": "setSongCover",
+        "parameters": [
+          {
+            "description": "Song ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Song ID",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "encoding": {
+                "cover": {
+                  "contentType": "image/png,image/jpeg,image/webp,image/gif"
+                }
+              },
+              "schema": {
+                "properties": {
+                  "cover": {
+                    "contentEncoding": "binary",
+                    "contentMediaType": "application/octet-stream",
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "cover"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Replace a song's cover"
+      }
+    }
+  }
+}

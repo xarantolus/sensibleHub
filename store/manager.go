@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -11,11 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/music"
-
-	"github.com/gorilla/websocket"
 )
 
 const (
@@ -33,9 +31,7 @@ type Manager struct {
 	// They will be processed sequentially
 	enqueuedURLs chan string
 
-	// evtFunc is called whenever a websocket event should be written to all sockets
-	// It should be set before using the manager / starting the server
-	evtFunc func(f func(c *websocket.Conn) error)
+	events broker
 
 	// isWorking indicates if the manager is currently downloading something.
 	// State changes are accompanied by the "progress-start" and "progress-end" websocket events
@@ -43,7 +39,7 @@ type Manager struct {
 	isWorkingMut sync.RWMutex
 
 	// lastErr is the last error encountered while running youtube-dl, might be nil
-	lastErr error
+	lastErr *DownloadError
 
 	downloadContextLock sync.Mutex
 	// currentDownload contains the url that is currently processed by youtube-dl
@@ -146,10 +142,7 @@ func (m *Manager) Add(e *music.Entry) (err error) {
 		return
 	}
 
-	m.event("song-add", map[string]interface{}{
-		"id":   e.ID,
-		"song": *e,
-	})
+	m.publish(SongAdded{Song: *e})
 
 	return
 }
@@ -168,7 +161,7 @@ func (m *Manager) Enqueue(u string) (err error) {
 	parsed, err := url.ParseRequestURI(u)
 	if err == nil {
 		if e, ok := m.hasLink(parsed); ok {
-			return fmt.Errorf("%s has already been downloaded", e.SongName())
+			return &AlreadyDownloadedError{SongID: e.ID, SongName: e.SongName()}
 		}
 	} else {
 		// Search youtube music - these are auto generated videos that exist for *some* artists
@@ -180,7 +173,7 @@ func (m *Manager) Enqueue(u string) (err error) {
 	case m.enqueuedURLs <- u:
 		return nil
 	default:
-		return fmt.Errorf("Cannot enqueue more songs at this time")
+		return ErrQueueFull
 	}
 }
 
@@ -255,10 +248,6 @@ func (m *Manager) generateID() (id string) {
 // https://stackoverflow.com/a/22892986
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func randSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {
@@ -271,12 +260,17 @@ func (m *Manager) serve() {
 	for newURL := range m.enqueuedURLs {
 		m.setIsWorking(true)
 
-		err := m.download(newURL)
-		m.lastErr = err
-
-		if err != nil {
-			log.Printf("[Downloader] %s\n", err.Error())
+		var dlErr *DownloadError
+		if err := m.download(newURL); err != nil {
+			if !errors.As(err, &dlErr) {
+				dlErr = &DownloadError{URL: newURL, Reason: DownloadInternal, Err: err}
+			}
+			log.Printf("[Downloader] %s\n", dlErr.Error())
 		}
+
+		m.isWorkingMut.Lock()
+		m.lastErr = dlErr
+		m.isWorkingMut.Unlock()
 
 		m.setIsWorking(false)
 	}
@@ -285,22 +279,27 @@ func (m *Manager) serve() {
 func (m *Manager) setIsWorking(state bool) {
 	m.isWorkingMut.Lock()
 	m.isWorking = state
+	lastErr := m.lastErr
 	m.isWorkingMut.Unlock()
 
 	if state {
-		m.event("progress-start", nil)
+		m.publish(DownloadStarted{})
 	} else {
-		data := map[string]string{}
-		if m.lastErr != nil {
-			data["error"] = m.lastErr.Error()
-		}
-		m.event("progress-end", data)
+		m.publish(DownloadFinished{Err: lastErr})
 	}
 }
 
-// LastError returns the last error encountered while downloading
-func (m *Manager) LastError() error {
+// LastError returns the error of the most recent download, or nil if it succeeded
+func (m *Manager) LastError() *DownloadError {
+	m.isWorkingMut.RLock()
+	defer m.isWorkingMut.RUnlock()
+
 	return m.lastErr
+}
+
+// QueueLength returns how many downloads are waiting to start
+func (m *Manager) QueueLength() int {
+	return len(m.enqueuedURLs)
 }
 
 // IsWorking returns whether the manager is currently doing work

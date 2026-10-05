@@ -7,12 +7,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
+	"xarantolus/sensibleHub/web/api"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 )
 
 type server struct {
@@ -25,9 +24,6 @@ type server struct {
 	templateFS fs.FS
 
 	router *mux.Router
-
-	connectedSocketsLock sync.Mutex
-	connectedSockets     map[*websocket.Conn]chan struct{}
 }
 
 // RunServer runs the web server on the port specified in `cfg`.
@@ -43,8 +39,7 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 		assetFS:    assetFS,
 		templateFS: templateFS,
 
-		router:           r,
-		connectedSockets: make(map[*websocket.Conn]chan struct{}),
+		router: r,
 	}
 
 	if debugMode {
@@ -57,8 +52,6 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	if err != nil {
 		return
 	}
-
-	manager.SetEventFunc(server.AllSockets)
 
 	// set up the file server that serves our data directory
 	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
@@ -110,12 +103,15 @@ func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs
 	// Artist listing
 	server.route("/artist/{artist}", server.HandleShowArtist).Methods(http.MethodGet)
 
-	// API
-	server.route("/api/v1/listing/{listing}", server.HandleAPIListing).Methods(http.MethodGet)
-	server.route("/api/v1/song/{songID}", server.HandleAPISong).Methods(http.MethodGet)
+	server.route("/media/songs/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
+	server.route("/media/songs/{songID}/audio", server.HandleAudio).Methods(http.MethodGet)
+	server.route("/media/songs/{songID}/mp3", server.HandleMP3).Methods(http.MethodGet)
 
-	server.route("/api/v1/search", server.HandleAPISongSearch).Methods(http.MethodGet)
-	server.route("/api/v1/events/ws", server.HandleWebsocket)
+	server.route("/legacy/search", server.HandleAPISongSearch).Methods(http.MethodGet)
+	server.route("/legacy/events/ws", server.HandleWebsocket)
+
+	r.Use(compressAPI)
+	api.New(r, manager)
 
 	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)

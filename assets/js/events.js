@@ -5,7 +5,7 @@ function createWebSocket(path) {
 
 var firstConnect = true;
 
-var ws = createWebSocket("/api/v1/events/ws")
+var ws = createWebSocket("/legacy/events/ws")
 
 // detect reconnects
 ws.onopen = function () {

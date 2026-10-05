@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,7 +10,7 @@ import (
 
 // CleanUp removes all unused directories in the data directory. They might not have been deleted due to errors.
 func (m *Manager) CleanUp() (n int) {
-	songsList, err := ioutil.ReadDir(filepath.Dir(songDirTemplate))
+	songsList, err := os.ReadDir(filepath.Dir(songDirTemplate))
 	if err != nil {
 		return
 	}
