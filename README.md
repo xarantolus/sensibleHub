@@ -1,56 +1,55 @@
 # sensibleHub
-sensibleHub is a self-hosted music management server. It allows managing your music collection from any device (that has a web browser)
-and syncing using external programs.
+sensibleHub is a self-hosted music management server with a web app. It lets you manage and play your music collection from any device with a web browser, and sync it to your devices using external programs.
 
 
 ### Features
-* Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image
-* [Import](#Importing) songs you already have
-* Set up FTP clients to [sync](#Syncing) your music to all your devices
-* Download manager: simply add songs using [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+* A single-page web app (Vue 3) that works on desktop and mobile, with automatic light/dark theme
+* **Player** in the style of YouTube Music:
+  * Endless play: the server keeps suggesting what to play next
+  * Mini player bar while you browse, expandable to a full player with the queue
+  * OS media controls (lock screen, notification shade, media keys) with cover art
+  * Pop-out mini player window in browsers that support it (Document Picture-in-Picture)
+  * Loudness normalisation, so all songs play equally loud
+* **Next-song suggestions** based on audio analysis: key ([Camelot](https://mixedinkey.com/harmonic-mixing-guide/) harmonic mixing), tempo, energy and timbre. Newest songs are favoured and only [synced](#syncing) songs are used. Analysis is pure Go, runs on the CPU in the background and needs no GPU or external service
+* **Offline playback**: upcoming songs are cached ahead, and the app and your library keep working without a connection (see [Offline and HTTPS](#offline-and-https))
+* Installable as a PWA
+* Easily edit [ID3v2 tags](https://en.wikipedia.org/wiki/ID3) like title, artist, album, year and the cover image, and trim the start/end of songs
+* [Import](#importing) songs you already have
+* Set up FTP clients to [sync](#syncing) your music to all your devices
+* Download manager: simply add songs using [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 * Automagic metadata extraction (including cover images)
 * List and search your songs by title, artist, album or year
-* Very likely works on your server, [even a Raspberry Pi](#Resources) works fine
-* Automatic dark mode: the site applies a light or dark theme depending on your system settings
+* Live updates: changes and downloads show up on all open devices via server-sent events
+* A typed [REST API](#api) with OpenAPI documentation
+* Existing data is migrated automatically when you upgrade
+* "Stats for nerds" setting that shows the analysis values and why a song was suggested
 * Keyboard shortcuts for faster navigation
-* No JavaScript required
+* Very likely works on your server, [even a Raspberry Pi](#resources) works fine
 
 
 ### Screenshots
 
-##### Song page
-  ![Song page](.github/screenshots/shub-song.png?raw=true)
-This page lets you see and edit metadata, including the cover image, that will be included in the generated MP3 file. The image shows both the dark and light mode.
+##### Home
+![Home page](.github/screenshots/home-desktop-light.png?raw=true)
+The newest songs. Hover a song to play it, or use "Play all".
 
-##### Add page
-  ![Add Songs](.github/screenshots/shub-add.png?raw=true)
-The page used for adding new songs. When a download is already running, new urls will be put in a queue. A progress bar will appear on all pages to indicate if a download is running.
+##### Song page with the full player
+![Song page with the full player](.github/screenshots/song-player-desktop-light.png?raw=true)
+The full player shows the queue ("Up next"), which you can reorder. The song page behind it lets you edit metadata and the cover image.
 
-##### Album page
-  ![Album page](.github/screenshots/shub-album.png?raw=true)
-Show all songs that are in an album. On this page, you can also set an album image for *all* songs in it so you don't have to set it manually for every song.
+##### Mobile
+<table>
+<tr>
+<td width="50%"><img src=".github/screenshots/artist-mini-player-mobile-dark.png?raw=true" alt="Artist page with the mini player"></td>
+<td width="50%"><img src=".github/screenshots/player-mobile-dark.png?raw=true" alt="Full player on mobile"></td>
+</tr>
+</table>
 
-##### Song listing
-  ![Listing page](.github/screenshots/shub-listing.png?raw=true)
-Listings show songs sorted by some criteria, e.g. by title, artist, year or search score.
-
-##### Additional listings
-In the "More" menu at the upper right side, you can find other listings that can be useful for metadata editing.
-
-<p align="center">
-<img src=".github/screenshots/shub-additional-listings.png?raw=true" width="50%">
-</p>
-
-##### Search suggestions
-While typing in the search box, your collection is already searched and suggestions are shown:
-
-<p align="center">
-<img src=".github/screenshots/suggestions.gif?raw=true" >
-</p>
+An artist page with the mini player bar at the bottom (left) and the full player (right), here in dark mode.
 
 
-### Installation
-There are several methods for installing this software. Using Docker is the easiest, but you can also download release binaries or build from source.
+### Installation and running
+There are several methods for installing this software. Using Docker is the easiest, but you can also download release binaries or build from source. Release binaries and the Docker image contain the web app, nothing else needs to be installed for it.
 
 After installing, look into the [configuration](#configuration) section below.
 
@@ -70,12 +69,12 @@ You can now continue with the [configuration section](#configuration). You need 
 #### Binaries
 You can download releases from the [releases section](https://github.com/xarantolus/sensibleHub/releases/latest) of this repository.
 
-Unzip the downloaded file to a directory of your choice on your server. Afterwards you should make sure that `youtube-dl` (or another compatible downloader) and `ffmpeg` are installed.
+Unzip the downloaded file to a directory of your choice on your server. Afterwards you should make sure that `yt-dlp` (or another compatible downloader) and `ffmpeg` are installed.
 
 **Additional requirements**
 This program relies on some other programs that need to be installed and be available in your $PATH:
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): Used for downloading files from [all kinds of sites](https://ytdl-org.github.io/youtube-dl/supportedsites.html). Since websites change frequently and break it, you should update it from time to time or set up automatic updates (e.g. using a cron job).
-- [FFmpeg](http://ffmpeg.org/) and FFprobe: Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports and transcoding MP3 files for downloads
+- [FFmpeg](http://ffmpeg.org/) and FFprobe: Used for handling the many different types of media files that are available on different websites, extracting (some) metadata during imports, transcoding MP3 files for downloads and decoding audio for the analysis
 
 You might be able to install them using the following command:
 
@@ -109,17 +108,14 @@ You can now continue with the [configuration section](#configuration).
 <details>
 <summary>If no recent build is available, you can also build for yourself.</summary>
 
-As a first step, you clone this repository (or download a zip file), then you open a terminal/command prompt in the root directory of the repository:
+You need [Go](https://golang.org/dl/) and [Node.js 24](https://nodejs.org/) (the web app is built with Vite and embedded into the executable). Clone this repository (or download a zip file) and build with `make`:
 
 ```
 git clone https://github.com/xarantolus/sensibleHub.git && cd sensibleHub
+make build
 ```
 
-Since this is a `Go` program, you can compile it quite easily after [installing Go](https://golang.org/dl/):
-
-```
-go build -mod vendor
-```
+This generates the API client, builds the web app and compiles the `sensibleHub` executable. It only redoes what changed.
 
 If you want to move this executable elsewhere on your system, make sure to move the following files and directories to the same location:
  * `data` (if you want to keep imported songs)
@@ -202,9 +198,18 @@ The following file details the configuration options. You can use comments (`//`
     // Whether to generate cover previews when starting up.
     // If this is false, cover previews are first generated the first time a page is loaded, which
     // can lead to pages where previews come in after serveral seconds
-    "generate_on_startup": true
+    "generate_on_startup": true,
+
+    // Songs are analysed in the background (key, tempo, loudness, timbre) to pick fitting songs
+    // to play next and to play every song equally loud. Requires ffmpeg. Set to true to turn it off.
+    // Optional: if omitted, analysis is enabled.
+    "analysis": {
+        "disabled": false
+    }
 }
 ```
+
+With `analysis.disabled` set to `true`, no song is analysed. Next songs are then picked randomly and no loudness normalisation is applied.
 
 </details>
 
@@ -291,7 +296,7 @@ For Android, any music player will probably work. I recommend [Music](https://f-
 ### Resources
 This program tries not to need *too much* memory.
 
-I personally run it on a Raspberry Pi 4 (4GB version) and it works great. Listing pages with all songs are generated in about 300 milliseconds, but due to [InstantClick](http://instantclick.io/) it *feels* a bit faster.
+I personally run it on a Raspberry Pi 4 (4GB version) and it works great. The whole song list is loaded once and cached in the browser, so browsing is instant afterwards. Audio analysis takes a few seconds per song and runs in the background, one song at a time, so the server stays responsive while it catches up on a big library. You can turn it off with `analysis.disabled`.
 
 RAM usage is a bit weird. While on windows (where I develop) everything seems to be around 50MB, it looks like there's a problem on ARM computers (like the Raspberry Pi):
 using the same music library it needs about ten times as much memory. I have *not* found out where this issue comes from.
@@ -312,18 +317,51 @@ These are keyboard shortcuts that can be used on any page:
 - Listings: `s` for all songs, `a` for artists, `y` for years, `i` for incomplete, `e` for recent edits and `u` for unsynced songs
 - `/` for focusing on the search bar
 - `esc` for going to the main page
+- `space` for play/pause, `shift` + `←`/`→` for previous/next song
+
+
+### Offline and HTTPS
+Offline playback and installing the app as a PWA rely on a service worker and Cache Storage, which browsers only allow on secure origins: **HTTPS or `localhost`**.
+
+Over plain `http://` on a LAN address (e.g. `http://192.168.1.10:128`) the app works as usual, but without the offline features: nothing is cached ahead and a reload without a connection fails. sensibleHub does not serve HTTPS itself, so to get the offline features on other devices, put it behind a reverse proxy that terminates TLS (e.g. [Caddy](https://caddyserver.com/), nginx or Traefik) and open the app through that address.
 
 
 ### Browser support
-The website should work in most modern browsers. It uses [native image lazy loading](https://caniuse.com/#feat=loading-lazy-attr) which is not yet supported by all browsers, but images will load without it regardless. If you use a recent browser version, it will be just a bit snappier.
+The web app needs a recent browser. Offline features need a [secure origin](#offline-and-https). The pop-out player needs Document Picture-in-Picture (Chromium-based desktop browsers), and OS media controls need the Media Session API; where a browser lacks an API, that feature is simply not offered. The layout adapts to mobile screens.
 
-Everything also works *without JavaScript*, but the experience is *much better* if it's enabled ([Progressive enhancement](https://en.wikipedia.org/wiki/Progressive_enhancement)).
 
-Mobile support also works great, menus are collapsed at the top right.
+### Development
+You need Go, Node 24 and `make`. Everything goes through the [`Makefile`](Makefile):
 
-|                              Song listing                               |                   Song listing with opened menu                   |
-| :---------------------------------------------------------------------: | :---------------------------------------------------------------: |
-| ![Mobile listing](.github/screenshots/shub-mobile-listing.png?raw=true) | ![Mobile Menu](.github/screenshots/shub-mobile-menu.png?raw=true) |
+```
+make gen      # Go API structs -> frontend/openapi.json -> frontend/src/api/schema.ts
+make check    # gofmt, go vet, go test, then vue-tsc, eslint and vitest
+make build    # gen, build the frontend, compile the binary (only redoes what changed)
+```
+
+`make gen-check` regenerates the API files and fails if the committed ones differ; CI runs it. The generated `frontend/openapi.json` and `frontend/src/api/schema.ts` are committed.
+
+The binary embeds `frontend/dist`, so Go code only compiles after the frontend has been built once (`make build` or `make frontend-build`).
+
+For working on the frontend with hot reload, run the Go server and the Vite dev server side by side. `SH_BACKEND` is the address Vite proxies `/api` and `/media` to (default `http://localhost:128`):
+
+```
+go run -mod vendor . -debug
+cd frontend && SH_BACKEND=http://localhost:<port> npm run dev
+```
+
+`<port>` is the `port` from your `config.json`. `ffmpeg`, `ffprobe` and `yt-dlp` must be on your `PATH` when running the server, but not for building.
+
+**Where the API is defined:** Go structs in [`web/api`](web/api) (mainly `dto.go`) are the single source of truth. They produce the OpenAPI spec (`cmd/openapi` prints it without starting a server), and `openapi-typescript` turns that into the typed TypeScript client used by the frontend. Don't write request/response types by hand in the frontend.
+
+
+### API
+The web app uses a typed REST API under `/api/v1`, which you can use too. Errors are returned as RFC 9457 `application/problem+json`, live updates are a server-sent events stream at `/api/v1/events`.
+
+* Interactive documentation: `/api/v1/docs`
+* OpenAPI spec: `/api/v1/openapi.json`
+
+Media files (covers, audio, generated MP3s) are served under `/media/songs/{id}/...`.
 
 
 ### Limitations
@@ -331,25 +369,26 @@ Compared to other music servers this one is very basic. Here are some things you
 
 * It does **not** support the [SubSonic API](http://www.subsonic.org/pages/api.jsp). You can not use this software as a back-end for SubSonic-compatible music players.
 * Some **metadata will be lost** when importing: everything except for the cover image, title, artist, album and year will be **discarded**. Keep a backup of your music before importing.
-* Does not support HTTPS. The software is intended to be hosted inside a local network *only*.
+* Does not serve HTTPS itself and has no web login (only the FTP server has accounts). The software is intended to be hosted inside a local network *only*; use a reverse proxy for [HTTPS](#offline-and-https).
 * Songs in albums are not sorted by their title numbers, but alphabetically. If there's a song with the same title as the album itself, it will be the first song.
-* The web interface does not split long lists into multiple pages. If you have a large music collection, loading a page might be limited by your browsers' performance (the server should be able to generate the necessary HTML just fine, but then generating cover previews might become a problem). My guess is that this will happen, depending on your device, at about 10.000 songs.
+* The song list is not paginated: the web app loads all songs at once and derives every view from it. With a very large music collection this might become slow, depending on your device.
+* Song suggestions only consider songs that are marked for syncing, and need the background analysis to have finished for a song to be matched by its audio. Until then, songs are picked randomly.
 * As song IDs use 52 characters and have a length of 4, you are limited to 52^4 = 7.311.616 songs. The server might crash when generating a new ID before you reach that limit (when it doesn't find an unused ID the first 10.000 times).
 * It seems like some media players don't display cover images over a certain size, while others do. Use the cover max size setting to see if lowering the size helps. On Android, use a music player that allows you to ignore MediaStore covers.
 
 ### Acknowledgements
 This program would not be possible without work done by many others. For that, I would like to thank them. Here's a list of projects that are used in one way or another:
 
-- [youtube-dl](https://github.com/ytdl-org/youtube-dl): easy tool for downloading all kinds of videos and audios
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): easy tool for downloading all kinds of videos and audios
 - [FFmpeg](http://ffmpeg.org/): exceptional program for handling basically [any media format](https://ffmpeg.org/ffmpeg-codecs.html) in existence
 - [Go](https://golang.org/): the programming language used. It's so nice that you can have one codebase that works on so many platforms, with a very rich standard library
 - [id3v2 library](https://github.com/bogem/id3v2) for reading MP3 tags
 - [exiffix](https://github.com/edwvee/exiffix), [imaging](https://github.com/disintegration/imaging), [resize](https://github.com/nfnt/resize) and [goexif](https://github.com/rwcarlsen/goexif) for handling cover images *correctly*
 - [FTP server library](https://goftp.io/server) for creating a virtual filesystem accessible over FTP
-- [gorilla/mux](https://github.com/gorilla/mux) and [gorilla/websocket](https://github.com/gorilla/websocket) for nice HTTP server improvements, including live events over WebSockets
-- [InstantClick](https://instantclick.io/): Makes the website feel significantly faster
-- [Bulma](https://bulma.io): CSS framework used for designing the website
-- [ReconnectingWebSocket](https://github.com/joewalnes/reconnecting-websocket): makes working with WebSockets easier
+- [gorilla/mux](https://github.com/gorilla/mux) for the HTTP router and [Huma](https://huma.rocks/) for the typed API, OpenAPI spec and server-sent events
+- [gonum](https://www.gonum.org/) for the FFT used in the audio analysis
+- [Vue](https://vuejs.org/), [Vite](https://vite.dev/), [TanStack Query](https://tanstack.com/query), [Workbox](https://developer.chrome.com/docs/workbox) and [openapi-typescript](https://openapi-ts.dev/) for the web app
+- [Bulma](https://bulma.io) and [Oruga](https://oruga-ui.com/): CSS framework and component library used for designing the website
 
 
 ### Issues & Contributing
