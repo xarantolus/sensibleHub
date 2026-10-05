@@ -6,6 +6,8 @@ rm releases/* || true
 
 chmod +x pack.sh
 
+make frontend-build
+
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
 GOOS=windows ./pack.sh "releases/sensibleHub-windows-$GIT_COMMIT.zip"

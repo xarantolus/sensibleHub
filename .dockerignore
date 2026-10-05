@@ -8,3 +8,5 @@ sensibleHub
 d
 deploy/
 .git
+frontend/node_modules/
+frontend/dist/

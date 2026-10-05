@@ -1,10 +1,21 @@
-FROM golang:1-alpine as builder
+FROM node:24-alpine AS frontend
 
-# Build the normal executable
-RUN mkdir /build
-COPY . /build
+RUN apk add --no-cache make
+WORKDIR /src
+COPY Makefile ./
+COPY frontend/package.json frontend/package-lock.json frontend/
+RUN make frontend-deps
+COPY frontend/ frontend/
+RUN make frontend-build
+
+
+FROM golang:1-alpine AS builder
+
+RUN apk add --no-cache make
 WORKDIR /build
-RUN CGO_ENABLED=0 go build -a -v -mod vendor -ldflags "-s -w" -o sensibleHub .
+COPY . /build
+COPY --from=frontend /src/frontend/dist /build/frontend/dist
+RUN CGO_ENABLED=0 make server
 
 
 # Now for the image we actually run the server in

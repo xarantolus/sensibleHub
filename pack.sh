@@ -8,7 +8,11 @@ rm sensibleHub.exe || true
 # Use first argument for name if possible, fallback to sensibleHub.zip
 NAME=${1:-sensibleHub.zip}
 
-go build -a -v -mod vendor -ldflags "-s -w"
+if [ ! -f frontend/dist/index.html ]; then
+	make frontend-build
+fi
+
+make server BINARY="sensibleHub$(go env GOEXE)"
 
 zip -r "$NAME" LICENSE README.md config.json sensibleHub*
 
