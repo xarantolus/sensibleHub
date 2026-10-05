@@ -44,9 +44,10 @@ function seek(ev: Event): void {
 
 <template>
   <div
-    v-if="player.hasSong && song && (compact || !player.expanded)"
+    v-if="player.hasSong && song"
     class="player-bar"
-    :class="{ 'is-compact': compact }"
+    :class="{ 'is-compact': compact, 'is-behind': !compact && player.expanded }"
+    :inert="!compact && player.expanded"
     @click="expand"
   >
     <div
@@ -73,15 +74,12 @@ function seek(ev: Event): void {
     </button>
 
     <div class="bar-info">
-      <component
-        :is="compact ? 'span' : 'RouterLink'"
-        v-bind="compact ? {} : { to: { name: 'song', params: { id: song.id } } }"
+      <span
         class="bar-title"
         :title="song.title"
-        @click.stop
       >
         {{ song.title }}
-      </component>
+      </span>
       <span
         class="bar-sub"
         :class="{ 'has-text-primary': hint }"
@@ -186,6 +184,22 @@ function seek(ev: Event): void {
   border-top: 1px solid var(--bulma-border-weak);
   color: var(--bulma-text);
   cursor: pointer;
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Fades and drops away while the full player opens over it, instead of vanishing. */
+.player-bar.is-behind {
+  opacity: 0;
+  transform: translateY(30%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-bar {
+    transition: none;
+  }
 }
 
 .bar-progress {

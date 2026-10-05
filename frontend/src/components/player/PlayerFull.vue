@@ -5,7 +5,7 @@ import { useSongIndex } from '@/api/queries'
 import CoverImage from '@/components/CoverImage.vue'
 import { useSettings } from '@/composables/useSettings'
 import { formatDuration } from '@/lib/format'
-import { isSwipeDown } from '@/lib/playerUi'
+import { shouldDismiss } from '@/lib/playerUi'
 import { usePlayer } from '@/stores/player'
 
 import PlayerIcon from './PlayerIcon.vue'
@@ -61,19 +61,44 @@ onBeforeUnmount(() => {
   document.documentElement.classList.remove('is-clipped')
 })
 
-let touchStart: { x: number; y: number } | undefined
+/** How far the sheet is dragged down, in pixels; it follows the finger and is kept when closing, so the exit animation continues from there. */
+const drag = ref(0)
+const dragging = ref(false)
+let touchStart: { x: number; y: number; t: number } | undefined
 
 function onTouchStart(ev: TouchEvent): void {
   const t = ev.touches[0]
-  touchStart = t === undefined ? undefined : { x: t.clientX, y: t.clientY }
+  touchStart = t === undefined ? undefined : { x: t.clientX, y: t.clientY, t: ev.timeStamp }
+  drag.value = 0
+}
+
+function onTouchMove(ev: TouchEvent): void {
+  const t = ev.touches[0]
+  if (touchStart === undefined || t === undefined) {
+    return
+  }
+  const dy = t.clientY - touchStart.y
+  if (!dragging.value && Math.abs(t.clientX - touchStart.x) > Math.abs(dy)) {
+    touchStart = undefined
+    return
+  }
+  dragging.value = true
+  drag.value = Math.max(0, dy)
 }
 
 function onTouchEnd(ev: TouchEvent): void {
   const t = ev.changedTouches[0]
-  if (touchStart !== undefined && t !== undefined && isSwipeDown(t.clientX - touchStart.x, t.clientY - touchStart.y)) {
+  if (touchStart !== undefined && t !== undefined && shouldDismiss(t.clientY - touchStart.y, ev.timeStamp - touchStart.t)) {
     close()
+  } else {
+    drag.value = 0
   }
+  dragging.value = false
   touchStart = undefined
+}
+
+function onAfterLeave(): void {
+  drag.value = 0
 }
 
 function onScrub(ev: Event): void {
@@ -91,14 +116,20 @@ function commitScrub(ev: Event): void {
 </script>
 
 <template>
-  <Transition name="sheet">
+  <Transition
+    name="sheet"
+    :duration="{ enter: 420, leave: 300 }"
+    @after-leave="onAfterLeave"
+  >
     <div
       v-if="player.expanded && song"
       class="full-backdrop"
+      :style="{ '--drag': `${drag}px` }"
       @click.self="close"
     >
       <div
         class="full"
+        :class="{ 'is-dragging': dragging }"
         role="dialog"
         aria-modal="true"
         aria-label="Player"
@@ -110,8 +141,14 @@ function commitScrub(ev: Event): void {
         <header
           class="full-header"
           @touchstart.passive="onTouchStart"
+          @touchmove.passive="onTouchMove"
           @touchend.passive="onTouchEnd"
+          @touchcancel.passive="onTouchEnd"
         >
+          <span
+            class="grab-handle"
+            aria-hidden="true"
+          />
           <button
             type="button"
             class="sh-icon-button"
@@ -137,7 +174,13 @@ function commitScrub(ev: Event): void {
 
               <div class="full-meta">
                 <h1 class="title is-4 mb-1">
-                  {{ song.title }}
+                  <RouterLink
+                    :to="{ name: 'song', params: { id: song.id } }"
+                    class="full-title-link"
+                    @click="close"
+                  >
+                    {{ song.title }}
+                  </RouterLink>
                 </h1>
                 <p class="full-links">
                   <RouterLink
@@ -319,6 +362,14 @@ function commitScrub(ev: Event): void {
   min-width: 0;
 }
 
+.full-title-link {
+  color: inherit;
+}
+
+.full-title-link:hover {
+  text-decoration: underline;
+}
+
 .full-meta .title {
   overflow-wrap: anywhere;
 }
@@ -359,17 +410,51 @@ function commitScrub(ev: Event): void {
   gap: 0.5rem;
 }
 
+.grab-handle {
+  position: absolute;
+  top: calc(0.35rem + env(safe-area-inset-top));
+  left: 50%;
+  width: 2.25rem;
+  height: 0.3rem;
+  margin-left: -1.125rem;
+  border-radius: 1rem;
+  background: var(--bulma-text-weak);
+  opacity: 0.5;
+}
+
+/* The backdrop only fades; the panel moves. Easing follows the iOS sheet curve. */
+.full {
+  transform: translateY(var(--drag, 0));
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  border-radius: 1rem 1rem 0 0;
+}
+
+.full.is-dragging {
+  transition: none;
+}
+
+/* Only the dimming fades; fading the backdrop element would make the panel see-through. */
 .sheet-enter-active,
 .sheet-leave-active {
-  transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
+  transition: background-color 0.3s ease;
+}
+
+.sheet-enter-active .full {
+  transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheet-leave-active .full {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1);
 }
 
 .sheet-enter-from,
 .sheet-leave-to {
+  background-color: transparent;
+}
+
+.sheet-enter-from .full,
+.sheet-leave-to .full {
   transform: translateY(100%);
-  opacity: 0;
 }
 
 @media (min-width: 769px) {
@@ -381,6 +466,23 @@ function commitScrub(ev: Event): void {
     max-width: 68rem;
     border-radius: var(--bulma-radius-large);
     box-shadow: var(--bulma-shadow);
+  }
+
+  .grab-handle {
+    display: none;
+  }
+
+  .sheet-enter-active .full,
+  .sheet-leave-active .full {
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.3s ease;
+  }
+
+  .sheet-enter-from .full,
+  .sheet-leave-to .full {
+    transform: translateY(1.5rem) scale(0.97);
+    opacity: 0;
   }
 
   .full-volume {
@@ -398,8 +500,11 @@ function commitScrub(ev: Event): void {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .full,
   .sheet-enter-active,
-  .sheet-leave-active {
+  .sheet-leave-active,
+  .sheet-enter-active .full,
+  .sheet-leave-active .full {
     transition: none;
   }
 }

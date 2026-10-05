@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
-import { isSwipeDown, parseStatsForNerds, progressPercent } from './playerUi'
+import { parseStatsForNerds, progressPercent, shouldDismiss } from './playerUi'
 
-describe('isSwipeDown', () => {
-  it('accepts a long mostly vertical drag', () => {
-    expect(isSwipeDown(10, 120)).toBe(true)
+describe('shouldDismiss', () => {
+  it('closes after a long slow drag', () => {
+    expect(shouldDismiss(140, 1500)).toBe(true)
   })
-  it('rejects short drags', () => {
-    expect(isSwipeDown(0, 40)).toBe(false)
+  it('closes after a short fast flick', () => {
+    expect(shouldDismiss(60, 80)).toBe(true)
   })
-  it('rejects diagonal and upward drags', () => {
-    expect(isSwipeDown(100, 110)).toBe(false)
-    expect(isSwipeDown(0, -200)).toBe(false)
+  it('snaps back after a short slow drag or a tiny twitch', () => {
+    expect(shouldDismiss(60, 600)).toBe(false)
+    expect(shouldDismiss(10, 5)).toBe(false)
+  })
+  it('never closes when dragged up', () => {
+    expect(shouldDismiss(-200, 50)).toBe(false)
   })
 })
 

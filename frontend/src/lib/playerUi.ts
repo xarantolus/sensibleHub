@@ -1,7 +1,15 @@
-export const swipeCloseDistance = 80
+export const dismissDistance = 120
+export const dismissVelocity = 0.5
 
-export function isSwipeDown(dx: number, dy: number): boolean {
-  return dy >= swipeCloseDistance && dy > Math.abs(dx) * 1.5
+/**
+ * Whether letting go of the player sheet after dragging it `dy` pixels down in
+ * `ms` milliseconds should close it: dragged far enough, or flicked down fast.
+ */
+export function shouldDismiss(dy: number, ms: number): boolean {
+  if (dy <= 0) {
+    return false
+  }
+  return dy >= dismissDistance || (dy >= 30 && dy / Math.max(ms, 1) >= dismissVelocity)
 }
 
 export function progressPercent(position: number, duration: number): number {
