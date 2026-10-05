@@ -6,6 +6,7 @@ import type { SongSummary } from '@/api/schema'
 import CoverImage from '@/components/CoverImage.vue'
 import CoverUpload from '@/components/CoverUpload.vue'
 import QueryView from '@/components/QueryView.vue'
+import SongActions from '@/components/SongActions.vue'
 import { useOnline } from '@/composables/useOnline'
 import { formatDuration } from '@/lib/format'
 import { notify } from '@/lib/notify'
@@ -27,13 +28,8 @@ function length(song: SongSummary): string {
   return formatDuration(song.playback.end - song.playback.start)
 }
 
-function playAll(): void {
-  player.playSongs(songs.value.map((s) => s.id))
-}
-
-function shuffle(): void {
-  player.playSongs(shuffled(songs.value.map((s) => s.id)))
-}
+const ids = computed(() => songs.value.map((s) => s.id))
+const shuffledIds = computed(() => shuffled(ids.value))
 
 function radio(): void {
   const [id] = shuffled(songs.value.map((s) => s.id))
@@ -86,22 +82,15 @@ function changeCover(file: File): void {
                 {{ songs.length }} {{ songs.length === 1 ? 'song' : 'songs' }} · {{ formatDuration(total) }}
               </p>
               <div class="buttons">
-                <button
-                  type="button"
-                  class="button is-primary"
-                  :disabled="songs.length === 0"
-                  @click="playAll"
-                >
-                  Play all
-                </button>
-                <button
-                  type="button"
-                  class="button"
-                  :disabled="songs.length === 0"
-                  @click="shuffle"
-                >
-                  Shuffle
-                </button>
+                <SongActions
+                  :ids="ids"
+                  label="Play all"
+                />
+                <SongActions
+                  :ids="shuffledIds"
+                  label="Shuffle"
+                  :primary="false"
+                />
                 <button
                   type="button"
                   class="button"
@@ -129,24 +118,13 @@ function changeCover(file: File): void {
                 {{ song.title }}
               </RouterLink>
               <span class="track-length has-text-grey">{{ length(song) }}</span>
-              <div class="buttons has-addons track-actions">
-                <button
-                  type="button"
-                  class="button is-small"
-                  :aria-label="`Play ${song.title}`"
-                  @click="player.playSongs(songs.map((s) => s.id), i)"
-                >
-                  ▶
-                </button>
-                <button
-                  type="button"
-                  class="button is-small"
-                  :aria-label="`Add ${song.title} to queue`"
-                  title="Add to queue"
-                  @click="player.enqueue(song.id)"
-                >
-                  +
-                </button>
+              <div class="track-actions">
+                <SongActions
+                  variant="small"
+                  :ids="[song.id]"
+                  :radio-id="song.id"
+                  :label="`Play ${song.title}`"
+                />
               </div>
             </li>
           </ol>

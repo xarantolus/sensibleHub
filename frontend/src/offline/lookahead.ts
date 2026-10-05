@@ -66,7 +66,7 @@ export function startLookahead(qc: QueryClient): void {
   let running = false
 
   const wanted = (): SongSummary[] =>
-    [player.currentId, ...player.queue.slice(0, lookaheadSongs)].flatMap((id) => (id === undefined ? [] : (songById(id) ?? [])))
+    [player.currentId, ...player.upcoming.slice(0, lookaheadSongs)].flatMap((id) => (id === undefined ? [] : (songById(id) ?? [])))
 
   async function run(): Promise<void> {
     requested++
@@ -89,7 +89,7 @@ export function startLookahead(qc: QueryClient): void {
   }
 
   watch(
-    () => [player.currentId, ...player.queue.slice(0, lookaheadSongs)].join(),
+    () => [player.currentId, ...player.upcoming.slice(0, lookaheadSongs)].join(),
     () => void run(),
     { immediate: true },
   )

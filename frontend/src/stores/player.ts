@@ -6,13 +6,17 @@ import { isSkip, needsRefill, refillCount, refillExclude, refillSeed, restartThr
 import { reportPlay } from '@/lib/playReports'
 import { shuffled } from '@/lib/shuffle'
 
-const storageKey = 'sh-player-v1'
+const storageKey = 'sh-player-v2'
 const maxHistory = 200
 
 export type PlayerStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'waiting-network'
 
+/** The two lists of upcoming songs: what the listener queued, and what the server suggests after it. */
+export type UpNextList = 'queue' | 'autoplay'
+
 interface Persisted {
   queue: string[]
+  autoplay: string[]
   history: string[]
   currentId?: string
   position: number
@@ -35,14 +39,21 @@ export function setOfflineCandidates(source: () => Promise<string[]>): void {
   offlineCandidates = source
 }
 
+type Ids = string | readonly string[]
+
+function asList(ids: Ids): string[] {
+  return typeof ids === 'string' ? [ids] : [...new Set(ids)]
+}
+
 /**
- * The play queue. The server decides what plays once the queue runs low;
- * this store holds what is queued and asks for more.
+ * What plays next: first the listener's queue, then autoplay, which the server
+ * keeps filled so playback never ends.
  */
 export const usePlayer = defineStore('player', () => {
   const saved = load()
 
   const queue = ref<string[]>(saved.queue ?? [])
+  const autoplay = ref<string[]>(saved.autoplay ?? [])
   const history = ref<string[]>(saved.history ?? [])
   const currentId = ref<string | undefined>(saved.currentId)
   /** Seconds into the trimmed song; written by the audio engine. */
@@ -60,19 +71,13 @@ export const usePlayer = defineStore('player', () => {
   const seekRequest = ref<number | undefined>()
   /** Why the server suggested a song, for the stats-for-nerds panel. */
   const suggestionFactors = ref<Record<string, Record<string, number>>>({})
-  /** Songs the server suggested, as opposed to ones the user queued. */
-  const suggested = ref<Set<string>>(new Set())
   const refilling = ref(false)
 
   const hasSong = computed(() => currentId.value !== undefined)
+  /** Everything that will play after the current song, in order. */
+  const upcoming = computed(() => [...queue.value, ...autoplay.value])
 
-  watch(
-    [queue, history, currentId, volume],
-    () => {
-      persist()
-    },
-    { deep: true },
-  )
+  watch([queue, autoplay, history, currentId, volume], persist, { deep: true })
 
   let lastPositionSave = 0
   watch(position, () => {
@@ -86,6 +91,7 @@ export const usePlayer = defineStore('player', () => {
   function persist(): void {
     const data: Persisted = {
       queue: queue.value,
+      autoplay: autoplay.value,
       history: history.value.slice(-maxHistory),
       position: position.value,
       volume: volume.value,
@@ -100,7 +106,7 @@ export const usePlayer = defineStore('player', () => {
 
   /**
    * How the current song was left: it 'ended', the listener chose to move on
-   * ('skipped' if that happened early), or something else replaced it ('neutral',
+   * (a skip if that happened early), or something else replaced it ('neutral',
    * e.g. starting an album), which only counts if it was listened to properly.
    */
   type Leave = 'ended' | 'moved-on' | 'neutral'
@@ -137,64 +143,105 @@ export const usePlayer = defineStore('player', () => {
     void refill()
   }
 
-  /** Replaces the queue with ids and starts playing ids[start]. */
-  function playSongs(ids: readonly string[], start = 0): void {
-    const first = ids[start]
+  function without(list: readonly string[], ids: readonly string[]): string[] {
+    const drop = new Set(ids)
+    return list.filter((id) => !drop.has(id))
+  }
+
+  function removeEverywhere(ids: readonly string[]): void {
+    queue.value = without(queue.value, ids)
+    autoplay.value = without(autoplay.value, ids)
+  }
+
+  /**
+   * Plays the first song now and queues the rest right after it, ahead of
+   * anything already queued. Autoplay is rebuilt to follow the new songs.
+   */
+  function playNow(ids: Ids): void {
+    const list = asList(ids)
+    const [first, ...rest] = list
     if (first === undefined) {
       return
     }
-    queue.value = ids.slice(start + 1)
-    suggested.value = new Set()
+    removeEverywhere(list)
+    queue.value = [...rest, ...queue.value]
+    autoplay.value = []
     playing.value = true
-    setCurrent(first)
+    setCurrent(first, 'neutral')
+  }
+
+  /** Puts songs at the front of the queue. Starts playing if nothing is loaded. */
+  function playNext(ids: Ids): void {
+    const list = asList(ids)
+    removeEverywhere(list)
+    queue.value = [...list, ...queue.value]
+    startIfIdle()
+  }
+
+  /** Puts songs at the end of the queue, which is still before autoplay. */
+  function enqueue(ids: Ids): void {
+    const list = asList(ids)
+    removeEverywhere(list)
+    queue.value = [...queue.value, ...list]
+    startIfIdle()
+  }
+
+  function startIfIdle(): void {
+    if (currentId.value === undefined) {
+      playing.value = true
+      void next()
+    }
   }
 
   function playSong(id: string): void {
-    playSongs([id])
+    playNow(id)
   }
 
-  /** Plays id now and continues with server suggestions that fit it. */
+  /** Plays id now and fills autoplay with songs that fit it. */
   function startRadio(id: string): void {
-    playSongs([id])
+    removeEverywhere([id])
+    autoplay.value = []
+    playing.value = true
+    setCurrent(id, 'neutral')
   }
 
-  function playNext(id: string): void {
-    queue.value = [id, ...queue.value.filter((q) => q !== id)]
-    suggested.value.delete(id)
-    if (currentId.value === undefined) {
-      playing.value = true
-      void next()
-    }
+  function listRef(list: UpNextList) {
+    return list === 'queue' ? queue : autoplay
   }
 
-  function enqueue(id: string): void {
-    const userQueued = queue.value.filter((q) => q !== id && !suggested.value.has(q))
-    const rest = queue.value.filter((q) => q !== id && suggested.value.has(q))
-    queue.value = [...userQueued, id, ...rest]
-    suggested.value.delete(id)
-    if (currentId.value === undefined) {
-      playing.value = true
-      void next()
-    }
-  }
-
-  function removeFromQueue(index: number): void {
-    queue.value = queue.value.filter((_, i) => i !== index)
+  function removeAt(list: UpNextList, index: number): void {
+    const l = listRef(list)
+    l.value = l.value.filter((_, i) => i !== index)
     void refill()
   }
 
-  function moveInQueue(from: number, to: number): void {
-    const q = [...queue.value]
-    const [item] = q.splice(from, 1)
-    if (item !== undefined) {
-      q.splice(to, 0, item)
-      queue.value = q
+  /** Moves a song within or between the two lists. */
+  function move(from: UpNextList, fromIndex: number, to: UpNextList, toIndex: number): void {
+    const source = [...listRef(from).value]
+    const [id] = source.splice(fromIndex, 1)
+    if (id === undefined) {
+      return
     }
+    listRef(from).value = source
+    const target = [...listRef(to).value]
+    target.splice(Math.min(Math.max(toIndex, 0), target.length), 0, id)
+    listRef(to).value = target
+    void refill()
   }
 
-  function clearQueue(): void {
-    queue.value = []
-    suggested.value = new Set()
+  /** Plays a song from either list now, keeping everything around it. */
+  function playFrom(list: UpNextList, index: number): void {
+    const id = listRef(list).value[index]
+    if (id === undefined) {
+      return
+    }
+    removeAt(list, index)
+    playing.value = true
+    setCurrent(id, 'moved-on')
+  }
+
+  function clear(list: UpNextList): void {
+    listRef(list).value = []
     void refill()
   }
 
@@ -205,10 +252,11 @@ export const usePlayer = defineStore('player', () => {
    * a skip when it happens early.
    */
   async function next(reason: 'user' | 'ended' | 'failed' = 'user'): Promise<void> {
-    if (queue.value.length === 0) {
+    if (upcoming.value.length === 0) {
       await refill()
     }
-    const [head, ...rest] = queue.value
+    const fromQueue = queue.value.length > 0
+    const head = fromQueue ? queue.value[0] : autoplay.value[0]
     if (head === undefined) {
       if (reason === 'ended') {
         reportLeaving('ended')
@@ -217,8 +265,11 @@ export const usePlayer = defineStore('player', () => {
       status.value = currentId.value === undefined ? 'idle' : 'paused'
       return
     }
-    queue.value = rest
-    suggested.value.delete(head)
+    if (fromQueue) {
+      queue.value = queue.value.slice(1)
+    } else {
+      autoplay.value = autoplay.value.slice(1)
+    }
     setCurrent(head, reason === 'ended' ? 'ended' : reason === 'failed' ? 'neutral' : 'moved-on')
   }
 
@@ -231,7 +282,7 @@ export const usePlayer = defineStore('player', () => {
     }
     history.value.pop()
     if (currentId.value !== undefined) {
-      queue.value = [currentId.value, ...queue.value]
+      queue.value = [currentId.value, ...without(queue.value, [currentId.value])]
     }
     currentId.value = prev
     position.value = 0
@@ -248,8 +299,7 @@ export const usePlayer = defineStore('player', () => {
 
   function toggle(): void {
     if (currentId.value === undefined) {
-      void next()
-      playing.value = true
+      startIfIdle()
       return
     }
     playing.value = !playing.value
@@ -265,19 +315,19 @@ export const usePlayer = defineStore('player', () => {
     status.value = 'idle'
   }
 
-  /** Asks the server for more songs when the queue runs low. */
+  /** Asks the server for more autoplay songs when it runs low. */
   async function refill(): Promise<void> {
-    if (refilling.value || !needsRefill(queue.value.length)) {
+    if (refilling.value || !needsRefill(autoplay.value.length)) {
       return
     }
     refilling.value = true
     try {
-      const seed = refillSeed(currentId.value, queue.value)
-      const exclude = refillExclude(currentId.value, queue.value, history.value)
+      const seed = refillSeed(currentId.value, upcoming.value)
+      const exclude = refillExclude(currentId.value, upcoming.value, history.value)
       const res = await call(
         client.GET('/api/v1/player/next', {
           params: {
-            query: { count: refillCount(queue.value.length), exclude, ...(seed === undefined ? {} : { current: seed }) },
+            query: { count: refillCount(autoplay.value.length), exclude, ...(seed === undefined ? {} : { current: seed }) },
           },
         }),
       )
@@ -289,35 +339,33 @@ export const usePlayer = defineStore('player', () => {
       if (!isApiError(err, 'network')) {
         throw err
       }
-      const exclude = new Set(refillExclude(currentId.value, queue.value, history.value))
+      const exclude = new Set(refillExclude(currentId.value, upcoming.value, history.value))
       const offline = (await offlineCandidates()).filter((id) => !exclude.has(id))
-      addSuggestions(shuffled(offline).slice(0, refillCount(queue.value.length)), {})
+      addSuggestions(shuffled(offline).slice(0, refillCount(autoplay.value.length)), {})
     } finally {
       refilling.value = false
     }
   }
 
   function addSuggestions(ids: string[], factors: Record<string, Record<string, number>>): void {
-    const known = new Set([...queue.value, currentId.value])
-    const fresh = ids.filter((id) => !known.has(id))
-    queue.value = [...queue.value, ...fresh]
-    for (const id of fresh) {
-      suggested.value.add(id)
-    }
+    const known = new Set([...upcoming.value, currentId.value])
+    autoplay.value = [...autoplay.value, ...ids.filter((id) => !known.has(id))]
     suggestionFactors.value = { ...suggestionFactors.value, ...factors }
   }
 
   /** Drops a song that no longer exists from everywhere. */
   function forget(id: string): void {
-    queue.value = queue.value.filter((q) => q !== id)
+    removeEverywhere([id])
     history.value = history.value.filter((h) => h !== id)
     if (currentId.value === id) {
-      void next()
+      void next('failed')
     }
   }
 
   return {
     queue,
+    autoplay,
+    upcoming,
     history,
     currentId,
     position,
@@ -331,17 +379,17 @@ export const usePlayer = defineStore('player', () => {
     seekTo,
     seekBy,
     suggestionFactors,
-    suggested,
     refilling,
     hasSong,
-    playSongs,
+    playNow,
     playSong,
-    startRadio,
     playNext,
     enqueue,
-    removeFromQueue,
-    moveInQueue,
-    clearQueue,
+    startRadio,
+    removeAt,
+    move,
+    playFrom,
+    clear,
     next,
     previous,
     toggle,

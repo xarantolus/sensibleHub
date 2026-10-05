@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 import { useArtist, useSongIndex } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
+import SongActions from '@/components/SongActions.vue'
 import SongGrid from '@/components/SongGrid.vue'
 import { formatDuration } from '@/lib/format'
 import { shuffled } from '@/lib/shuffle'
@@ -26,19 +27,13 @@ const years = computed(() => {
   return from === to ? String(from) : `${String(from)}–${String(to)}`
 })
 
-function playAll(): void {
-  player.playSongs(allIds.value)
-}
+const shuffledIds = computed(() => shuffled(allIds.value))
 
 function radio(): void {
-  const [id] = shuffled(allIds.value)
+  const [id] = shuffledIds.value
   if (id !== undefined) {
     player.startRadio(id)
   }
-}
-
-function shuffle(): void {
-  player.playSongs(shuffled(allIds.value))
 }
 </script>
 
@@ -61,22 +56,15 @@ function shuffle(): void {
             </template>
           </p>
           <div class="buttons">
-            <button
-              type="button"
-              class="button is-primary"
-              :disabled="allIds.length === 0"
-              @click="playAll"
-            >
-              Play all
-            </button>
-            <button
-              type="button"
-              class="button"
-              :disabled="allIds.length === 0"
-              @click="shuffle"
-            >
-              Shuffle
-            </button>
+            <SongActions
+              :ids="allIds"
+              label="Play all"
+            />
+            <SongActions
+              :ids="shuffledIds"
+              label="Shuffle"
+              :primary="false"
+            />
             <button
               type="button"
               class="button"

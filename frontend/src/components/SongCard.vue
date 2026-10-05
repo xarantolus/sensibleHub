@@ -3,14 +3,10 @@ import type { SongSummary } from '@/api/schema'
 import { usePlayer } from '@/stores/player'
 
 import CoverImage from './CoverImage.vue'
+import SongActions from './SongActions.vue'
 
-const props = defineProps<{ song: SongSummary; queue?: readonly string[] }>()
+defineProps<{ song: SongSummary }>()
 const player = usePlayer()
-
-function play(): void {
-  const ids = props.queue ?? [props.song.id]
-  player.playSongs(ids, Math.max(0, ids.indexOf(props.song.id)))
-}
 </script>
 
 <template>
@@ -39,14 +35,14 @@ function play(): void {
         </p>
       </div>
     </RouterLink>
-    <button
-      type="button"
-      class="song-card-play button is-primary is-rounded"
-      :aria-label="`Play ${song.title}`"
-      @click="play"
-    >
-      ▶
-    </button>
+    <div class="song-card-play">
+      <SongActions
+        variant="icon"
+        :ids="[song.id]"
+        :radio-id="song.id"
+        :label="`Play ${song.title}`"
+      />
+    </div>
   </article>
 </template>
 
@@ -90,16 +86,18 @@ function play(): void {
   position: absolute;
   right: 0.5rem;
   top: calc(100% - 4.5rem);
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
   opacity: 0;
   transition: opacity 0.15s;
 }
 
 .song-card:hover .song-card-play,
-.song-card-play:focus-visible {
+.song-card-play:focus-within {
   opacity: 1;
+}
+
+.song-card-play :deep(.button:not(.is-primary)) {
+  background: var(--bulma-scheme-main);
+  box-shadow: var(--bulma-shadow);
 }
 
 @media (hover: none) {

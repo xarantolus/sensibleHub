@@ -1,161 +1,166 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
-import { useDraggable } from 'vue-draggable-plus'
+import Sortable from 'sortablejs'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 import { useSongIndex } from '@/api/queries'
 import CoverImage from '@/components/CoverImage.vue'
-import { moveTarget } from '@/lib/playerUi'
-import { usePlayer } from '@/stores/player'
+import { usePlayer, type UpNextList } from '@/stores/player'
 
 import PlayerIcon from './PlayerIcon.vue'
 
 const player = usePlayer()
 const { index } = useSongIndex()
 
-const rows = computed(() =>
-  player.queue.flatMap((id, i) => {
-    const song = index.value.get(id)
-    return song === undefined ? [] : [{ i, song }]
-  }),
-)
+const listEls = new Map<UpNextList, HTMLElement>()
 
-const list = useTemplateRef<HTMLElement>('list')
-useDraggable(list, rows, {
-  handle: '.drag-handle',
-  animation: 150,
-  delay: 0,
-  ghostClass: 'is-ghost',
-  customUpdate: (e) => {
-    const from = rows.value[e.oldIndex ?? -1]?.i
-    const to = rows.value[e.newIndex ?? -1]?.i
-    if (from !== undefined && to !== undefined) {
-      player.moveInQueue(from, to)
-    }
-  },
-})
-
-function playNow(i: number): void {
-  player.moveInQueue(i, 0)
-  void player.next()
-}
-
-function move(i: number, delta: -1 | 1): void {
-  const to = moveTarget(i, delta, player.queue.length)
-  if (to !== undefined) {
-    player.moveInQueue(i, to)
+function setListEl(name: UpNextList, el: unknown): void {
+  if (el instanceof HTMLElement) {
+    listEls.set(name, el)
   }
 }
+
+const lists: { name: UpNextList; title: string }[] = [
+  { name: 'queue', title: 'Queue' },
+  { name: 'autoplay', title: 'Autoplay' },
+]
+
+function listOf(el: HTMLElement): UpNextList {
+  return el.dataset.list === 'autoplay' ? 'autoplay' : 'queue'
+}
+
+let sortables: Sortable[] = []
+
+onMounted(() => {
+  sortables = [...listEls.values()].map((el) =>
+    Sortable.create(el, {
+      group: 'up-next',
+      handle: '.drag-handle',
+      animation: 150,
+      ghostClass: 'is-ghost',
+      onEnd: (e) => {
+        const { item, from, to, oldIndex, newIndex } = e
+        if (oldIndex === undefined || newIndex === undefined) {
+          return
+        }
+        // Undo Sortable's DOM move; the store change re-renders the lists.
+        item.remove()
+        from.insertBefore(item, from.children[oldIndex] ?? null)
+        if (from !== to || oldIndex !== newIndex) {
+          player.move(listOf(from), oldIndex, listOf(to), newIndex)
+        }
+      },
+    }),
+  )
+})
+
+onBeforeUnmount(() => {
+  for (const s of sortables) {
+    s.destroy()
+  }
+})
 </script>
 
 <template>
   <section aria-label="Up next">
-    <div class="queue-head">
-      <h2 class="title is-5 mb-0">
-        Up next
-      </h2>
-      <button
-        type="button"
-        class="button is-small is-light"
-        :disabled="player.queue.length === 0"
-        @click="player.clearQueue()"
-      >
-        Clear
-      </button>
-    </div>
-
-    <p
-      v-if="player.refilling"
-      class="has-text-grey queue-note"
+    <template
+      v-for="list in lists"
+      :key="list.name"
     >
-      Finding more songs…
-    </p>
-    <p
-      v-else-if="rows.length === 0"
-      class="has-text-grey queue-note"
-    >
-      Nothing queued.
-    </p>
-
-    <ol
-      ref="list"
-      class="queue"
-    >
-      <li
-        v-for="{ i, song } in rows"
-        :key="song.id"
-        class="row"
-      >
-        <span
-          class="drag-handle"
-          :aria-label="`Drag to reorder ${song.title}`"
-          title="Drag to reorder"
+      <div class="queue-head">
+        <h2 class="title is-5 mb-0">
+          {{ list.title }}
+        </h2>
+        <button
+          type="button"
+          class="button is-small is-text"
+          :disabled="player[list.name].length === 0"
+          @click="player.clear(list.name)"
         >
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          ><path
-            fill="currentColor"
-            d="M9 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0 7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1.5 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M18 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1.5 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m1.5 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
-          /></svg>
-        </span>
-        <div class="row-cover">
-          <CoverImage :song="song" />
-        </div>
-        <div class="row-info">
+          {{ list.name === 'queue' ? 'Clear' : 'Refresh' }}
+        </button>
+      </div>
+      <p
+        v-if="list.name === 'queue' && player.queue.length === 0"
+        class="queue-note"
+      >
+        Songs you add with "Play next" or "Add to queue" play before autoplay. Drag songs here to keep them.
+      </p>
+      <p
+        v-if="list.name === 'autoplay'"
+        class="queue-note"
+      >
+        <template v-if="player.refilling && player.autoplay.length === 0">
+          Finding songs that fit…
+        </template>
+        <template v-else>
+          Picked to fit what's playing.
+        </template>
+      </p>
+
+      <ol
+        :ref="(el) => setListEl(list.name, el)"
+        class="queue"
+        :data-list="list.name"
+      >
+        <li
+          v-for="(id, i) in player[list.name]"
+          :key="id"
+          class="row"
+        >
           <span
-            class="row-title"
-            :title="song.title"
-          >{{ song.title }}</span>
-          <span class="row-sub">
-            <span
-              v-if="player.suggested.has(song.id)"
-              class="tag suggested-tag"
-            >Suggested</span>
-            {{ song.artist }}
+            class="drag-handle"
+            :aria-label="`Drag to reorder ${index.get(id)?.title ?? 'song'}`"
+            title="Drag to reorder"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            ><path
+              fill="currentColor"
+              d="M9 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0 7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1.5 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M18 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1.5 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m1.5 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
+            /></svg>
           </span>
-        </div>
-        <div class="row-actions">
-          <button
-            type="button"
-            class="sh-icon-button"
-            :aria-label="`Play ${song.title} now`"
-            title="Play now"
-            @click="playNow(i)"
-          >
-            <PlayerIcon name="play" />
-          </button>
-          <button
-            type="button"
-            class="sh-icon-button row-move"
-            :aria-label="`Move ${song.title} up`"
-            title="Move up"
-            :disabled="i === 0"
-            @click="move(i, -1)"
-          >
-            <PlayerIcon name="up" />
-          </button>
-          <button
-            type="button"
-            class="sh-icon-button row-move"
-            :aria-label="`Move ${song.title} down`"
-            title="Move down"
-            :disabled="i === player.queue.length - 1"
-            @click="move(i, 1)"
-          >
-            <PlayerIcon name="down" />
-          </button>
-          <button
-            type="button"
-            class="sh-icon-button"
-            :aria-label="`Remove ${song.title} from queue`"
-            title="Remove"
-            @click="player.removeFromQueue(i)"
-          >
-            <PlayerIcon name="close" />
-          </button>
-        </div>
-      </li>
-    </ol>
+          <template v-if="index.get(id)">
+            <div class="row-cover">
+              <CoverImage :song="index.get(id)!" />
+            </div>
+            <div class="row-info">
+              <span
+                class="row-title"
+                :title="index.get(id)!.title"
+              >{{ index.get(id)!.title }}</span>
+              <span class="row-sub">{{ index.get(id)!.artist }}</span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="row-cover" />
+            <div class="row-info">
+              <span class="row-sub">Unavailable song</span>
+            </div>
+          </template>
+          <div class="row-actions">
+            <button
+              type="button"
+              class="sh-icon-button"
+              aria-label="Play now"
+              title="Play now"
+              @click="player.playFrom(list.name, i)"
+            >
+              <PlayerIcon name="play" />
+            </button>
+            <button
+              type="button"
+              class="sh-icon-button"
+              aria-label="Remove"
+              title="Remove"
+              @click="player.removeAt(list.name, i)"
+            >
+              <PlayerIcon name="close" />
+            </button>
+          </div>
+        </li>
+      </ol>
+    </template>
   </section>
 </template>
 
@@ -164,16 +169,28 @@ function move(i: number, delta: -1 | 1): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.queue-head:first-child {
+  margin-top: 0;
 }
 
 .queue-note {
-  padding: 0.5rem 0;
+  padding: 0.25rem 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
 }
 
 .queue {
   list-style: none;
   margin: 0;
+  min-height: 2.5rem;
+  border-radius: var(--bulma-radius);
+}
+
+.queue:empty {
+  border: 1px dashed var(--bulma-border);
 }
 
 .row {
@@ -183,6 +200,7 @@ function move(i: number, delta: -1 | 1): void {
   gap: 0.5rem;
   padding: 0.35rem 0;
   border-bottom: 1px solid var(--bulma-border-weak);
+  background: inherit;
 }
 
 .drag-handle {
@@ -198,16 +216,6 @@ function move(i: number, delta: -1 | 1): void {
 .drag-handle svg {
   width: 1.25rem;
   height: 1.25rem;
-}
-
-.suggested-tag {
-  height: 1.4em;
-  padding: 0 0.45em;
-  margin-right: 0.25rem;
-  font-size: 0.7rem;
-  background: transparent;
-  border: 1px solid var(--bulma-border);
-  color: var(--bulma-text-weak);
 }
 
 .row.is-ghost {
@@ -246,15 +254,5 @@ function move(i: number, delta: -1 | 1): void {
   width: 2.25rem;
   height: 2.25rem;
   font-size: 1.25rem;
-}
-
-@media (max-width: 480px) {
-  .row-actions .sh-icon-button {
-    width: 2rem;
-  }
-
-  .row-actions .row-move {
-    display: none;
-  }
 }
 </style>

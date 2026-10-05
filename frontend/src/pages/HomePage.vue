@@ -3,12 +3,11 @@ import { computed } from 'vue'
 
 import { useHome, useSongIndex } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
+import SongActions from '@/components/SongActions.vue'
 import SongGrid from '@/components/SongGrid.vue'
-import { usePlayer } from '@/stores/player'
 
 const home = useHome()
 const { resolve } = useSongIndex()
-const player = usePlayer()
 
 const songs = computed(() => resolve(home.data.value?.songIds))
 </script>
@@ -28,14 +27,11 @@ const songs = computed(() => resolve(home.data.value?.songIds))
         <h1 class="page-title mb-0">
           {{ data.today ? 'Added today' : 'Newest songs' }}
         </h1>
-        <button
+        <SongActions
           v-if="songs.length > 0"
-          type="button"
-          class="button is-primary"
-          @click="player.playSongs(data.songIds)"
-        >
-          Play all
-        </button>
+          :ids="data.songIds"
+          label="Play all"
+        />
       </div>
       <SongGrid
         v-if="songs.length > 0"

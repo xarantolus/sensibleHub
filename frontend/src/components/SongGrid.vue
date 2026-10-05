@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import type { SongSummary } from '@/api/schema'
 
 import SongCard from './SongCard.vue'
 
-const props = defineProps<{ songs: readonly SongSummary[] }>()
-
-const ids = computed(() => props.songs.map((s) => s.id))
+defineProps<{ songs: readonly SongSummary[] }>()
 </script>
 
 <template>
@@ -16,7 +12,6 @@ const ids = computed(() => props.songs.map((s) => s.id))
       v-for="song in songs"
       :key="song.id"
       :song="song"
-      :queue="ids"
     />
   </div>
 </template>

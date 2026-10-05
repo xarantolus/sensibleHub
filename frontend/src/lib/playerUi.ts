@@ -22,8 +22,3 @@ export function parseStatsForNerds(raw: string | null): boolean {
     return false
   }
 }
-
-export function moveTarget(index: number, delta: -1 | 1, length: number): number | undefined {
-  const to = index + delta
-  return to < 0 || to >= length ? undefined : to
-}

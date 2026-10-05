@@ -13,7 +13,7 @@ const song = useSong(() => props.id)
 
 const factorNames = computed(() => {
   const names = new Set<string>()
-  for (const id of player.queue) {
+  for (const id of player.autoplay) {
     for (const name of Object.keys(player.suggestionFactors[id] ?? {})) {
       names.add(name)
     }
@@ -22,7 +22,7 @@ const factorNames = computed(() => {
 })
 
 const factorRows = computed(() =>
-  player.queue.flatMap((id) => {
+  player.autoplay.flatMap((id) => {
     const factors = player.suggestionFactors[id]
     return factors === undefined ? [] : [{ id, title: index.value.get(id)?.title ?? id, factors }]
   }),

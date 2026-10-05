@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isSwipeDown, moveTarget, parseStatsForNerds, progressPercent } from './playerUi'
+import { isSwipeDown, parseStatsForNerds, progressPercent } from './playerUi'
 
 describe('isSwipeDown', () => {
   it('accepts a long mostly vertical drag', () => {
@@ -34,13 +34,5 @@ describe('parseStatsForNerds', () => {
     expect(parseStatsForNerds('nope')).toBe(false)
     expect(parseStatsForNerds('{"statsForNerds":"yes"}')).toBe(false)
     expect(parseStatsForNerds('3')).toBe(false)
-  })
-})
-
-describe('moveTarget', () => {
-  it('stays inside the list', () => {
-    expect(moveTarget(0, -1, 3)).toBeUndefined()
-    expect(moveTarget(2, 1, 3)).toBeUndefined()
-    expect(moveTarget(1, 1, 3)).toBe(2)
   })
 })
