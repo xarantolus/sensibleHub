@@ -109,7 +109,7 @@ function move(i: number, delta: -1 | 1): void {
           <span class="row-sub">
             <span
               v-if="player.suggested.has(song.id)"
-              class="tag is-light is-primary"
+              class="tag suggested-tag"
             >Suggested</span>
             {{ song.artist }}
           </span>
@@ -198,6 +198,16 @@ function move(i: number, delta: -1 | 1): void {
 .drag-handle svg {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+.suggested-tag {
+  height: 1.4em;
+  padding: 0 0.45em;
+  margin-right: 0.25rem;
+  font-size: 0.7rem;
+  background: transparent;
+  border: 1px solid var(--bulma-border);
+  color: var(--bulma-text-weak);
 }
 
 .row.is-ghost {

@@ -1,10 +1,47 @@
-@use '@oruga-ui/theme-bulma/scss/theme-build.scss';
+// One accent everywhere: the green of the logo, deepened so white text on it stays readable.
+// Links use the same hue instead of Bulma's default blue.
+@use '@oruga-ui/theme-bulma/scss/theme-build.scss' with (
+  $primary: hsl(153, 60%, 36%),
+  $link: hsl(153, 60%, 30%)
+);
 
 .app-navbar {
   position: sticky;
   top: 0;
   z-index: 30;
   box-shadow: 0 1px 0 var(--bulma-border-weak);
+
+  .navbar-brand .navbar-item:hover {
+    background-color: transparent;
+  }
+
+  a.navbar-item.is-active:not(:hover) {
+    background-color: transparent;
+  }
+
+  a.navbar-item.is-active {
+    color: var(--bulma-link-text);
+    font-weight: 600;
+  }
+
+  .navbar-burger,
+  .navbar-link:not(.is-arrowless)::after {
+    color: var(--bulma-text);
+    border-color: currentColor;
+  }
+
+  @media (min-width: 1024px) {
+    a.navbar-item.is-active {
+      box-shadow: inset 0 -2px 0 var(--bulma-link-text);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .navbar-search,
+    .navbar-search > * {
+      width: 100%;
+    }
+  }
 }
 
 .page-title {

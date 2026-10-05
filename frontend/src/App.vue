@@ -35,6 +35,7 @@ useShortcuts()
   .app-main {
     padding-left: 1rem;
     padding-right: 1rem;
+    padding-bottom: calc(9rem + env(safe-area-inset-bottom));
   }
 }
 </style>

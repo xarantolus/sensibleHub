@@ -260,9 +260,28 @@ function seek(ev: Event): void {
   width: 8rem;
 }
 
-@media (max-width: 480px) {
-  .bar-controls > :first-child {
-    display: none;
+@media (max-width: 768px) {
+  .player-bar:not(.is-compact) {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'cover info'
+      'controls controls';
+    row-gap: 0.25rem;
+  }
+
+  .player-bar:not(.is-compact) .bar-cover {
+    grid-area: cover;
+    width: 2.75rem;
+  }
+
+  .player-bar:not(.is-compact) .bar-info {
+    grid-area: info;
+  }
+
+  .player-bar:not(.is-compact) .bar-controls {
+    grid-area: controls;
+    justify-content: center;
+    gap: 1.5rem;
   }
 }
 

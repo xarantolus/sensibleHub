@@ -111,7 +111,7 @@ function submit(): void {
           Analysing songs: {{ analysis.data.value.done }} / {{ analysis.data.value.total }}
         </p>
         <progress
-          class="progress is-small is-info"
+          class="progress is-small is-primary"
           :value="analysis.data.value.done"
           :max="analysis.data.value.total"
         />
