@@ -1,12 +1,13 @@
 package web
 
 import (
-	"html/template"
+	"errors"
 	"io/fs"
 	"log"
 	"net/http"
-	"os"
+	"path"
 	"strconv"
+	"strings"
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/web/api"
@@ -15,123 +16,59 @@ import (
 )
 
 type server struct {
-	debug bool
-
-	m         *store.Manager
-	templates *template.Template
-
-	assetFS    fs.FS
-	templateFS fs.FS
-
+	m      *store.Manager
 	router *mux.Router
 }
 
-// RunServer runs the web server on the port specified in `cfg`.
-// `debugMode` sets whether to start the server in debug mode
-func RunServer(manager *store.Manager, cfg config.Config, assetFS, templateFS fs.FS, debugMode bool) (err error) {
+// RunServer serves the API, song media and the single-page app in spa on the port from cfg.
+func RunServer(manager *store.Manager, cfg config.Config, spa fs.FS) error {
 	r := mux.NewRouter()
-	r.StrictSlash(true)
+	s := server{m: manager, router: r}
 
-	var server = server{
-		debug: debugMode,
-		m:     manager,
-
-		assetFS:    assetFS,
-		templateFS: templateFS,
-
-		router: r,
-	}
-
-	if debugMode {
-		log.Printf("[Debug] Using local templates and assets because of debug mode")
-		server.templateFS = os.DirFS(".")
-		server.assetFS = server.templateFS
-	}
-
-	err = server.parseTemplates(templateFS)
-	if err != nil {
-		return
-	}
-
-	// set up the file server that serves our data directory
-	r.PathPrefix("/data/").Handler(http.StripPrefix("/data/", http.FileServer(http.Dir("data")))).Methods(http.MethodGet)
-
-	// serve static assets and a favicon
-	r.PathPrefix("/assets/").Handler(http.FileServer(http.FS(assetFS))).Methods(http.MethodGet)
-	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "assets/fav/favicon.ico", http.StatusMovedPermanently)
-	}).Methods(http.MethodGet)
-
-	// Index page
-	server.route("/", server.HandleIndex).Methods(http.MethodGet)
-
-	// Song submit form
-	server.route("/add", server.HandleAddSong).Methods(http.MethodGet)
-	server.route("/add", server.HandleDownloadSong).Methods(http.MethodPost)
-
-	server.route("/abort", server.HandleAbortDownload).Methods(http.MethodPost)
-
-	// Song listings
-	server.route("/songs", server.HandleTitleListing).Methods(http.MethodGet)
-	server.route("/artists", server.HandleArtistListing).Methods(http.MethodGet)
-	server.route("/years", server.HandleYearListing).Methods(http.MethodGet)
-	server.route("/incomplete", server.HandleIncompleteListing).Methods(http.MethodGet)
-	server.route("/unsynced", server.HandleUnsyncedListing).Methods(http.MethodGet)
-	server.route("/edits", server.HandleRecentlyEditedListing).Methods(http.MethodGet)
-	server.route("/added", server.HandleSortedByAddDateListing).Methods(http.MethodGet)
-
-	// Search listing
-	server.route("/search", server.HandleSearchListing).Methods(http.MethodGet)
-	// Search API for search suggestions
-
-	// Song html page and handler for editing
-	server.route("/song/{songID}", server.HandleShowSong).Methods(http.MethodGet)
-	server.route("/song/{songID}", server.HandleEditSong).Methods(http.MethodPost)
-
-	// Song Data retrieval
-	server.route("/song/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
-	server.route("/song/{songID}/audio", server.HandleAudio).Methods(http.MethodGet)
-	server.route("/song/{songID}/mp3", server.HandleMP3).Methods(http.MethodGet)
-
-	// Redirects to a random song
-	server.route("/songs/random", server.HandleRandomSong).Methods(http.MethodGet)
-
-	// Album listing
-	server.route("/album/{artist}/{album}", server.HandleShowAlbum).Methods(http.MethodGet)
-	server.route("/album/{artist}/{album}", server.HandleEditAlbum).Methods(http.MethodPost)
-
-	// Artist listing
-	server.route("/artist/{artist}", server.HandleShowArtist).Methods(http.MethodGet)
-
-	server.route("/media/songs/{songID}/cover", server.HandleCover).Methods(http.MethodGet)
-	server.route("/media/songs/{songID}/audio", server.HandleAudio).Methods(http.MethodGet)
-	server.route("/media/songs/{songID}/mp3", server.HandleMP3).Methods(http.MethodGet)
-
-	server.route("/legacy/search", server.HandleAPISongSearch).Methods(http.MethodGet)
-	server.route("/legacy/events/ws", server.HandleWebsocket)
+	s.route("/media/songs/{songID}/cover", s.HandleCover).Methods(http.MethodGet)
+	s.route("/media/songs/{songID}/audio", s.HandleAudio).Methods(http.MethodGet)
+	s.route("/media/songs/{songID}/mp3", s.HandleMP3).Methods(http.MethodGet)
 
 	r.Use(compressAPI)
 	api.New(r, manager)
+
+	r.PathPrefix("/").Handler(spaHandler(spa)).Methods(http.MethodGet, http.MethodHead)
 
 	log.Printf("[Web] Server listening on port %d\n", cfg.Port)
 	return http.ListenAndServe(":"+strconv.Itoa(cfg.Port), r)
 }
 
 func (s *server) route(path string, f func(w http.ResponseWriter, r *http.Request) error) *mux.Route {
-	return s.router.HandleFunc(path, s.errWrap(s.debugWrap(f)))
+	return s.router.HandleFunc(path, errWrap(f))
 }
 
-// debugWrap adds a wrapper that reloads templates before a route is processed when the server debug field is true
-func (s *server) debugWrap(f func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) error {
-	if !s.debug {
-		return f
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) error {
-		err := s.parseTemplates(s.templateFS)
-		if err != nil {
-			return err
+// spaHandler serves the built frontend. Paths that are not files are client-side
+// routes and get index.html; unknown API paths still get a 404.
+func spaHandler(spa fs.FS) http.Handler {
+	files := http.FileServerFS(spa)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") || strings.HasPrefix(r.URL.Path, "/media/") {
+			http.NotFound(w, r)
+			return
 		}
-		return f(w, r)
-	}
+
+		name := strings.TrimPrefix(path.Clean(r.URL.Path), "/")
+		if name != "" {
+			if info, err := fs.Stat(spa, name); err == nil && !info.IsDir() {
+				if strings.HasPrefix(name, "assets/") {
+					w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+				} else {
+					w.Header().Set("Cache-Control", "no-cache")
+				}
+				files.ServeHTTP(w, r)
+				return
+			} else if err != nil && !errors.Is(err, fs.ErrNotExist) {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		w.Header().Set("Cache-Control", "no-cache")
+		http.ServeFileFS(w, r, spa, "index.html")
+	})
 }

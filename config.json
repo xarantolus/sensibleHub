@@ -44,5 +44,10 @@
     // Whether to generate cover previews when starting up.
     // If this is false, cover previews are first generated the first time a page is loaded, which
     // can lead to pages where previews come in after serveral seconds
-    "generate_on_startup": true
+    "generate_on_startup": true,
+    // Songs are analysed in the background (key, tempo, loudness, timbre) to pick fitting songs
+    // to play next and to play every song equally loud. Requires ffmpeg. Set to true to turn it off.
+    "analysis": {
+        "disabled": false
+    }
 }

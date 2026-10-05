@@ -37,6 +37,8 @@ type Entry struct {
 
 	// PictureData describes the picture file (cover) that should be embedded into the file
 	PictureData PictureData `json:"picture_data"`
+
+	Analysis *Analysis `json:"analysis,omitempty"`
 }
 
 func (e *Entry) IsImported() bool {

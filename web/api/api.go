@@ -32,6 +32,7 @@ func New(r *mux.Router, m *store.Manager) huma.API {
 	registerSongs(api, m)
 	registerLibrary(api, m)
 	registerDownloads(api, m)
+	registerPlayer(api, m)
 	registerEvents(api, m)
 
 	return api

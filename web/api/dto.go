@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 	"xarantolus/sensibleHub/store"
+	"xarantolus/sensibleHub/store/analysis"
 	"xarantolus/sensibleHub/store/music"
 )
 
@@ -29,6 +30,30 @@ type SongSummary struct {
 	Added    time.Time `json:"added"`
 	LastEdit time.Time `json:"lastEdit"`
 	Cover    *Cover    `json:"cover,omitempty"`
+	Loudness *float64  `json:"loudness,omitempty" doc:"Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud"`
+}
+
+type Analysis struct {
+	Status        string    `json:"status" enum:"pending,done,failed"`
+	Error         string    `json:"error,omitempty"`
+	AnalyzedAt    time.Time `json:"analyzedAt,omitzero"`
+	Key           string    `json:"key,omitempty" doc:"e.g. A minor"`
+	Camelot       string    `json:"camelot,omitempty" doc:"Camelot wheel code, e.g. 8A"`
+	KeyStrength   float64   `json:"keyStrength,omitempty"`
+	BPM           float64   `json:"bpm,omitempty"`
+	BeatStrength  float64   `json:"beatStrength,omitempty"`
+	LoudnessLUFS  float64   `json:"loudnessLufs,omitempty"`
+	LoudnessRange float64   `json:"loudnessRange,omitempty"`
+	EnergyDB      float64   `json:"energyDb,omitempty"`
+	OnsetRate     float64   `json:"onsetRate,omitempty" doc:"Note onsets per second"`
+	Centroid      float64   `json:"centroid,omitempty" doc:"Spectral centroid (brightness) in Hz"`
+	Flatness      float64   `json:"flatness,omitempty" doc:"Spectral flatness, 0 tonal … 1 noisy"`
+}
+
+type AnalysisStatus struct {
+	Running bool `json:"running"`
+	Done    int  `json:"done"`
+	Total   int  `json:"total"`
 }
 
 type AudioFile struct {
@@ -42,6 +67,7 @@ type SongDetail struct {
 	Imported  bool      `json:"imported"`
 	File      AudioFile `json:"file"`
 	Related   []string  `json:"related" doc:"IDs of similar songs"`
+	Analysis  Analysis  `json:"analysis"`
 }
 
 type Group struct {
@@ -99,6 +125,10 @@ func songSummary(e music.Entry) SongSummary {
 	if e.PictureData.Filename != "" {
 		s.Cover = &Cover{Size: e.PictureData.Size, Color: string(e.PictureData.DominantColorHEX)}
 	}
+	if a := e.Analysis; a.Usable() {
+		lufs := a.LoudnessLUFS
+		s.Loudness = &lufs
+	}
 	return s
 }
 
@@ -109,6 +139,31 @@ func songDetail(e music.Entry, related []music.Entry) SongDetail {
 		Imported:    e.IsImported(),
 		File:        AudioFile{Name: e.FileData.Filename, Size: e.FileData.Size},
 		Related:     ids(related),
+		Analysis:    analysisDTO(e.Analysis),
+	}
+}
+
+func analysisDTO(a *music.Analysis) Analysis {
+	switch {
+	case a == nil || a.Version < analysis.Version:
+		return Analysis{Status: "pending"}
+	case !a.Usable():
+		return Analysis{Status: "failed", Error: a.Error, AnalyzedAt: a.AnalyzedAt}
+	}
+	return Analysis{
+		Status:        "done",
+		AnalyzedAt:    a.AnalyzedAt,
+		Key:           analysis.KeyName(a.Key, a.Minor),
+		Camelot:       a.Camelot,
+		KeyStrength:   a.KeyStrength,
+		BPM:           a.BPM,
+		BeatStrength:  a.BeatStrength,
+		LoudnessLUFS:  a.LoudnessLUFS,
+		LoudnessRange: a.LoudnessRange,
+		EnergyDB:      a.EnergyDB,
+		OnsetRate:     a.OnsetRate,
+		Centroid:      a.Centroid,
+		Flatness:      a.Flatness,
 	}
 }
 

@@ -41,6 +41,7 @@ func registerEvents(api huma.API, m *store.Manager) {
 		"songDeleted":      SongDeletedEvent{},
 		"downloadStarted":  DownloadStartedEvent{},
 		"downloadFinished": DownloadFinishedEvent{},
+		"analysisProgress": AnalysisStatus{},
 	}, func(ctx context.Context, _ *struct{}, send sse.Sender) {
 		events, cancel := m.Subscribe()
 		defer cancel()
@@ -86,6 +87,8 @@ func eventPayload(e store.Event) any {
 		return DownloadStartedEvent{}
 	case store.DownloadFinished:
 		return DownloadFinishedEvent{Error: downloadFailure(e.Err)}
+	case store.AnalysisProgress:
+		return AnalysisStatus{Running: e.Running, Done: e.Done, Total: e.Total}
 	}
 	panic("unhandled event type")
 }

@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/url"
+	"strings"
 	"xarantolus/sensibleHub/store"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -37,7 +39,7 @@ func registerLibrary(api huma.API, m *store.Manager) {
 		groups := listings[in.Kind]()
 		out := make([]Group, len(groups))
 		for i, g := range groups {
-			out[i] = Group{Title: g.Title, Description: g.Description, Link: g.Link, SongIDs: ids(g.Songs)}
+			out[i] = Group{Title: g.Title, Description: g.Description, Link: escapePath(g.Link), SongIDs: ids(g.Songs)}
 		}
 		return &body[[]Group]{out}, nil
 	})
@@ -112,6 +114,14 @@ func registerLibrary(api huma.API, m *store.Manager) {
 		}
 		return &body[Artist]{a}, nil
 	})
+}
+
+func escapePath(p string) string {
+	segments := strings.Split(p, "/")
+	for i, s := range segments {
+		segments[i] = url.PathEscape(s)
+	}
+	return strings.Join(segments, "/")
 }
 
 type AlbumPath struct {

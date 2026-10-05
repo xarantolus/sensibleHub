@@ -24,6 +24,99 @@
         ],
         "type": "object"
       },
+      "Analysis": {
+        "additionalProperties": false,
+        "properties": {
+          "analyzedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "beatStrength": {
+            "format": "double",
+            "type": "number"
+          },
+          "bpm": {
+            "format": "double",
+            "type": "number"
+          },
+          "camelot": {
+            "description": "Camelot wheel code, e.g. 8A",
+            "type": "string"
+          },
+          "centroid": {
+            "description": "Spectral centroid (brightness) in Hz",
+            "format": "double",
+            "type": "number"
+          },
+          "energyDb": {
+            "format": "double",
+            "type": "number"
+          },
+          "error": {
+            "type": "string"
+          },
+          "flatness": {
+            "description": "Spectral flatness, 0 tonal … 1 noisy",
+            "format": "double",
+            "type": "number"
+          },
+          "key": {
+            "description": "e.g. A minor",
+            "type": "string"
+          },
+          "keyStrength": {
+            "format": "double",
+            "type": "number"
+          },
+          "loudnessLufs": {
+            "format": "double",
+            "type": "number"
+          },
+          "loudnessRange": {
+            "format": "double",
+            "type": "number"
+          },
+          "onsetRate": {
+            "description": "Note onsets per second",
+            "format": "double",
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "done",
+              "failed"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "AnalysisStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "done": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "total": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "running",
+          "done",
+          "total"
+        ],
+        "type": "object"
+      },
       "Artist": {
         "additionalProperties": false,
         "properties": {
@@ -247,6 +340,47 @@
         ],
         "type": "object"
       },
+      "NextSong": {
+        "additionalProperties": false,
+        "properties": {
+          "factors": {
+            "additionalProperties": {
+              "format": "double",
+              "type": "number"
+            },
+            "description": "Why the song was picked; 1 is neutral. For debugging only.",
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "score": {
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "score",
+          "factors"
+        ],
+        "type": "object"
+      },
+      "NextSongs": {
+        "additionalProperties": false,
+        "properties": {
+          "songs": {
+            "items": {
+              "$ref": "#/components/schemas/NextSong"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "songs"
+        ],
+        "type": "object"
+      },
       "Playback": {
         "additionalProperties": false,
         "properties": {
@@ -396,6 +530,9 @@
           "album": {
             "type": "string"
           },
+          "analysis": {
+            "$ref": "#/components/schemas/Analysis"
+          },
           "artist": {
             "type": "string"
           },
@@ -419,6 +556,11 @@
           "lastEdit": {
             "format": "date-time",
             "type": "string"
+          },
+          "loudness": {
+            "description": "Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud",
+            "format": "double",
+            "type": "number"
           },
           "playback": {
             "$ref": "#/components/schemas/Playback"
@@ -449,6 +591,7 @@
           "imported",
           "file",
           "related",
+          "analysis",
           "id",
           "title",
           "duration",
@@ -530,6 +673,11 @@
           "lastEdit": {
             "format": "date-time",
             "type": "string"
+          },
+          "loudness": {
+            "description": "Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud",
+            "format": "double",
+            "type": "number"
           },
           "playback": {
             "$ref": "#/components/schemas/Playback"
@@ -686,6 +834,34 @@
         "summary": "Set the cover of every song in an album"
       }
     },
+    "/api/v1/analysis": {
+      "get": {
+        "operationId": "getAnalysisStatus",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Progress of the background audio analysis"
+      }
+    },
     "/api/v1/artists/{artist}": {
       "get": {
         "operationId": "getArtist",
@@ -822,6 +998,32 @@
                   "description": "Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.",
                   "items": {
                     "oneOf": [
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/AnalysisStatus"
+                          },
+                          "event": {
+                            "const": "analysisProgress",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event analysisProgress",
+                        "type": "object"
+                      },
                       {
                         "properties": {
                           "data": {
@@ -1051,6 +1253,73 @@
           }
         },
         "summary": "Songs grouped by a criterion"
+      }
+    },
+    "/api/v1/player/next": {
+      "get": {
+        "description": "Picks synced songs to continue playback after the queue runs out. Results are random; call again for more.",
+        "operationId": "nextSongs",
+        "parameters": [
+          {
+            "description": "The song playing now, if any",
+            "explode": false,
+            "in": "query",
+            "name": "current",
+            "schema": {
+              "description": "The song playing now, if any",
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "default": 5,
+              "format": "int64",
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Recently played songs to avoid",
+            "explode": false,
+            "in": "query",
+            "name": "exclude",
+            "schema": {
+              "description": "Recently played songs to avoid",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NextSongs"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Songs to play next"
       }
     },
     "/api/v1/search": {

@@ -18,7 +18,8 @@ FRONTEND_SRC := $(shell find frontend/src frontend/public -type f 2>/dev/null) \
 OPENAPI_SPEC := frontend/openapi.json
 API_TYPES    := frontend/src/api/schema.ts
 OPENAPI_TS   := frontend/node_modules/.bin/openapi-typescript
-OPENAPI_TS_FLAGS := --root-types --root-types-no-schema-prefix --root-types-keep-casing --immutable --enum-values
+# No --immutable: openapi-fetch's response mapping turns readonly arrays into plain objects.
+OPENAPI_TS_FLAGS := --root-types --root-types-no-schema-prefix --root-types-keep-casing --enum-values
 
 all: build
 
@@ -68,7 +69,8 @@ server:
 
 check: check-go check-frontend
 
-check-go:
+# The main package embeds frontend/dist, so vet and test need a built frontend.
+check-go: frontend/dist/index.html
 	@test -z "$$(gofmt -l $(GO_FILES))" || { gofmt -l $(GO_FILES); echo "gofmt: files need formatting"; exit 1; }
 	$(GO) vet -mod vendor ./...
 	$(GO) test -mod vendor ./...

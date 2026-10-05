@@ -23,6 +23,9 @@ const (
 
 // Manager is the struct that contains the application's data. It is only present *once* in the instance named `M`
 type Manager struct {
+	// SchemaVersion is the format of the data file; 0 for files written before versioning
+	SchemaVersion int `json:"schema_version"`
+
 	// Songs is a map[song.ID]song, it maps the ids to their songs
 	Songs     map[string]music.Entry `json:"songs"`
 	SongsLock *sync.RWMutex          `json:"-"`
@@ -31,7 +34,8 @@ type Manager struct {
 	// They will be processed sequentially
 	enqueuedURLs chan string
 
-	events broker
+	events   broker
+	analysis analysisQueue
 
 	// isWorking indicates if the manager is currently downloading something.
 	// State changes are accompanied by the "progress-start" and "progress-end" websocket events
@@ -69,20 +73,21 @@ func NewManager(cfg config.Config) (m *Manager, err error) {
 	if err != nil {
 		// If the file doesn't exist, it will be created on next save
 		if os.IsNotExist(err) {
+			m.SchemaVersion = currentSchema()
 			return m, nil
 		}
 
 		// This is a real error - might have to do with permissions
 		return m, err
 	}
-	defer f.Close()
 
 	err = json.NewDecoder(f).Decode(m)
+	f.Close()
 	if err != nil {
 		return m, err
 	}
 
-	return
+	return m, m.migrate()
 }
 
 // Save saves the current state of the manager instance to its data file
@@ -143,6 +148,7 @@ func (m *Manager) Add(e *music.Entry) (err error) {
 	}
 
 	m.publish(SongAdded{Song: *e})
+	m.queueAnalysis(e.ID)
 
 	return
 }

@@ -189,6 +189,9 @@ func (m *Manager) commit(entry music.Entry) (music.Entry, error) {
 	}
 
 	m.publish(SongUpdated{Song: entry})
+	if needsAnalysis(entry) {
+		m.queueAnalysis(entry.ID)
+	}
 	return entry, nil
 }
 

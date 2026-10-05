@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 
-const backend = 'http://localhost:128'
+const backend = process.env.SH_BACKEND ?? 'http://localhost:128'
 
 export default defineConfig({
   plugins: [vue()],

@@ -4,457 +4,562 @@
  */
 
 export interface paths {
-    readonly "/api/v1/albums/{artist}/{album}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/albums/{artist}/{album}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** An album of an artist */
-        readonly get: operations["getAlbum"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getAlbum"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/albums/{artist}/{album}/cover": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/albums/{artist}/{album}/cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly get?: never;
+        get?: never;
         /** Set the cover of every song in an album */
-        readonly put: operations["setAlbumCover"];
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        put: operations["setAlbumCover"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/artists/{artist}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Progress of the background audio analysis */
+        get: operations["getAnalysisStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/artists/{artist}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** An artist's albums and features */
-        readonly get: operations["getArtist"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getArtist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/downloads": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/downloads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Download status */
-        readonly get: operations["getDownloads"];
-        readonly put?: never;
+        get: operations["getDownloads"];
+        put?: never;
         /**
          * Queue a download
          * @description Accepts a link to any site yt-dlp supports, or a search term that is looked up on YouTube Music.
          */
-        readonly post: operations["enqueueDownload"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        post: operations["enqueueDownload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/downloads/current": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/downloads/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
+        get?: never;
+        put?: never;
+        post?: never;
         /** Abort the running download */
-        readonly delete: operations["abortDownload"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        delete: operations["abortDownload"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/events": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /**
          * Live updates
          * @description Server-sent events for library and download changes. The stream ends if the client falls too far behind; reconnect and refetch.
          */
-        readonly get: operations["events"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/home": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Newest songs */
-        readonly get: operations["getHome"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getHome"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/listings/{kind}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/listings/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Songs grouped by a criterion */
-        readonly get: operations["getListing"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getListing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/search": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/player/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Songs to play next
+         * @description Picks synced songs to continue playback after the queue runs out. Results are random; call again for more.
+         */
+        get: operations["nextSongs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Search songs by title, artist, album and year */
-        readonly get: operations["search"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/songs": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/songs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /**
          * All songs
          * @description Every song in the collection, sorted by title. Other endpoints refer to songs by ID only.
          */
-        readonly get: operations["listSongs"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["listSongs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/songs/random": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/songs/random": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** A random song */
-        readonly get: operations["getRandomSong"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getRandomSong"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/songs/{id}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/songs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Song details */
-        readonly get: operations["getSong"];
+        get: operations["getSong"];
         /**
          * Edit a song
          * @description Replaces all editable fields of a song.
          */
-        readonly put: operations["updateSong"];
-        readonly post?: never;
+        put: operations["updateSong"];
+        post?: never;
         /** Delete a song and its files */
-        readonly delete: operations["deleteSong"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        delete: operations["deleteSong"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/v1/songs/{id}/cover": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/v1/songs/{id}/cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly get?: never;
+        get?: never;
         /**
          * Replace a song's cover
          * @description The image is cropped to a square.
          */
-        readonly put: operations["setSongCover"];
-        readonly post?: never;
+        put: operations["setSongCover"];
+        post?: never;
         /** Remove a song's cover */
-        readonly delete: operations["deleteSongCover"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        delete: operations["deleteSongCover"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        readonly Album: {
-            readonly artist: string;
-            readonly songIds: readonly string[];
-            readonly title: string;
+        Album: {
+            artist: string;
+            songIds: string[];
+            title: string;
         };
-        readonly Artist: {
-            readonly albums: readonly components["schemas"]["Album"][];
+        Analysis: {
+            /** Format: date-time */
+            analyzedAt?: string;
+            /** Format: double */
+            beatStrength?: number;
+            /** Format: double */
+            bpm?: number;
+            /** @description Camelot wheel code, e.g. 8A */
+            camelot?: string;
+            /**
+             * Format: double
+             * @description Spectral centroid (brightness) in Hz
+             */
+            centroid?: number;
+            /** Format: double */
+            energyDb?: number;
+            error?: string;
+            /**
+             * Format: double
+             * @description Spectral flatness, 0 tonal … 1 noisy
+             */
+            flatness?: number;
+            /** @description e.g. A minor */
+            key?: string;
+            /** Format: double */
+            keyStrength?: number;
+            /** Format: double */
+            loudnessLufs?: number;
+            /** Format: double */
+            loudnessRange?: number;
+            /**
+             * Format: double
+             * @description Note onsets per second
+             */
+            onsetRate?: number;
+            /** @enum {string} */
+            status: "pending" | "done" | "failed";
+        };
+        AnalysisStatus: {
+            /** Format: int64 */
+            done: number;
+            running: boolean;
+            /** Format: int64 */
+            total: number;
+        };
+        Artist: {
+            albums: components["schemas"]["Album"][];
             /** @description IDs of songs by other artists featuring this one */
-            readonly featured: readonly string[];
-            readonly name: string;
+            featured: string[];
+            name: string;
             /**
              * Format: double
              * @description Total length of all songs in seconds
              */
-            readonly playTime: number;
+            playTime: number;
             /** Format: int64 */
-            readonly yearEnd?: number;
+            yearEnd?: number;
             /** Format: int64 */
-            readonly yearStart?: number;
+            yearStart?: number;
         };
-        readonly AudioFile: {
-            readonly name: string;
+        AudioFile: {
+            name: string;
             /** Format: int64 */
-            readonly size: number;
+            size: number;
         };
-        readonly Cover: {
+        Cover: {
             /** @description Dominant color as #rrggbb */
-            readonly color?: string;
+            color?: string;
             /**
              * Format: int64
              * @description Width and height in pixels; covers are square
              */
-            readonly size: number;
+            size: number;
         };
-        readonly DownloadFailure: {
-            readonly message: string;
+        DownloadFailure: {
+            message: string;
             /** @description Downloader output, for diagnosis */
-            readonly output?: string;
+            output?: string;
             /** @enum {string} */
-            readonly reason: "aborted" | "tool_failed" | "no_audio" | "invalid_audio" | "duplicate" | "internal";
+            reason: "aborted" | "tool_failed" | "no_audio" | "invalid_audio" | "duplicate" | "internal";
             /** @description The existing song when the reason is duplicate */
-            readonly songId?: string;
+            songId?: string;
         };
-        readonly DownloadFinishedEvent: {
-            readonly error?: components["schemas"]["DownloadFailure"];
+        DownloadFinishedEvent: {
+            error?: components["schemas"]["DownloadFailure"];
         };
-        readonly DownloadStartedEvent: Record<string, never>;
-        readonly DownloadStatus: {
-            readonly lastError?: components["schemas"]["DownloadFailure"];
+        DownloadStartedEvent: Record<string, never>;
+        DownloadStatus: {
+            lastError?: components["schemas"]["DownloadFailure"];
             /**
              * Format: int64
              * @description Downloads waiting after the current one
              */
-            readonly queued: number;
-            readonly running: boolean;
+            queued: number;
+            running: boolean;
             /** @description What the downloader is fetching right now */
-            readonly url?: string;
+            url?: string;
         };
-        readonly EnqueueDownloadRequest: {
+        EnqueueDownloadRequest: {
             /** @description URL or search term */
-            readonly query: string;
+            query: string;
         };
-        readonly ErrorDetail: {
+        ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
-            readonly location?: string;
+            location?: string;
             /** @description Error message text */
-            readonly message?: string;
+            message?: string;
             /** @description The value at the given location */
-            readonly value?: unknown;
+            value?: unknown;
         };
-        readonly Group: {
-            readonly description?: string;
-            readonly link?: string;
-            readonly songIds: readonly string[];
-            readonly title: string;
+        Group: {
+            description?: string;
+            link?: string;
+            songIds: string[];
+            title: string;
         };
-        readonly Home: {
-            readonly songIds: readonly string[];
+        Home: {
+            songIds: string[];
             /** @description Whether all songs were added today */
-            readonly today: boolean;
+            today: boolean;
         };
-        readonly Playback: {
+        NextSong: {
+            /** @description Why the song was picked; 1 is neutral. For debugging only. */
+            factors: {
+                [key: string]: number;
+            };
+            id: string;
+            /** Format: double */
+            score: number;
+        };
+        NextSongs: {
+            songs: components["schemas"]["NextSong"][];
+        };
+        Playback: {
             /**
              * Format: double
              * @description Seconds into the audio file where the song ends
              */
-            readonly end: number;
+            end: number;
             /**
              * Format: double
              * @description Seconds into the audio file where the song starts
              */
-            readonly start: number;
+            start: number;
         };
-        readonly Problem: {
+        Problem: {
             /**
              * @description Machine-readable error code
              * @enum {string}
              */
-            readonly code: "bad_request" | "validation" | "not_found" | "already_downloaded" | "queue_full" | "not_downloading" | "internal" | "other";
+            code: "bad_request" | "validation" | "not_found" | "already_downloaded" | "queue_full" | "not_downloading" | "internal" | "other";
             /**
              * @description A human-readable explanation specific to this occurrence of the problem.
              * @example Property foo is required but is missing.
              */
-            readonly detail?: string;
+            detail?: string;
             /** @description Optional list of individual error details */
-            readonly errors?: readonly components["schemas"]["ErrorDetail"][];
+            errors?: components["schemas"]["ErrorDetail"][];
             /**
              * Format: uri
              * @description A URI reference that identifies the specific occurrence of the problem.
              * @example https://example.com/error-log/abc123
              */
-            readonly instance?: string;
+            instance?: string;
             /** @description Kind of resource that was not found (song, album, artist) */
-            readonly resource?: string;
+            resource?: string;
             /** @description The existing song when the error is already_downloaded */
-            readonly songId?: string;
+            songId?: string;
             /**
              * Format: int64
              * @description HTTP status code
              * @example 400
              */
-            readonly status?: number;
+            status?: number;
             /**
              * @description A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
              * @example Bad Request
              */
-            readonly title?: string;
+            title?: string;
             /**
              * Format: uri
              * @description A URI reference to human-readable documentation for the error.
              * @default about:blank
              * @example https://example.com/errors/example
              */
-            readonly type: string;
+            type: string;
         };
-        readonly SearchResult: {
+        SearchResult: {
             /** @description Best match first */
-            readonly songIds: readonly string[];
+            songIds: string[];
         };
-        readonly SongAddedEvent: {
-            readonly song: components["schemas"]["SongSummary"];
+        SongAddedEvent: {
+            song: components["schemas"]["SongSummary"];
         };
-        readonly SongDeletedEvent: {
-            readonly id: string;
+        SongDeletedEvent: {
+            id: string;
         };
-        readonly SongDetail: {
+        SongDetail: {
             /** Format: date-time */
-            readonly added: string;
-            readonly album?: string;
-            readonly artist?: string;
-            readonly cover?: components["schemas"]["Cover"];
+            added: string;
+            album?: string;
+            analysis: components["schemas"]["Analysis"];
+            artist?: string;
+            cover?: components["schemas"]["Cover"];
             /**
              * Format: double
              * @description Length of the audio file in seconds
              */
-            readonly duration: number;
-            readonly file: components["schemas"]["AudioFile"];
-            readonly id: string;
-            readonly imported: boolean;
+            duration: number;
+            file: components["schemas"]["AudioFile"];
+            id: string;
+            imported: boolean;
             /** Format: date-time */
-            readonly lastEdit: string;
-            readonly playback: components["schemas"]["Playback"];
+            lastEdit: string;
+            /**
+             * Format: double
+             * @description Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud
+             */
+            loudness?: number;
+            playback: components["schemas"]["Playback"];
             /** @description IDs of similar songs */
-            readonly related: readonly string[];
-            readonly sourceUrl: string;
-            readonly sync: boolean;
-            readonly title: string;
+            related: string[];
+            sourceUrl: string;
+            sync: boolean;
+            title: string;
             /** Format: int64 */
-            readonly year?: number;
+            year?: number;
         };
-        readonly SongEditBody: {
-            readonly album: string;
-            readonly artist: string;
+        SongEditBody: {
+            album: string;
+            artist: string;
             /** Format: double */
-            readonly end: number;
+            end: number;
             /** Format: double */
-            readonly start: number;
-            readonly sync: boolean;
-            readonly title: string;
+            start: number;
+            sync: boolean;
+            title: string;
             /**
              * Format: int64
              * @description Omit to clear the year
              */
-            readonly year?: number;
+            year?: number;
         };
-        readonly SongSummary: {
+        SongSummary: {
             /** Format: date-time */
-            readonly added: string;
-            readonly album?: string;
-            readonly artist?: string;
-            readonly cover?: components["schemas"]["Cover"];
+            added: string;
+            album?: string;
+            artist?: string;
+            cover?: components["schemas"]["Cover"];
             /**
              * Format: double
              * @description Length of the audio file in seconds
              */
-            readonly duration: number;
-            readonly id: string;
+            duration: number;
+            id: string;
             /** Format: date-time */
-            readonly lastEdit: string;
-            readonly playback: components["schemas"]["Playback"];
-            readonly sync: boolean;
-            readonly title: string;
+            lastEdit: string;
+            /**
+             * Format: double
+             * @description Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud
+             */
+            loudness?: number;
+            playback: components["schemas"]["Playback"];
+            sync: boolean;
+            title: string;
             /** Format: int64 */
-            readonly year?: number;
+            year?: number;
         };
-        readonly SongUpdatedEvent: {
-            readonly song: components["schemas"]["SongSummary"];
+        SongUpdatedEvent: {
+            song: components["schemas"]["SongSummary"];
         };
     };
     responses: never;
@@ -464,6 +569,8 @@ export interface components {
     pathItems: never;
 }
 export type Album = components['schemas']['Album'];
+export type Analysis = components['schemas']['Analysis'];
+export type AnalysisStatus = components['schemas']['AnalysisStatus'];
 export type Artist = components['schemas']['Artist'];
 export type AudioFile = components['schemas']['AudioFile'];
 export type Cover = components['schemas']['Cover'];
@@ -475,6 +582,8 @@ export type EnqueueDownloadRequest = components['schemas']['EnqueueDownloadReque
 export type ErrorDetail = components['schemas']['ErrorDetail'];
 export type Group = components['schemas']['Group'];
 export type Home = components['schemas']['Home'];
+export type NextSong = components['schemas']['NextSong'];
+export type NextSongs = components['schemas']['NextSongs'];
 export type Playback = components['schemas']['Playback'];
 export type Problem = components['schemas']['Problem'];
 export type SearchResult = components['schemas']['SearchResult'];
@@ -486,595 +595,670 @@ export type SongSummary = components['schemas']['SongSummary'];
 export type SongUpdatedEvent = components['schemas']['SongUpdatedEvent'];
 export type $defs = Record<string, never>;
 export interface operations {
-    readonly getAlbum: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly artist: string;
-                readonly album: string;
+    getAlbum: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                artist: string;
+                album: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["Album"];
+                    "application/json": components["schemas"]["Album"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly setAlbumCover: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly artist: string;
-                readonly album: string;
+    setAlbumCover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                artist: string;
+                album: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: {
-            readonly content: {
-                readonly "multipart/form-data": {
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
                     /** Format: binary */
-                    readonly cover: string;
+                    cover: string;
                 };
             };
         };
-        readonly responses: {
+        responses: {
             /** @description No Content */
-            readonly 204: {
+            204: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content?: never;
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getArtist: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly artist: string;
-            };
-            readonly cookie?: never;
+    getAnalysisStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["Artist"];
+                    "application/json": components["schemas"]["AnalysisStatus"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getDownloads: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    getArtist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                artist: string;
+            };
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["DownloadStatus"];
+                    "application/json": components["schemas"]["Artist"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly enqueueDownload: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    getDownloads: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["EnqueueDownloadRequest"];
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DownloadStatus"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
             };
         };
-        readonly responses: {
+    };
+    enqueueDownload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnqueueDownloadRequest"];
+            };
+        };
+        responses: {
             /** @description Accepted */
-            readonly 202: {
+            202: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["DownloadStatus"];
+                    "application/json": components["schemas"]["DownloadStatus"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly abortDownload: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    abortDownload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description No Content */
-            readonly 204: {
+            204: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content?: never;
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly events: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    events: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "text/event-stream": readonly ({
-                        readonly data: components["schemas"]["DownloadFinishedEvent"];
+                    "text/event-stream": ({
+                        data: components["schemas"]["AnalysisStatus"];
                         /**
                          * @description The event name.
                          * @constant
                          */
-                        readonly event: "downloadFinished";
+                        event: "analysisProgress";
                         /** @description The event ID. */
-                        readonly id?: number;
+                        id?: number;
                         /** @description The retry time in milliseconds. */
-                        readonly retry?: number;
+                        retry?: number;
                     } | {
-                        readonly data: components["schemas"]["DownloadStartedEvent"];
+                        data: components["schemas"]["DownloadFinishedEvent"];
                         /**
                          * @description The event name.
                          * @constant
                          */
-                        readonly event: "downloadStarted";
+                        event: "downloadFinished";
                         /** @description The event ID. */
-                        readonly id?: number;
+                        id?: number;
                         /** @description The retry time in milliseconds. */
-                        readonly retry?: number;
+                        retry?: number;
                     } | {
-                        readonly data: components["schemas"]["SongAddedEvent"];
+                        data: components["schemas"]["DownloadStartedEvent"];
                         /**
                          * @description The event name.
                          * @constant
                          */
-                        readonly event: "songAdded";
+                        event: "downloadStarted";
                         /** @description The event ID. */
-                        readonly id?: number;
+                        id?: number;
                         /** @description The retry time in milliseconds. */
-                        readonly retry?: number;
+                        retry?: number;
                     } | {
-                        readonly data: components["schemas"]["SongDeletedEvent"];
+                        data: components["schemas"]["SongAddedEvent"];
                         /**
                          * @description The event name.
                          * @constant
                          */
-                        readonly event: "songDeleted";
+                        event: "songAdded";
                         /** @description The event ID. */
-                        readonly id?: number;
+                        id?: number;
                         /** @description The retry time in milliseconds. */
-                        readonly retry?: number;
+                        retry?: number;
                     } | {
-                        readonly data: components["schemas"]["SongUpdatedEvent"];
+                        data: components["schemas"]["SongDeletedEvent"];
                         /**
                          * @description The event name.
                          * @constant
                          */
-                        readonly event: "songUpdated";
+                        event: "songDeleted";
                         /** @description The event ID. */
-                        readonly id?: number;
+                        id?: number;
                         /** @description The retry time in milliseconds. */
-                        readonly retry?: number;
+                        retry?: number;
+                    } | {
+                        data: components["schemas"]["SongUpdatedEvent"];
+                        /**
+                         * @description The event name.
+                         * @constant
+                         */
+                        event: "songUpdated";
+                        /** @description The event ID. */
+                        id?: number;
+                        /** @description The retry time in milliseconds. */
+                        retry?: number;
                     })[];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getHome: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    getHome: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["Home"];
+                    "application/json": components["schemas"]["Home"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getListing: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly kind: "title" | "artist" | "year" | "incomplete" | "unsynced" | "edited" | "added";
+    getListing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: "title" | "artist" | "year" | "incomplete" | "unsynced" | "edited" | "added";
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": readonly components["schemas"]["Group"][];
+                    "application/json": components["schemas"]["Group"][];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly search: {
-        readonly parameters: {
-            readonly query: {
-                readonly q: string;
+    nextSongs: {
+        parameters: {
+            query?: {
+                /** @description The song playing now, if any */
+                current?: string;
+                count?: number;
+                /** @description Recently played songs to avoid */
+                exclude?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextSongs"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                q: string;
                 /** @description 0 means no limit */
-                readonly limit?: number;
+                limit?: number;
             };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SearchResult"];
+                    "application/json": components["schemas"]["SearchResult"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly listSongs: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    listSongs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": readonly components["schemas"]["SongSummary"][];
+                    "application/json": components["schemas"]["SongSummary"][];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getRandomSong: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    getRandomSong: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SongSummary"];
+                    "application/json": components["schemas"]["SongSummary"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly getSong: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
+    getSong: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 /** @description Song ID */
-                readonly id: string;
+                id: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SongDetail"];
+                    "application/json": components["schemas"]["SongDetail"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly updateSong: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
+    updateSong: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 /** @description Song ID */
-                readonly id: string;
+                id: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["SongEditBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SongEditBody"];
             };
         };
-        readonly responses: {
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SongSummary"];
+                    "application/json": components["schemas"]["SongSummary"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly deleteSong: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
+    deleteSong: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 /** @description Song ID */
-                readonly id: string;
+                id: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description No Content */
-            readonly 204: {
+            204: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content?: never;
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly setSongCover: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
+    setSongCover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 /** @description Song ID */
-                readonly id: string;
+                id: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: {
-            readonly content: {
-                readonly "multipart/form-data": {
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
                     /** Format: binary */
-                    readonly cover: string;
+                    cover: string;
                 };
             };
         };
-        readonly responses: {
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SongSummary"];
+                    "application/json": components["schemas"]["SongSummary"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
     };
-    readonly deleteSongCover: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
+    deleteSongCover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 /** @description Song ID */
-                readonly id: string;
+                id: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description OK */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SongSummary"];
+                    "application/json": components["schemas"]["SongSummary"];
                 };
             };
             /** @description Error */
-            readonly default: {
+            default: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1089,5 +1273,6 @@ type ReadonlyArray<T> = [
     unknown[]
 ] ? Readonly<Exclude<T, undefined>> : Readonly<Exclude<T, undefined>[]>;
 export const pathsApiV1ListingsKindGetParametersPathKindValues: ReadonlyArray<FlattenedDeepRequired<paths>["/api/v1/listings/{kind}"]["get"]["parameters"]["path"]["kind"]> = ["title", "artist", "year", "incomplete", "unsynced", "edited", "added"];
+export const analysisStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Analysis"]["status"]> = ["pending", "done", "failed"];
 export const downloadFailureReasonValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["DownloadFailure"]["reason"]> = ["aborted", "tool_failed", "no_audio", "invalid_audio", "duplicate", "internal"];
 export const problemCodeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Problem"]["code"]> = ["bad_request", "validation", "not_found", "already_downloaded", "queue_full", "not_downloading", "internal", "other"];

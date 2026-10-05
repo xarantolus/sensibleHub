@@ -37,6 +37,10 @@ type Config struct {
 	} `json:"alternatives"`
 
 	GenerateOnStartup bool `json:"generate_on_startup"`
+
+	Analysis struct {
+		Disabled bool `json:"disabled"`
+	} `json:"analysis"`
 }
 
 const (

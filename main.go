@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
+	"io/fs"
 	"log"
 	"os/exec"
 
@@ -19,13 +21,10 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-var (
-	//go:embed templates
-	templateFS embed.FS
-
-	//go:embed assets
-	assetFS embed.FS
-)
+// The frontend must be built before compiling (make build, or make frontend-build).
+//
+//go:embed all:frontend/dist
+var frontendFS embed.FS
 
 func main() {
 	var (
@@ -86,6 +85,8 @@ func main() {
 	// That way they aren't all generated on the first load of the /songs page
 	go manager.GenerateCoverPreviews()
 
+	manager.StartAnalysis(context.Background())
+
 	// Start the FTP server
 	go func() {
 		err := ftp.RunServer(manager, cfg)
@@ -95,7 +96,11 @@ func main() {
 	}()
 
 	// And the web server of course
-	err = web.RunServer(manager, cfg, assetFS, templateFS, *flagDebug)
+	spa, err := fs.Sub(frontendFS, "frontend/dist")
+	if err != nil {
+		panic("while loading the frontend: " + err.Error())
+	}
+	err = web.RunServer(manager, cfg, spa)
 	if err != nil {
 		panic("while running web server: " + err.Error())
 	}

@@ -3,8 +3,6 @@ package web
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"io/fs"
 	"mime"
 	"net/http"
 	"os"
@@ -16,9 +14,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// HandleCover displays the cover image for the song with the `songID` given in the URL.
-// If the song doesn't have a cover image, it will serve a placeholder image (svg) with an 404 status code.
-// If the URL parameter `size` is "small", a cover preview image will be generated and sent.
+// setVersionedCaching lets browsers keep a response forever when the URL carries
+// the song's version (?v=<last edit>), since an edit changes the URL. Unversioned
+// URLs are revalidated on every use.
+func setVersionedCaching(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("v") != "" {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Header().Del("Pragma")
+	}
+}
+
+// HandleCover serves the cover image for the song with the `songID` given in the URL,
+// or 404 if it has none. If the URL parameter `size` is "small", a preview is sent.
 func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
 	v := mux.Vars(r)
 	if v == nil || v["songID"] == "" {
@@ -52,18 +59,16 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 		return
 	}
 
-	var isMissing bool
-
 	cp := e.CoverPath()
 	if cp == "" {
-		cp = "assets/image-missing.svg"
-		isMissing = true
+		return httpError{StatusCode: http.StatusNotFound, Message: "Song has no cover"}
 	}
+	setVersionedCaching(w, r)
 
 	sizeParam := r.URL.Query().Get("size")
 
 	switch {
-	case strings.ToUpper(sizeParam) == "SMALL" && !isMissing:
+	case strings.ToUpper(sizeParam) == "SMALL":
 		coverBytes, format, err := e.CoverPreview()
 		if err != nil {
 			return err
@@ -81,13 +86,7 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 		// The browser will continue to use an old/cached and already deleted image if we use ServeFile, at least until
 		// the website has been reloaded. Since that isn't good, we need to do it manually and correctly
 
-		var coverFile fs.File
-		if isMissing {
-			// Need to load this from the asset fs
-			coverFile, err = s.assetFS.Open(cp)
-		} else {
-			coverFile, err = os.Open(cp)
-		}
+		coverFile, err := os.Open(cp)
 		if err != nil {
 			return err
 		}
@@ -109,13 +108,7 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 
 		w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%q", fn))
 
-		rs, ok := coverFile.(io.ReadSeeker)
-		if ok {
-			http.ServeContent(w, r, fn, e.LastEdit, rs)
-		} else {
-			return fmt.Errorf("cannot use cover file as io.ReadSeeker (is %T)", coverFile)
-		}
-
+		http.ServeContent(w, r, fn, e.LastEdit, coverFile)
 		return nil
 	}
 }
@@ -140,6 +133,7 @@ func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error)
 	}
 	cp := e.AudioPath()
 
+	setVersionedCaching(w, r)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename(filepath.Ext(e.FileData.Filename)))))
 
 	http.ServeFile(w, r, cp)
@@ -171,6 +165,7 @@ func (s *server) HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
+	setVersionedCaching(w, r)
 	w.Header().Set("Content-Type", "audio/mpeg")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename("mp3"))))
 
