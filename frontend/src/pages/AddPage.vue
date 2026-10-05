@@ -2,14 +2,17 @@
 import { computed, ref } from 'vue'
 
 import { isApiError } from '@/api/client'
-import { useAbortDownload, useDownloads, useEnqueueDownload, useSongIndex } from '@/api/queries'
+import { useAbortDownload, useAnalysisStatus, useDownloads, useEnqueueDownload, useSongIndex } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
 import SongCard from '@/components/SongCard.vue'
+import { useSettings } from '@/composables/useSettings'
 import { useOnline } from '@/composables/useOnline'
 import { describeFailure } from '@/lib/downloadErrors'
 import { notify } from '@/lib/notify'
 
 const downloads = useDownloads()
+const analysis = useAnalysisStatus()
+const settings = useSettings()
 const enqueue = useEnqueueDownload()
 const abort = useAbortDownload()
 const { songs } = useSongIndex()
@@ -99,6 +102,20 @@ function submit(): void {
           Add
         </button>
       </form>
+
+      <div
+        v-if="settings.statsForNerds && analysis.data.value?.running"
+        class="mt-4"
+      >
+        <p class="is-size-7 has-text-grey">
+          Analysing songs: {{ analysis.data.value.done }} / {{ analysis.data.value.total }}
+        </p>
+        <progress
+          class="progress is-small is-info"
+          :value="analysis.data.value.done"
+          :max="analysis.data.value.total"
+        />
+      </div>
 
       <QueryView
         :data="downloads.data.value"

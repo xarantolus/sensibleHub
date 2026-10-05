@@ -8,6 +8,7 @@ import { isApiError } from './api/client'
 import { startServerEvents } from './api/events'
 import App from './App.vue'
 import { notifyError } from './lib/notify'
+import { startOfflineSupport } from './offline'
 import { router } from './router'
 import './styles/main.scss'
 
@@ -15,6 +16,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
+      gcTime: 24 * 60 * 60 * 1000,
+      networkMode: 'offlineFirst',
       retry: (failures, err) => failures < 3 && !(isApiError(err) && err.status >= 400 && err.status < 500),
     },
     mutations: {
@@ -36,3 +39,4 @@ const oruga = createOruga(bulmaConfig, [Autocomplete, Collapse, Field, Modal, No
 app.use(createPinia()).use(router).use(VueQueryPlugin, { queryClient }).use(oruga).mount('#app')
 
 startServerEvents(queryClient)
+startOfflineSupport(queryClient)

@@ -38,7 +38,7 @@ export function useShortcuts(): void {
     if (ev.shiftKey && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) {
       ev.preventDefault()
       if (ev.key === 'ArrowRight') {
-        player.next()
+        void player.next()
       } else {
         player.previous()
       }

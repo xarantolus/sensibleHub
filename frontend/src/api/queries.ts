@@ -15,6 +15,7 @@ export const keys = {
   album: (artist: string, album: string) => ['album', artist, album] as const,
   artist: (name: string) => ['artist', name] as const,
   downloads: ['downloads'] as const,
+  analysis: ['analysis'] as const,
 }
 
 /** Queries derived from the song list; they are refetched whenever a song changes. */
@@ -109,6 +110,13 @@ export function useDownloads() {
   })
 }
 
+export function useAnalysisStatus() {
+  return useQuery({
+    queryKey: keys.analysis,
+    queryFn: ({ signal }) => call(client.GET('/api/v1/analysis', { signal })),
+  })
+}
+
 export async function fetchRandomSong(): Promise<SongSummary> {
   return call(client.GET('/api/v1/songs/random'))
 }
@@ -127,8 +135,23 @@ export function removeSong(qc: QueryClient, id: string): void {
   qc.removeQueries({ queryKey: keys.song(id) })
 }
 
+/** Fields that listings, search and grouping depend on. */
+function groupingKey(s: SongSummary): string {
+  return JSON.stringify([s.title, s.artist, s.album, s.year, s.sync, s.added, s.cover?.size])
+}
+
+/**
+ * Stores a changed song. Derived queries are only refetched when something
+ * they depend on changed; a finished analysis, for example, only refreshes
+ * that song's details.
+ */
 export function upsertSong(qc: QueryClient, song: SongSummary): void {
+  const old = qc.getQueryData<readonly SongSummary[]>(keys.songs)?.find((s) => s.id === song.id)
   replaceSong(qc, song)
+  if (old !== undefined && groupingKey(old) === groupingKey(song)) {
+    void qc.invalidateQueries({ queryKey: keys.song(song.id) })
+    return
+  }
   invalidateDerived(qc)
 }
 

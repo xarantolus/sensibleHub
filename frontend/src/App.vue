@@ -2,6 +2,9 @@
 import AppNavbar from '@/components/AppNavbar.vue'
 import ConnectionBanner from '@/components/ConnectionBanner.vue'
 import ErrorBoundary from '@/components/ErrorBoundary.vue'
+import AudioEngine from '@/components/player/AudioEngine.vue'
+import PlayerBar from '@/components/player/PlayerBar.vue'
+import PlayerFull from '@/components/player/PlayerFull.vue'
 import { useShortcuts } from '@/composables/useShortcuts'
 
 useShortcuts()
@@ -17,6 +20,9 @@ useShortcuts()
       </ErrorBoundary>
     </div>
   </main>
+  <AudioEngine />
+  <PlayerBar />
+  <PlayerFull />
 </template>
 
 <style scoped>

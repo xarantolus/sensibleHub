@@ -30,6 +30,13 @@ function playAll(): void {
   player.playSongs(allIds.value)
 }
 
+function radio(): void {
+  const [id] = shuffled(allIds.value)
+  if (id !== undefined) {
+    player.startRadio(id)
+  }
+}
+
 function shuffle(): void {
   player.playSongs(shuffled(allIds.value))
 }
@@ -69,6 +76,14 @@ function shuffle(): void {
               @click="shuffle"
             >
               Shuffle
+            </button>
+            <button
+              type="button"
+              class="button"
+              :disabled="allIds.length === 0"
+              @click="radio"
+            >
+              Radio
             </button>
           </div>
 

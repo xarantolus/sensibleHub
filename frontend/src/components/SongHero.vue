@@ -70,6 +70,13 @@ const length = computed(() => formatDuration(props.song.playback.end - props.son
         >
           Add to queue
         </button>
+        <button
+          type="button"
+          class="button"
+          @click="player.startRadio(song.id)"
+        >
+          Start radio
+        </button>
       </div>
       <div class="buttons are-small">
         <a

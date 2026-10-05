@@ -93,6 +93,9 @@ export function startServerEvents(qc: QueryClient): () => void {
       setDownloads({ running: true })
       void qc.invalidateQueries({ queryKey: keys.downloads })
     })
+    handle(es, 'analysisProgress', (status) => {
+      qc.setQueryData(keys.analysis, status)
+    })
     handle(es, 'downloadFinished', ({ error }) => {
       setDownloads(error === undefined ? { running: false } : { running: false, lastError: error })
       void qc.invalidateQueries({ queryKey: keys.downloads })

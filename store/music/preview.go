@@ -23,6 +23,9 @@ var (
 	semaphore = make(chan struct{}, runtime.NumCPU()*2)
 )
 
+// PreviewWidth is the width and height of cover previews, sized for song cards on high-density screens.
+const PreviewWidth = 240
+
 type cover struct {
 	date  time.Time
 	bytes []byte
@@ -74,7 +77,7 @@ func (e *Entry) CoverPreview() (c []byte, imageFormat string, err error) {
 		var b bytes.Buffer
 
 		// always returns a jpeg image
-		err = resizeCover(e.CoverPath(), 120, &b)
+		err = resizeCover(e.CoverPath(), PreviewWidth, &b)
 		if err != nil {
 			return
 		}

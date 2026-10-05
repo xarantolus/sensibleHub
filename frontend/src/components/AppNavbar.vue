@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { fetchRandomSong, useDownloads } from '@/api/queries'
+import { useSettings } from '@/composables/useSettings'
 import { notifyError } from '@/lib/notify'
 
 import SearchBox from './SearchBox.vue'
@@ -10,6 +11,7 @@ import SearchBox from './SearchBox.vue'
 const router = useRouter()
 const route = useRoute()
 const downloads = useDownloads()
+const settings = useSettings()
 
 const menuOpen = ref(false)
 const moreOpen = ref(false)
@@ -157,6 +159,14 @@ async function randomSong(): Promise<void> {
               Date added
             </RouterLink>
             <hr class="navbar-divider">
+            <label class="navbar-item more-item">
+              <input
+                v-model="settings.statsForNerds"
+                type="checkbox"
+                class="mr-2"
+              >
+              Stats for nerds
+            </label>
             <a
               class="navbar-item"
               href="https://github.com/xarantolus/sensibleHub"

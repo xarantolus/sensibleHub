@@ -34,3 +34,43 @@
     transform: rotate(360deg);
   }
 }
+
+.sh-range {
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--bulma-primary);
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.sh-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--bulma-scheme-main-ter);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &.is-primary {
+    background: var(--bulma-primary);
+    color: var(--bulma-primary-invert);
+  }
+}

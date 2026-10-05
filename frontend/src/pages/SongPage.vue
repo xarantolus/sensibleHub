@@ -2,13 +2,16 @@
 import { computed } from 'vue'
 
 import { useSong, useSongIndex } from '@/api/queries'
+import AnalysisStats from '@/components/AnalysisStats.vue'
 import QueryView from '@/components/QueryView.vue'
 import SongEditPanel from '@/components/SongEditPanel.vue'
 import SongGrid from '@/components/SongGrid.vue'
 import SongHero from '@/components/SongHero.vue'
+import { useSettings } from '@/composables/useSettings'
 
 const props = defineProps<{ id: string }>()
 
+const settings = useSettings()
 const query = useSong(() => props.id)
 const { index, resolve } = useSongIndex()
 
@@ -45,6 +48,15 @@ const summary = computed(() => index.value.get(props.id))
             :source-url="data.sourceUrl"
             :imported="data.imported"
           />
+          <section
+            v-if="settings.statsForNerds"
+            class="box mt-5"
+          >
+            <h2 class="title is-5">
+              Stats for nerds
+            </h2>
+            <AnalysisStats :analysis="data.analysis" />
+          </section>
           <SongEditPanel
             :song="data"
             class="mt-5"

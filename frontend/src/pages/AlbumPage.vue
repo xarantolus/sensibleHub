@@ -35,6 +35,13 @@ function shuffle(): void {
   player.playSongs(shuffled(songs.value.map((s) => s.id)))
 }
 
+function radio(): void {
+  const [id] = shuffled(songs.value.map((s) => s.id))
+  if (id !== undefined) {
+    player.startRadio(id)
+  }
+}
+
 function changeCover(file: File): void {
   setCover.mutate(
     { artist: props.artist, album: props.album, file },
@@ -94,6 +101,14 @@ function changeCover(file: File): void {
                   @click="shuffle"
                 >
                   Shuffle
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  :disabled="songs.length === 0"
+                  @click="radio"
+                >
+                  Radio
                 </button>
               </div>
             </div>
