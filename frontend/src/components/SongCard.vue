@@ -14,11 +14,28 @@ const player = usePlayer()
     class="song-card"
     :class="{ 'is-current': player.currentId === song.id }"
   >
+    <div class="song-card-cover">
+      <RouterLink
+        :to="{ name: 'song', params: { id: song.id } }"
+        class="song-card-link"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <CoverImage :song="song" />
+      </RouterLink>
+      <div class="song-card-play">
+        <SongActions
+          variant="icon"
+          :ids="[song.id]"
+          :radio-id="song.id"
+          :label="`Play ${song.title}`"
+        />
+      </div>
+    </div>
     <RouterLink
       :to="{ name: 'song', params: { id: song.id } }"
       class="song-card-link"
     >
-      <CoverImage :song="song" />
       <div class="song-card-text">
         <p
           class="song-card-title"
@@ -35,21 +52,16 @@ const player = usePlayer()
         </p>
       </div>
     </RouterLink>
-    <div class="song-card-play">
-      <SongActions
-        variant="icon"
-        :ids="[song.id]"
-        :radio-id="song.id"
-        :label="`Play ${song.title}`"
-      />
-    </div>
   </article>
 </template>
 
 <style scoped>
 .song-card {
-  position: relative;
   min-width: 0;
+}
+
+.song-card-cover {
+  position: relative;
 }
 
 .song-card-link {
@@ -82,24 +94,12 @@ const player = usePlayer()
   color: var(--bulma-primary);
 }
 
-/* A square over the cover, so the button sits in the cover's corner without being inside the link. */
 .song-card-play {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 0.4rem;
-  pointer-events: none;
+  right: 0.4rem;
+  bottom: 0.4rem;
   opacity: 0;
   transition: opacity 0.15s;
-}
-
-.song-card-play > :deep(*) {
-  pointer-events: auto;
 }
 
 @media (max-width: 480px) {

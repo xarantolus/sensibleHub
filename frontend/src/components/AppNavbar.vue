@@ -358,7 +358,15 @@ async function randomSong(): Promise<void> {
   .has-dropdown .navbar-dropdown {
     box-shadow: none;
     border-top: 0;
-    padding: 0 0 0 1rem;
+    padding: 0;
+  }
+
+  .has-dropdown .navbar-dropdown .navbar-item {
+    padding-left: 2rem;
+  }
+
+  .has-dropdown .navbar-dropdown .navbar-divider {
+    margin: 0.25rem 0;
   }
 
   .has-dropdown:not(.is-active) > .navbar-dropdown {
