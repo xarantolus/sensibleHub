@@ -9,7 +9,6 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/edwvee/exiffix v0.0.0-20240229113213-0dbb146775be
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.3
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/vitali-fedulov/images4 v1.3.1
