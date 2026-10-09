@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import { useListing, useSongIndex, type ListingKind } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
-import SongGrid from '@/components/SongGrid.vue'
+import VirtualSongGrid, { type GridGroup } from '@/components/VirtualSongGrid.vue'
+import { jumpTargets } from '@/lib/grid'
 
 const props = defineProps<{ kind: ListingKind; title: string }>()
 
 const listing = useListing(() => props.kind)
 const { resolve } = useSongIndex()
+const grid = useTemplateRef<InstanceType<typeof VirtualSongGrid>>('grid')
 
-const jumpBarMinGroups = 4
-
-const groups = computed(() =>
-  (listing.data.value ?? []).map((group, i) => ({ ...group, anchor: `group-${String(i)}`, songs: resolve(group.songIds) })),
+const groups = computed<GridGroup[]>(() =>
+  (listing.data.value ?? []).map((group, i) => ({
+    key: String(i),
+    title: group.title,
+    ...(group.link === undefined ? {} : { link: group.link }),
+    ...(group.description === undefined ? {} : { description: group.description }),
+    songs: resolve(group.songIds),
+  })),
 )
 
-function jump(anchor: string): void {
-  document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
+const targets = computed(() => jumpTargets(groups.value.map((g) => ({ key: g.key, title: g.title ?? '' }))))
 </script>
 
 <template>
@@ -36,49 +40,28 @@ function jump(anchor: string): void {
         v-if="data.length === 0"
         class="notification has-text-centered"
       >
-        Nothing here.
+        Nothing here
       </p>
       <template v-else>
         <nav
-          v-if="data.length >= jumpBarMinGroups"
+          v-if="targets.length > 3"
           class="jump-bar"
-          aria-label="Jump to group"
+          aria-label="Jump to"
         >
           <button
-            v-for="g in groups"
-            :key="g.anchor"
+            v-for="t in targets"
+            :key="t.key"
             type="button"
-            class="button is-small is-light"
-            @click="jump(g.anchor)"
+            class="jump"
+            @click="grid?.scrollToGroup(t.key)"
           >
-            {{ g.title }}
+            {{ t.label }}
           </button>
         </nav>
-        <section
-          v-for="g in groups"
-          :id="g.anchor"
-          :key="g.anchor"
-          class="listing-group"
-        >
-          <h2 class="title is-4 mb-1">
-            <RouterLink
-              v-if="g.link"
-              :to="g.link"
-            >
-              {{ g.title }}
-            </RouterLink>
-            <template v-else>
-              {{ g.title }}
-            </template>
-          </h2>
-          <p
-            v-if="g.description"
-            class="has-text-grey mb-3"
-          >
-            {{ g.description }}
-          </p>
-          <SongGrid :songs="g.songs" />
-        </section>
+        <VirtualSongGrid
+          ref="grid"
+          :groups="groups"
+        />
       </template>
     </template>
   </QueryView>
@@ -90,20 +73,32 @@ function jump(anchor: string): void {
   top: var(--bulma-navbar-height);
   z-index: 10;
   display: flex;
-  gap: 0.375rem;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
   overflow-x: auto;
   padding: 0.5rem 0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   background: var(--bulma-scheme-main);
-  scrollbar-width: thin;
+  border-bottom: 1px solid var(--bulma-border-weak);
+  scrollbar-width: none;
 }
 
-.jump-bar .button {
+.jump {
   flex: none;
+  min-width: 2rem;
+  padding: 0.2rem 0.55rem;
+  border: 0;
+  border-radius: var(--bulma-radius);
+  background: transparent;
+  color: var(--bulma-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.listing-group {
-  margin-bottom: 2rem;
-  scroll-margin-top: calc(var(--bulma-navbar-height) + 3.5rem);
+.jump:hover {
+  background: var(--bulma-scheme-main-ter);
+  color: var(--bulma-link-text);
 }
 </style>

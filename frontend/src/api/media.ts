@@ -1,23 +1,35 @@
+import { reactive } from 'vue'
+
 import type { SongSummary } from './schema'
 
-type SongRef = Pick<SongSummary, 'id' | 'lastEdit'>
+type SongRef = Pick<SongSummary, 'id'>
 
 const enc = encodeURIComponent
 
-/** The version parameter changes on every edit so browsers never show a replaced cover. */
+/**
+ * Covers are revalidated by the browser (no-cache + ETag), but within a page it
+ * reuses an image it already shows for the same URL. When a song changes, its
+ * revision bumps a URL fragment so the new cover is fetched; fragments never
+ * reach the server.
+ */
+const coverRevision = reactive(new Map<string, number>())
+
+export function bumpCoverRevision(id: string): void {
+  coverRevision.set(id, (coverRevision.get(id) ?? 0) + 1)
+}
+
 export function coverUrl(song: SongRef, size: 'small' | 'full' = 'small'): string {
-  const v = enc(song.lastEdit)
-  return size === 'small'
-    ? `/media/songs/${enc(song.id)}/cover?size=small&v=${v}`
-    : `/media/songs/${enc(song.id)}/cover?v=${v}`
+  const rev = coverRevision.get(song.id)
+  const base = size === 'small' ? `/media/songs/${enc(song.id)}/cover?size=small` : `/media/songs/${enc(song.id)}/cover`
+  return rev === undefined ? base : `${base}#${String(rev)}`
 }
 
 export function audioUrl(song: SongRef): string {
-  return `/media/songs/${enc(song.id)}/audio?v=${enc(song.lastEdit)}`
+  return `/media/songs/${enc(song.id)}/audio`
 }
 
 export function mp3Url(song: SongRef): string {
-  return `/media/songs/${enc(song.id)}/mp3?v=${enc(song.lastEdit)}`
+  return `/media/songs/${enc(song.id)}/mp3`
 }
 
 export const placeholderCover = '/fav/android-chrome-512x512.png'

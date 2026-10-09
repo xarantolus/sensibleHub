@@ -21,7 +21,9 @@ export function startOfflineSupport(qc: QueryClient): void {
       persister: createAsyncStoragePersister({
         storage: { getItem: (k) => get<string>(k).then((v) => v ?? null), setItem: set, removeItem: del },
         key: 'sh-query-cache',
-        throttleTime: 2000,
+        // Writing the whole cache is expensive; live updates (e.g. while the server
+        // analyses songs) would otherwise trigger it every few seconds.
+        throttleTime: 15000,
       }),
       maxAge,
       buster: 'v1',

@@ -14,16 +14,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// setVersionedCaching lets browsers keep a response forever when the URL carries
-// the song's version (?v=<last edit>), since an edit changes the URL. Unversioned
-// URLs are revalidated on every use.
-func setVersionedCaching(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Query().Get("v") != "" {
-		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		w.Header().Del("Pragma")
-	}
-}
-
 // HandleCover serves the cover image for the song with the `songID` given in the URL,
 // or 404 if it has none. If the URL parameter `size` is "small", a preview is sent.
 func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error) {
@@ -43,18 +33,17 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 		}
 	}
 
-	// Store the response, but always re-validate. That way, edited images will be seen
-	w.Header().Set("Cache-Control", "no-cache, max-age=0, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
-
+	// Browsers keep the image but revalidate it on every use, so an edited cover
+	// shows up without changing the URL; unchanged covers cost a 304.
+	sizeParam := r.URL.Query().Get("size")
 	le := e.LastEdit.UTC().Format(http.TimeFormat)
+	etag := fmt.Sprintf(`"%x-%s"`, e.LastEdit.UnixNano(), strings.ToLower(sizeParam))
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("ETag", etag)
 
-	// While ServeContent checks this too, the calls to coverGroup.Do are quite expensive and take long.
-	// So if we are able to abort before getting to that point because the browser already has that image,
-	// we can save some resources and make this request *a lot* faster
-	lm := r.Header.Get("If-Modified-Since")
-
-	if lm != "" && lm == le {
+	// ServeContent checks these too, but only after the preview has been generated,
+	// which is the expensive part.
+	if r.Header.Get("If-None-Match") == etag || (r.Header.Get("If-None-Match") == "" && r.Header.Get("If-Modified-Since") == le) {
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
@@ -63,9 +52,6 @@ func (s *server) HandleCover(w http.ResponseWriter, r *http.Request) (err error)
 	if cp == "" {
 		return httpError{StatusCode: http.StatusNotFound, Message: "Song has no cover"}
 	}
-	setVersionedCaching(w, r)
-
-	sizeParam := r.URL.Query().Get("size")
 
 	switch {
 	case strings.ToUpper(sizeParam) == "SMALL":
@@ -133,7 +119,8 @@ func (s *server) HandleAudio(w http.ResponseWriter, r *http.Request) (err error)
 	}
 	cp := e.AudioPath()
 
-	setVersionedCaching(w, r)
+	// A song's original audio file is never rewritten (trimming only changes playback).
+	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename(filepath.Ext(e.FileData.Filename)))))
 
 	http.ServeFile(w, r, cp)
@@ -165,7 +152,8 @@ func (s *server) HandleMP3(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	setVersionedCaching(w, r)
+	// The MP3 is regenerated after edits; ServeFile's Last-Modified lets clients revalidate.
+	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Content-Type", "audio/mpeg")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", store.CleanName(e.Filename("mp3"))))
 

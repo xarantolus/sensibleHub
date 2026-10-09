@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tansta
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { call, callVoid, client, formData } from './client'
+import { bumpCoverRevision } from './media'
 import type { paths, SongEditBody, SongSummary } from './schema'
 
 export type ListingKind = paths['/api/v1/listings/{kind}']['get']['parameters']['path']['kind']
@@ -147,6 +148,9 @@ function groupingKey(s: SongSummary): string {
  */
 export function upsertSong(qc: QueryClient, song: SongSummary): void {
   const old = qc.getQueryData<readonly SongSummary[]>(keys.songs)?.find((s) => s.id === song.id)
+  if (old !== undefined && old.lastEdit !== song.lastEdit) {
+    bumpCoverRevision(song.id)
+  }
   replaceSong(qc, song)
   if (old !== undefined && groupingKey(old) === groupingKey(song)) {
     void qc.invalidateQueries({ queryKey: keys.song(song.id) })

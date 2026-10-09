@@ -1,29 +1,21 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import { coverUrl, placeholderCover } from '@/api/media'
 import type { SongSummary } from '@/api/schema'
 
 const props = withDefaults(
   defineProps<{
-    song: Pick<SongSummary, 'id' | 'lastEdit' | 'cover' | 'title'>
+    song: Pick<SongSummary, 'id' | 'cover' | 'title'>
     size?: 'small' | 'full'
     eager?: boolean
   }>(),
   { size: 'small', eager: false },
 )
 
-const failed = ref(false)
-watch(
-  () => props.song.lastEdit,
-  () => {
-    failed.value = false
-  },
-)
-
-const src = computed(() =>
-  props.song.cover === undefined || failed.value ? placeholderCover : coverUrl(props.song, props.size),
-)
+const url = computed(() => (props.song.cover === undefined ? placeholderCover : coverUrl(props.song, props.size)))
+const failedUrl = ref<string>()
+const src = computed(() => (failedUrl.value === url.value ? placeholderCover : url.value))
 </script>
 
 <template>
@@ -33,10 +25,10 @@ const src = computed(() =>
   >
     <img
       :src="src"
-      :alt="`Cover of ${song.title}`"
+      :alt="song.title"
       :loading="eager ? 'eager' : 'lazy'"
       decoding="async"
-      @error="failed = true"
+      @error="failedUrl = url"
     >
   </figure>
 </template>
