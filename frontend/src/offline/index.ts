@@ -31,7 +31,11 @@ export function startOfflineSupport(qc: QueryClient): void {
         shouldDehydrateQuery: (q) => q.state.status === 'success' && persistedQueries.has(String(q.queryKey[0])),
       },
     })
-    void restored.catch(() => undefined)
+    // The restored data may predate changes made while the app was closed, and
+    // the song list is never stale on its own (live updates keep it current).
+    void restored
+      .then(() => qc.invalidateQueries(undefined, { cancelRefetch: false }))
+      .catch(() => undefined)
   }
 
   if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureContext) {
