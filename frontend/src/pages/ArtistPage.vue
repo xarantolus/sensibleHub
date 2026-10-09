@@ -81,9 +81,15 @@ function radio(): void {
             class="mt-6"
           >
             <h2 class="title is-4">
-              <RouterLink :to="{ name: 'album', params: { artist: data.name, album: album.title } }">
+              <RouterLink
+                v-if="album.title && data.name"
+                :to="{ name: 'album', params: { artist: data.name, album: album.title } }"
+              >
                 {{ album.title }}
               </RouterLink>
+              <template v-else>
+                Other songs
+              </template>
             </h2>
             <SongGrid :songs="resolve(album.songIds)" />
           </section>
