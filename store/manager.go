@@ -30,6 +30,11 @@ type Manager struct {
 	Songs     map[string]music.Entry `json:"songs"`
 	SongsLock *sync.RWMutex          `json:"-"`
 
+	// UnsyncedArtists are artists whose songs are never synced, whatever the songs' own setting.
+	// Written with both SongsLock and artistsLock held; taken in that order.
+	UnsyncedArtists []string `json:"unsynced_artists,omitempty"`
+	artistsLock     sync.RWMutex
+
 	// enqueuedURLs is a queue where all urls that should be downloaded are put in.
 	// They will be processed sequentially
 	enqueuedURLs chan string

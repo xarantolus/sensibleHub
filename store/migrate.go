@@ -11,6 +11,9 @@ import (
 var migrations = []func(m *Manager) error{
 	// 0 → 1: entries may now carry an optional analysis; nothing to convert.
 	func(*Manager) error { return nil },
+	// 1 → 2: optional unsynced_artists list. Nothing to convert, but an older
+	// build would drop the list when saving, so it must refuse this file.
+	func(*Manager) error { return nil },
 }
 
 func currentSchema() int { return len(migrations) }

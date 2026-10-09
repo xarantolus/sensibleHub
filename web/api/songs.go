@@ -35,7 +35,7 @@ func registerSongs(api huma.API, m *store.Manager) {
 		entries := m.AllEntries()
 		out := make([]SongSummary, len(entries))
 		for i, e := range entries {
-			out[i] = songSummary(e)
+			out[i] = songSummary(m, e)
 		}
 		return &body[[]SongSummary]{out}, nil
 	})
@@ -48,7 +48,7 @@ func registerSongs(api huma.API, m *store.Manager) {
 		if !ok {
 			return nil, toProblem("random song", &store.NotFoundError{Kind: "song", Key: "random"})
 		}
-		return &body[SongSummary]{songSummary(e)}, nil
+		return &body[SongSummary]{songSummary(m, e)}, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -59,7 +59,7 @@ func registerSongs(api huma.API, m *store.Manager) {
 		if !ok {
 			return nil, toProblem("get song", &store.NotFoundError{Kind: "song", Key: in.ID})
 		}
-		return &body[SongDetail]{songDetail(e, m.GetRelatedSongs(e))}, nil
+		return &body[SongDetail]{songDetail(m, e, m.GetRelatedSongs(e))}, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -81,7 +81,7 @@ func registerSongs(api huma.API, m *store.Manager) {
 		if err != nil {
 			return nil, toProblem("update song", err)
 		}
-		return &body[SongSummary]{songSummary(e)}, nil
+		return &body[SongSummary]{songSummary(m, e)}, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -108,7 +108,7 @@ func registerSongs(api huma.API, m *store.Manager) {
 		if err != nil {
 			return nil, toProblem("set cover", err)
 		}
-		return &body[SongSummary]{songSummary(e)}, nil
+		return &body[SongSummary]{songSummary(m, e)}, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -122,6 +122,6 @@ func registerSongs(api huma.API, m *store.Manager) {
 		if !ok {
 			return nil, toProblem("delete cover", &store.NotFoundError{Kind: "song", Key: in.ID})
 		}
-		return &body[SongSummary]{songSummary(e)}, nil
+		return &body[SongSummary]{songSummary(m, e)}, nil
 	})
 }

@@ -35,7 +35,7 @@ func (m *Manager) NextSongs(current string, count int, exclude []string) []Sugge
 	prev, hasPrev := m.Songs[current]
 	var pool []music.Entry
 	for _, e := range m.Songs {
-		if e.SyncSettings.Should && e.ID != current {
+		if m.ShouldSync(e) && e.ID != current {
 			pool = append(pool, e)
 		}
 	}

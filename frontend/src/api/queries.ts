@@ -3,7 +3,7 @@ import { computed, shallowRef, toValue, type MaybeRefOrGetter, type ShallowRef }
 
 import { call, callVoid, client, formData } from './client'
 import { bumpCoverRevision } from './media'
-import type { paths, SongEditBody, SongSummary } from './schema'
+import type { Artist, paths, SongEditBody, SongSummary } from './schema'
 
 export type ListingKind = paths['/api/v1/listings/{kind}']['get']['parameters']['path']['kind']
 
@@ -127,6 +127,24 @@ export function useArtist(name: MaybeRefOrGetter<string>) {
     queryKey: computed(() => keys.artist(toValue(name))),
     queryFn: ({ signal }) =>
       call(client.GET('/api/v1/artists/{artist}', { params: { path: { artist: toValue(name) } }, signal })),
+  })
+}
+
+/** An artist's sync setting changes `artistSync` on all of their songs. */
+export function refetchAfterArtistSync(qc: QueryClient): void {
+  void qc.invalidateQueries({ queryKey: keys.songs })
+  invalidateDerived(qc)
+}
+
+export function useSetArtistSync() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ artist, sync }: { artist: string; sync: boolean }) =>
+      callVoid(client.PUT('/api/v1/artists/{artist}/sync', { params: { path: { artist } }, body: { sync } })),
+    onSuccess: (_data, { artist, sync }) => {
+      qc.setQueryData<Artist>(keys.artist(artist), (old) => (old === undefined ? old : { ...old, sync }))
+      refetchAfterArtistSync(qc)
+    },
   })
 }
 

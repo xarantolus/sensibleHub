@@ -141,6 +141,10 @@
             "format": "double",
             "type": "number"
           },
+          "sync": {
+            "description": "False when the artist is excluded from syncing",
+            "type": "boolean"
+          },
           "yearEnd": {
             "format": "int64",
             "type": "integer"
@@ -153,8 +157,25 @@
         "required": [
           "name",
           "playTime",
+          "sync",
           "albums",
           "featured"
+        ],
+        "type": "object"
+      },
+      "ArtistSyncChangedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "artist": {
+            "type": "string"
+          },
+          "sync": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "artist",
+          "sync"
         ],
         "type": "object"
       },
@@ -570,6 +591,18 @@
         ],
         "type": "object"
       },
+      "SetArtistSyncRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "sync": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sync"
+        ],
+        "type": "object"
+      },
       "SongAddedEvent": {
         "additionalProperties": false,
         "properties": {
@@ -609,6 +642,10 @@
           },
           "artist": {
             "type": "string"
+          },
+          "artistSync": {
+            "description": "False when the song's artist is excluded from syncing",
+            "type": "boolean"
           },
           "cover": {
             "$ref": "#/components/schemas/Cover"
@@ -653,6 +690,7 @@
             "type": "string"
           },
           "sync": {
+            "description": "The song's own setting; it only syncs if artistSync is true as well",
             "type": "boolean"
           },
           "title": {
@@ -675,6 +713,7 @@
           "duration",
           "playback",
           "sync",
+          "artistSync",
           "added",
           "lastEdit"
         ],
@@ -737,6 +776,10 @@
           "artist": {
             "type": "string"
           },
+          "artistSync": {
+            "description": "False when the song's artist is excluded from syncing",
+            "type": "boolean"
+          },
           "cover": {
             "$ref": "#/components/schemas/Cover"
           },
@@ -761,6 +804,7 @@
             "$ref": "#/components/schemas/Playback"
           },
           "sync": {
+            "description": "The song's own setting; it only syncs if artistSync is true as well",
             "type": "boolean"
           },
           "title": {
@@ -777,6 +821,7 @@
           "duration",
           "playback",
           "sync",
+          "artistSync",
           "added",
           "lastEdit"
         ],
@@ -978,6 +1023,48 @@
         "summary": "An artist's albums and features"
       }
     },
+    "/api/v1/artists/{artist}/sync": {
+      "put": {
+        "description": "While excluded, none of the artist's songs are synced or suggested, whatever their own setting.",
+        "operationId": "setArtistSync",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artist",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetArtistSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Exclude an artist from syncing, or include it again"
+      }
+    },
     "/api/v1/downloads": {
       "get": {
         "operationId": "getDownloads",
@@ -1100,6 +1187,32 @@
                           "event"
                         ],
                         "title": "Event analysisProgress",
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/ArtistSyncChangedEvent"
+                          },
+                          "event": {
+                            "const": "artistSyncChanged",
+                            "description": "The event name.",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "The event ID.",
+                            "type": "integer"
+                          },
+                          "retry": {
+                            "description": "The retry time in milliseconds.",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "data",
+                          "event"
+                        ],
+                        "title": "Event artistSyncChanged",
                         "type": "object"
                       },
                       {

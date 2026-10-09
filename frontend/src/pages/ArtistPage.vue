@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useArtist, useSongIndex } from '@/api/queries'
+import { useArtist, useSetArtistSync, useSongIndex } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
 import SongActions from '@/components/SongActions.vue'
 import SongGrid from '@/components/SongGrid.vue'
+import { useOnline } from '@/composables/useOnline'
 import { formatDuration } from '@/lib/format'
 import { shuffled } from '@/lib/shuffle'
 import { usePlayer } from '@/stores/player'
@@ -14,6 +15,8 @@ const props = defineProps<{ artist: string }>()
 const query = useArtist(() => props.artist)
 const { resolve } = useSongIndex()
 const player = usePlayer()
+const online = useOnline()
+const setSync = useSetArtistSync()
 
 const allIds = computed(() => query.data.value?.albums.flatMap((a) => a.songIds) ?? [])
 
@@ -28,6 +31,10 @@ const years = computed(() => {
 })
 
 const shuffledIds = computed(() => shuffled(allIds.value))
+
+function toggleSync(sync: boolean): void {
+  setSync.mutate({ artist: props.artist, sync })
+}
 
 function radio(): void {
   const [id] = shuffledIds.value
@@ -73,6 +80,16 @@ function radio(): void {
             >
               Radio
             </button>
+            <span class="artist-sync">
+              <o-switch
+                :model-value="setSync.isPending.value ? setSync.variables.value?.sync : data.sync"
+                :disabled="!online || setSync.isPending.value"
+                :title="online ? undefined : 'You are offline'"
+                @update:model-value="toggleSync"
+              >
+                Sync
+              </o-switch>
+            </span>
           </div>
 
           <section
@@ -111,3 +128,12 @@ function radio(): void {
     </div>
   </div>
 </template>
+
+<style scoped>
+.artist-sync {
+  display: inline-flex;
+  align-items: center;
+  height: var(--bulma-control-height);
+  margin-left: 0.25rem;
+}
+</style>

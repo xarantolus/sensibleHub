@@ -30,7 +30,7 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 
 	for _, e := range entries {
 		// Entries that should not be synced will not appear in the listing
-		if !e.SyncSettings.Should {
+		if !m.ShouldSync(e) {
 			continue
 		}
 

@@ -72,6 +72,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/artists/{artist}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Exclude an artist from syncing, or include it again
+         * @description While excluded, none of the artist's songs are synced or suggested, whatever their own setting.
+         */
+        put: operations["setArtistSync"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/downloads": {
         parameters: {
             query?: never;
@@ -365,10 +385,16 @@ export interface components {
              * @description Total length of all songs in seconds
              */
             playTime: number;
+            /** @description False when the artist is excluded from syncing */
+            sync: boolean;
             /** Format: int64 */
             yearEnd?: number;
             /** Format: int64 */
             yearStart?: number;
+        };
+        ArtistSyncChangedEvent: {
+            artist: string;
+            sync: boolean;
         };
         AudioFile: {
             name: string;
@@ -535,6 +561,9 @@ export interface components {
             /** @description Best match first */
             songIds: string[];
         };
+        SetArtistSyncRequest: {
+            sync: boolean;
+        };
         SongAddedEvent: {
             song: components["schemas"]["SongSummary"];
         };
@@ -547,6 +576,8 @@ export interface components {
             album?: string;
             analysis: components["schemas"]["Analysis"];
             artist?: string;
+            /** @description False when the song's artist is excluded from syncing */
+            artistSync: boolean;
             cover?: components["schemas"]["Cover"];
             /**
              * Format: double
@@ -568,6 +599,7 @@ export interface components {
             /** @description IDs of similar songs */
             related: string[];
             sourceUrl: string;
+            /** @description The song's own setting; it only syncs if artistSync is true as well */
             sync: boolean;
             title: string;
             /** Format: int64 */
@@ -593,6 +625,8 @@ export interface components {
             added: string;
             album?: string;
             artist?: string;
+            /** @description False when the song's artist is excluded from syncing */
+            artistSync: boolean;
             cover?: components["schemas"]["Cover"];
             /**
              * Format: double
@@ -608,6 +642,7 @@ export interface components {
              */
             loudness?: number;
             playback: components["schemas"]["Playback"];
+            /** @description The song's own setting; it only syncs if artistSync is true as well */
             sync: boolean;
             title: string;
             /** Format: int64 */
@@ -627,6 +662,7 @@ export type Album = components['schemas']['Album'];
 export type Analysis = components['schemas']['Analysis'];
 export type AnalysisStatus = components['schemas']['AnalysisStatus'];
 export type Artist = components['schemas']['Artist'];
+export type ArtistSyncChangedEvent = components['schemas']['ArtistSyncChangedEvent'];
 export type AudioFile = components['schemas']['AudioFile'];
 export type Cover = components['schemas']['Cover'];
 export type DownloadFailure = components['schemas']['DownloadFailure'];
@@ -645,6 +681,7 @@ export type Playback = components['schemas']['Playback'];
 export type Problem = components['schemas']['Problem'];
 export type ReportPlaysRequest = components['schemas']['ReportPlaysRequest'];
 export type SearchResult = components['schemas']['SearchResult'];
+export type SetArtistSyncRequest = components['schemas']['SetArtistSyncRequest'];
 export type SongAddedEvent = components['schemas']['SongAddedEvent'];
 export type SongDeletedEvent = components['schemas']['SongDeletedEvent'];
 export type SongDetail = components['schemas']['SongDetail'];
@@ -782,6 +819,39 @@ export interface operations {
             };
         };
     };
+    setArtistSync: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                artist: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetArtistSyncRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     getDownloads: {
         parameters: {
             query?: never;
@@ -893,6 +963,17 @@ export interface operations {
                          * @constant
                          */
                         event: "analysisProgress";
+                        /** @description The event ID. */
+                        id?: number;
+                        /** @description The retry time in milliseconds. */
+                        retry?: number;
+                    } | {
+                        data: components["schemas"]["ArtistSyncChangedEvent"];
+                        /**
+                         * @description The event name.
+                         * @constant
+                         */
+                        event: "artistSyncChanged";
                         /** @description The event ID. */
                         id?: number;
                         /** @description The retry time in milliseconds. */

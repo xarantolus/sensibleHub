@@ -409,11 +409,21 @@ function removeSong(): void {
 
     <div class="field">
       <o-switch
+        v-if="song.artistSync"
         v-model="sync"
         :disabled="readOnly"
       >
         Enable synchronization
       </o-switch>
+      <template v-else>
+        <o-switch
+          :model-value="false"
+          disabled
+        />
+        <RouterLink :to="{ name: 'artist', params: { artist: song.artist ?? '' } }">
+          Artist not synced
+        </RouterLink>
+      </template>
     </div>
 
     <div class="form-actions">

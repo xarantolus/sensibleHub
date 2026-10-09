@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/vue-query'
 import { readonly, ref } from 'vue'
 
-import { invalidateDerived, keys, removeSong, upsertSong } from './queries'
+import { invalidateDerived, keys, refetchAfterArtistSync, removeSong, upsertSong } from './queries'
 import type { DownloadStatus, paths } from './schema'
 
 type ServerEvent = paths['/api/v1/events']['get']['responses'][200]['content']['text/event-stream'][number]
@@ -88,6 +88,9 @@ export function startServerEvents(qc: QueryClient): () => void {
     handle(es, 'songDeleted', ({ id }) => {
       removeSong(qc, id)
       invalidateDerived(qc)
+    })
+    handle(es, 'artistSyncChanged', () => {
+      refetchAfterArtistSync(qc)
     })
     handle(es, 'downloadStarted', () => {
       setDownloads({ running: true })

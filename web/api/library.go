@@ -106,6 +106,7 @@ func registerLibrary(api huma.API, m *store.Manager) {
 			PlayTime:  info.PlayTime,
 			YearStart: info.YearStart,
 			YearEnd:   info.YearEnd,
+			Sync:      m.ArtistSynced(info.Name),
 			Albums:    make([]Album, len(info.Albums)),
 			Featured:  ids(info.Featured),
 		}
@@ -113,6 +114,23 @@ func registerLibrary(api huma.API, m *store.Manager) {
 			a.Albums[i] = album(al)
 		}
 		return &body[Artist]{a}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "setArtistSync", Method: http.MethodPut, Path: base + "/artists/{artist}/sync",
+		Summary:       "Exclude an artist from syncing, or include it again",
+		Description:   "While excluded, none of the artist's songs are synced or suggested, whatever their own setting.",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, in *struct {
+		Artist string `path:"artist"`
+		Body   struct {
+			Sync bool `json:"sync"`
+		}
+	}) (*struct{}, error) {
+		if err := m.SetArtistSync(in.Artist, in.Body.Sync); err != nil {
+			return nil, toProblem("set artist sync", err)
+		}
+		return nil, nil
 	})
 }
 

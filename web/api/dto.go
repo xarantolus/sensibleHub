@@ -20,18 +20,19 @@ type Playback struct {
 }
 
 type SongSummary struct {
-	ID       string    `json:"id"`
-	Title    string    `json:"title"`
-	Artist   string    `json:"artist,omitempty"`
-	Album    string    `json:"album,omitempty"`
-	Year     *int      `json:"year,omitempty"`
-	Duration float64   `json:"duration" doc:"Length of the audio file in seconds"`
-	Playback Playback  `json:"playback"`
-	Sync     bool      `json:"sync"`
-	Added    time.Time `json:"added"`
-	LastEdit time.Time `json:"lastEdit"`
-	Cover    *Cover    `json:"cover,omitempty"`
-	Loudness *float64  `json:"loudness,omitempty" doc:"Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud"`
+	ID         string    `json:"id"`
+	Title      string    `json:"title"`
+	Artist     string    `json:"artist,omitempty"`
+	Album      string    `json:"album,omitempty"`
+	Year       *int      `json:"year,omitempty"`
+	Duration   float64   `json:"duration" doc:"Length of the audio file in seconds"`
+	Playback   Playback  `json:"playback"`
+	Sync       bool      `json:"sync" doc:"The song's own setting; it only syncs if artistSync is true as well"`
+	ArtistSync bool      `json:"artistSync" doc:"False when the song's artist is excluded from syncing"`
+	Added      time.Time `json:"added"`
+	LastEdit   time.Time `json:"lastEdit"`
+	Cover      *Cover    `json:"cover,omitempty"`
+	Loudness   *float64  `json:"loudness,omitempty" doc:"Integrated loudness in LUFS, once the song is analysed; used to play songs equally loud"`
 }
 
 type Analysis struct {
@@ -97,6 +98,7 @@ type Artist struct {
 	PlayTime  float64  `json:"playTime" doc:"Total length of all songs in seconds"`
 	YearStart int      `json:"yearStart,omitempty"`
 	YearEnd   int      `json:"yearEnd,omitempty"`
+	Sync      bool     `json:"sync" doc:"False when the artist is excluded from syncing"`
 	Albums    []Album  `json:"albums"`
 	Featured  []string `json:"featured" doc:"IDs of songs by other artists featuring this one"`
 }
@@ -115,18 +117,19 @@ type DownloadStatus struct {
 	LastError *DownloadFailure `json:"lastError,omitempty"`
 }
 
-func songSummary(e music.Entry) SongSummary {
+func songSummary(m *store.Manager, e music.Entry) SongSummary {
 	s := SongSummary{
-		ID:       e.ID,
-		Title:    e.MusicData.Title,
-		Artist:   e.MusicData.Artist,
-		Album:    e.MusicData.Album,
-		Year:     e.MusicData.Year,
-		Duration: e.MusicData.Duration,
-		Playback: Playback{Start: max(e.AudioSettings.Start, 0), End: e.AudioSettings.End},
-		Sync:     e.SyncSettings.Should,
-		Added:    e.Added,
-		LastEdit: e.LastEdit,
+		ID:         e.ID,
+		Title:      e.MusicData.Title,
+		Artist:     e.MusicData.Artist,
+		Album:      e.MusicData.Album,
+		Year:       e.MusicData.Year,
+		Duration:   e.MusicData.Duration,
+		Playback:   Playback{Start: max(e.AudioSettings.Start, 0), End: e.AudioSettings.End},
+		Sync:       e.SyncSettings.Should,
+		ArtistSync: m.ArtistSynced(e.Artist()),
+		Added:      e.Added,
+		LastEdit:   e.LastEdit,
 	}
 	if s.Playback.End <= 0 || s.Playback.End > s.Duration {
 		s.Playback.End = s.Duration
@@ -141,9 +144,9 @@ func songSummary(e music.Entry) SongSummary {
 	return s
 }
 
-func songDetail(e music.Entry, related []music.Entry) SongDetail {
+func songDetail(m *store.Manager, e music.Entry, related []music.Entry) SongDetail {
 	return SongDetail{
-		SongSummary: songSummary(e),
+		SongSummary: songSummary(m, e),
 		SourceURL:   e.SourceURL,
 		Imported:    e.IsImported(),
 		File:        AudioFile{Name: e.FileData.Filename, Size: e.FileData.Size},

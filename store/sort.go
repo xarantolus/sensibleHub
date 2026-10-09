@@ -342,12 +342,22 @@ func (m *Manager) Unsynced() (groups []Group) {
 		Title: "Unsynced",
 	}
 
+	byArtist := make(map[string]*Group)
 	for _, song := range m.AllEntries() {
-		if song.SyncSettings.Should {
-			continue
+		switch {
+		case !song.SyncSettings.Should:
+			g.Songs = append(g.Songs, song)
+		case !m.ArtistSynced(song.Artist()):
+			key := artistKey(song.Artist())
+			if byArtist[key] == nil {
+				byArtist[key] = &Group{
+					Title:       song.Artist(),
+					Description: "Artist not synced",
+					Link:        "/artist/" + CleanName(song.Artist()),
+				}
+			}
+			byArtist[key].Songs = append(byArtist[key].Songs, song)
 		}
-
-		g.Songs = append(g.Songs, song)
 	}
 
 	if len(g.Songs) > 0 {
@@ -355,7 +365,15 @@ func (m *Manager) Unsynced() (groups []Group) {
 		groups = []Group{g}
 	}
 
-	return
+	artistGroups := make([]Group, 0, len(byArtist))
+	for _, ag := range byArtist {
+		artistGroups = append(artistGroups, *ag)
+	}
+	sort.Slice(artistGroups, func(i, j int) bool {
+		return strings.ToUpper(artistGroups[i].Title) < strings.ToUpper(artistGroups[j].Title)
+	})
+
+	return append(groups, artistGroups...)
 }
 
 // RecentlyEdited returns a group of songs that were edited within

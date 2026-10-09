@@ -22,6 +22,11 @@ type SongDeletedEvent struct {
 	ID string `json:"id"`
 }
 
+type ArtistSyncChangedEvent struct {
+	Artist string `json:"artist"`
+	Sync   bool   `json:"sync"`
+}
+
 type DownloadStartedEvent struct{}
 
 type DownloadFinishedEvent struct {
@@ -36,12 +41,13 @@ func registerEvents(api huma.API, m *store.Manager) {
 		Summary:     "Live updates",
 		Description: "Server-sent events for library and download changes. The stream ends if the client falls too far behind; reconnect and refetch.",
 	}, map[string]any{
-		"songAdded":        SongAddedEvent{},
-		"songUpdated":      SongUpdatedEvent{},
-		"songDeleted":      SongDeletedEvent{},
-		"downloadStarted":  DownloadStartedEvent{},
-		"downloadFinished": DownloadFinishedEvent{},
-		"analysisProgress": AnalysisStatus{},
+		"songAdded":         SongAddedEvent{},
+		"songUpdated":       SongUpdatedEvent{},
+		"songDeleted":       SongDeletedEvent{},
+		"artistSyncChanged": ArtistSyncChangedEvent{},
+		"downloadStarted":   DownloadStartedEvent{},
+		"downloadFinished":  DownloadFinishedEvent{},
+		"analysisProgress":  AnalysisStatus{},
 	}, func(ctx context.Context, _ *struct{}, send sse.Sender) {
 		events, cancel := m.Subscribe()
 		defer cancel()
@@ -66,7 +72,7 @@ func registerEvents(api huma.API, m *store.Manager) {
 				if !ok {
 					return
 				}
-				err = send.Data(eventPayload(e))
+				err = send.Data(eventPayload(m, e))
 			}
 			if err != nil {
 				return
@@ -75,12 +81,14 @@ func registerEvents(api huma.API, m *store.Manager) {
 	})
 }
 
-func eventPayload(e store.Event) any {
+func eventPayload(m *store.Manager, e store.Event) any {
 	switch e := e.(type) {
 	case store.SongAdded:
-		return SongAddedEvent{Song: songSummary(e.Song)}
+		return SongAddedEvent{Song: songSummary(m, e.Song)}
 	case store.SongUpdated:
-		return SongUpdatedEvent{Song: songSummary(e.Song)}
+		return SongUpdatedEvent{Song: songSummary(m, e.Song)}
+	case store.ArtistSyncChanged:
+		return ArtistSyncChangedEvent{Artist: e.Artist, Sync: e.Sync}
 	case store.SongDeleted:
 		return SongDeletedEvent{ID: e.ID}
 	case store.DownloadStarted:
