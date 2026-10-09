@@ -16,6 +16,7 @@
     "@tanstack/query-async-storage-persister": "^5.104.1",
     "@tanstack/query-persist-client-core": "^5.104.1",
     "@tanstack/vue-query": "^5.104.1",
+    "@tanstack/vue-virtual": "^3.13.39",
     "bulma": "^1.0.4",
     "idb-keyval": "^6.3.0",
     "openapi-fetch": "^0.17.0",
