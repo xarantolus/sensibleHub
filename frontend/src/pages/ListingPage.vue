@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
+import { computed, toRaw, useTemplateRef } from 'vue'
 
 import { useListing, useSongIndex, type ListingKind } from '@/api/queries'
 import QueryView from '@/components/QueryView.vue'
@@ -13,7 +13,7 @@ const { resolve } = useSongIndex()
 const grid = useTemplateRef<InstanceType<typeof VirtualSongGrid>>('grid')
 
 const groups = computed<GridGroup[]>(() =>
-  (listing.data.value ?? []).map((group, i) => ({
+  toRaw(listing.data.value ?? []).map((group, i) => ({
     key: String(i),
     title: group.title,
     ...(group.link === undefined ? {} : { link: group.link }),

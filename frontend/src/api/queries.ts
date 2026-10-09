@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/vue-query'
-import { computed, toValue, type MaybeRefOrGetter } from 'vue'
+import { computed, shallowRef, toValue, type MaybeRefOrGetter, type ShallowRef } from 'vue'
 
 import { call, callVoid, client, formData } from './client'
 import { bumpCoverRevision } from './media'
@@ -36,10 +36,36 @@ export function useSongs() {
   })
 }
 
+const songIndexes = new WeakMap<QueryClient, ShallowRef<ReadonlyMap<string, SongSummary>>>()
+
+function buildIndex(songs: readonly SongSummary[] | undefined): ReadonlyMap<string, SongSummary> {
+  return new Map((songs ?? []).map((s) => [s.id, s]))
+}
+
+/**
+ * One index for the whole app, built from the raw cached list whenever it
+ * changes. Building it per component from the reactive query data wrapped
+ * every song in a proxy on each live update.
+ */
+function sharedSongIndex(qc: QueryClient): ShallowRef<ReadonlyMap<string, SongSummary>> {
+  let index = songIndexes.get(qc)
+  if (index === undefined) {
+    const ref = shallowRef(buildIndex(qc.getQueryData<readonly SongSummary[]>(keys.songs)))
+    qc.getQueryCache().subscribe((event) => {
+      if ((event.type === 'updated' || event.type === 'added') && event.query.queryKey[0] === keys.songs[0]) {
+        ref.value = buildIndex(event.query.state.data as readonly SongSummary[] | undefined)
+      }
+    })
+    songIndexes.set(qc, ref)
+    index = ref
+  }
+  return index
+}
+
 /** All songs by ID. Views receive IDs from the API and resolve them here. */
 export function useSongIndex() {
   const songs = useSongs()
-  const index = computed(() => new Map((songs.data.value ?? []).map((s) => [s.id, s])))
+  const index = sharedSongIndex(useQueryClient())
   return {
     songs,
     index,

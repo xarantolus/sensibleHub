@@ -72,6 +72,7 @@ func decodeAndAnalyze(ctx context.Context, ffmpeg, path string, start, end float
 	if err := cmd.Start(); err != nil {
 		return Features{}, err
 	}
+	lowerPriority(cmd.Process)
 
 	a := NewAnalyzer()
 	r := bufio.NewReaderSize(stdout, 1<<16)
@@ -112,11 +113,18 @@ var (
 func loudness(ctx context.Context, ffmpeg, path string, start, end float64) (lufs, lra float64, err error) {
 	args := append([]string{"-nostats", "-hide_banner", "-nostdin"}, rangeArgs(start, end)...)
 	args = append(args, "-i", path, "-vn", "-filter_complex", "ebur128", "-f", "null", "-")
-	out, err := exec.CommandContext(ctx, ffmpeg, args...).CombinedOutput()
-	if err != nil {
+	cmd := exec.CommandContext(ctx, ffmpeg, args...)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &out
+	if err := cmd.Start(); err != nil {
 		return 0, 0, fmt.Errorf("measuring loudness: %w", err)
 	}
-	return parseLoudness(out)
+	lowerPriority(cmd.Process)
+	if err := cmd.Wait(); err != nil {
+		return 0, 0, fmt.Errorf("measuring loudness: %w", err)
+	}
+	return parseLoudness(out.Bytes())
 }
 
 func parseLoudness(out []byte) (lufs, lra float64, err error) {
