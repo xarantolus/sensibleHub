@@ -18,8 +18,8 @@ const summary = computed(() => index.value.get(props.id))
 </script>
 
 <template>
-  <section class="section">
-    <div class="container">
+  <div>
+    <div>
       <QueryView
         :data="query.data.value"
         :error="query.error.value"
@@ -67,5 +67,5 @@ const summary = computed(() => index.value.get(props.id))
         </template>
       </QueryView>
     </div>
-  </section>
+  </div>
 </template>

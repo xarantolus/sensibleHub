@@ -185,7 +185,7 @@ func isLetter(r rune) bool {
 }
 
 const (
-	newSongs = 10
+	newSongs = 25
 )
 
 // Newest returns the newest entries
@@ -215,7 +215,7 @@ func (m *Manager) Newest() (list []music.Entry, today bool) {
 		list = append(list, song)
 	}
 
-	if len(list) >= (newSongs / 2) {
+	if len(list) > newSongs {
 		return list, true
 	}
 

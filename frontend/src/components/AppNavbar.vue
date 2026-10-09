@@ -112,22 +112,36 @@ async function randomSong(): Promise<void> {
           class="navbar-item"
           active-class="is-active"
         >
-          Songs
+          <span class="nav-emoji">🎵</span>Songs
         </RouterLink>
         <RouterLink
           to="/artists"
           class="navbar-item"
           active-class="is-active"
         >
-          Artists
+          <span class="nav-emoji">🎙️</span>Artists
         </RouterLink>
         <RouterLink
           to="/years"
           class="navbar-item"
           active-class="is-active"
         >
-          Years
+          <span class="nav-emoji">📅</span>Years
         </RouterLink>
+      </div>
+
+      <div class="navbar-end">
+        <div
+          v-if="downloads.data.value?.running"
+          class="navbar-item"
+        >
+          <progress
+            class="progress is-small is-primary navbar-progress"
+            max="100"
+            aria-label="Downloading"
+          />
+        </div>
+
         <div
           ref="more"
           class="navbar-item has-dropdown"
@@ -141,47 +155,46 @@ async function randomSong(): Promise<void> {
           >
             More
           </button>
-          <div class="navbar-dropdown">
+          <div class="navbar-dropdown is-right">
             <button
               type="button"
               class="navbar-item more-item"
               :disabled="loadingRandom"
               @click="randomSong"
             >
-              Random song
+              <span class="nav-emoji">🔀</span>Random song
             </button>
             <hr class="navbar-divider">
             <RouterLink
               to="/incomplete"
               class="navbar-item"
             >
-              Incomplete
+              <span class="nav-emoji">🏷️</span>Incomplete
             </RouterLink>
             <RouterLink
               to="/unsynced"
               class="navbar-item"
             >
-              Unsynced
+              <span class="nav-emoji">❌</span>Unsynced
             </RouterLink>
             <RouterLink
               to="/edits"
               class="navbar-item"
             >
-              Recently edited
+              <span class="nav-emoji">🖊️</span>Recently edited
             </RouterLink>
             <RouterLink
               to="/added"
               class="navbar-item"
             >
-              Date added
+              <span class="nav-emoji">🕙</span>Date added
             </RouterLink>
             <hr class="navbar-divider">
             <label class="navbar-item more-item">
-              <input
+              <span class="nav-emoji"><input
                 v-model="settings.statsForNerds"
                 type="checkbox"
-                class="mr-2"
-              >
+              ></span>
               Stats for nerds
             </label>
             <a
@@ -190,62 +203,62 @@ async function randomSong(): Promise<void> {
               target="_blank"
               rel="noopener noreferrer"
             >
-              GitHub
+              <span class="nav-emoji">⭐</span>GitHub
             </a>
           </div>
         </div>
-      </div>
 
-      <div class="navbar-end">
         <div class="navbar-item navbar-search">
           <SearchBox />
         </div>
-        <div class="navbar-item">
-          <RouterLink
-            to="/add"
-            class="button is-primary is-fullwidth-mobile"
-          >
-            Add
-          </RouterLink>
-        </div>
+
+        <RouterLink
+          to="/add"
+          class="navbar-item"
+          active-class="is-active"
+        >
+          <span class="nav-emoji">📝</span>Add
+        </RouterLink>
       </div>
     </div>
-
-    <progress
-      v-if="downloads.data.value?.running"
-      class="progress is-small is-primary navbar-progress"
-      max="100"
-    />
   </nav>
 </template>
 
 <style scoped>
+.nav-emoji {
+  display: inline-block;
+  width: 1.5rem;
+  text-align: center;
+  margin-right: 0.25rem;
+}
+
 .more-item {
   background: none;
   border: 0;
   width: 100%;
   text-align: left;
   cursor: pointer;
+  font: inherit;
 }
 
 .navbar-search {
-  min-width: 16rem;
+  width: 17rem;
+}
+
+.navbar-search > :deep(*) {
+  width: 100%;
 }
 
 .navbar-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.5rem;
+  width: 6rem;
   margin: 0;
-  height: 0.5rem;
-  border-radius: 0;
 }
 
 .navbar-link {
   background: none;
   border: 0;
   cursor: pointer;
+  font: inherit;
 }
 
 .navbar-burger {
@@ -264,6 +277,20 @@ async function randomSong(): Promise<void> {
 }
 
 @media (min-width: 1024px) {
+  .navbar-end {
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .navbar-end > .navbar-item,
+  .navbar-end > .navbar-item.has-dropdown {
+    align-items: center;
+  }
+
+  .navbar-end > .navbar-item.has-dropdown {
+    padding: 0;
+  }
+
   .has-dropdown.is-active > .navbar-dropdown {
     animation: dropdown-in 0.15s ease-out;
   }
@@ -286,6 +313,7 @@ async function randomSong(): Promise<void> {
     right: 0;
     max-height: calc(100vh - var(--bulma-navbar-height));
     overflow-y: auto;
+    padding: 0.5rem 0;
     box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.2);
     visibility: hidden;
     opacity: 0;
@@ -305,6 +333,34 @@ async function randomSong(): Promise<void> {
       transform 0.2s ease;
   }
 
+  .navbar-menu .navbar-item,
+  .navbar-menu .navbar-link {
+    padding: 0.6rem 1rem;
+  }
+
+  .navbar-end {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--bulma-border-weak);
+  }
+
+  .navbar-menu .navbar-item.has-dropdown {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .has-dropdown .navbar-link {
+    width: 100%;
+    text-align: left;
+  }
+
+  .has-dropdown .navbar-dropdown {
+    box-shadow: none;
+    border-top: 0;
+    padding: 0 0 0 1rem;
+  }
+
   .has-dropdown:not(.is-active) > .navbar-dropdown {
     display: none;
   }
@@ -314,10 +370,10 @@ async function randomSong(): Promise<void> {
   }
 
   .navbar-search {
-    min-width: 0;
+    width: auto;
   }
 
-  .is-fullwidth-mobile {
+  .navbar-progress {
     width: 100%;
   }
 }

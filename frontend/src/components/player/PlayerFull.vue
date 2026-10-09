@@ -20,12 +20,6 @@ const song = computed(() => (player.currentId === undefined ? undefined : index.
 const scrub = ref<number>()
 const shown = computed(() => scrub.value ?? player.position)
 const remaining = computed(() => Math.max(0, player.duration - shown.value))
-const background = computed(() => {
-  const color = song.value?.cover?.color
-  return color === undefined
-    ? undefined
-    : `linear-gradient(180deg, color-mix(in srgb, ${color} 60%, transparent), transparent 55%)`
-})
 
 function close(): void {
   player.expanded = false
@@ -134,10 +128,6 @@ function commitScrub(ev: Event): void {
         aria-modal="true"
         aria-label="Player"
       >
-        <div
-          class="full-bg"
-          :style="{ background }"
-        />
         <header
           class="full-header"
           @touchstart.passive="onTouchStart"
@@ -305,12 +295,6 @@ function commitScrub(ev: Event): void {
   background: var(--bulma-scheme-main);
   color: var(--bulma-text);
   overflow: hidden;
-}
-
-.full-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
 }
 
 .full-header {

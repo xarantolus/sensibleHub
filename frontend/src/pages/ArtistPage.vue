@@ -38,8 +38,8 @@ function radio(): void {
 </script>
 
 <template>
-  <section class="section">
-    <div class="container">
+  <div>
+    <div>
       <QueryView
         :data="query.data.value"
         :error="query.error.value"
@@ -106,5 +106,5 @@ function radio(): void {
         </template>
       </QueryView>
     </div>
-  </section>
+  </div>
 </template>

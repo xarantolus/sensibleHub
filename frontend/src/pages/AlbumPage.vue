@@ -51,8 +51,8 @@ function changeCover(file: File): void {
 </script>
 
 <template>
-  <section class="section">
-    <div class="container">
+  <div>
+    <div>
       <QueryView
         :data="query.data.value"
         :error="query.error.value"
@@ -147,7 +147,7 @@ function changeCover(file: File): void {
         </template>
       </QueryView>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

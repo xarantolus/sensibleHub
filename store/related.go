@@ -6,6 +6,8 @@ import (
 	"xarantolus/sensibleHub/store/music"
 )
 
+const relatedSongs = 8
+
 // This doesn't really work
 
 // GetRelatedSongs returns some related songs for a song
@@ -83,15 +85,12 @@ func (m *Manager) GetRelatedSongs(e music.Entry) (out []music.Entry) {
 		return suggestions[i].score > suggestions[j].score
 	})
 
-	// Return one
-	if len(suggestions) < 2 {
-		return []music.Entry{suggestions[0].s}
+	if len(suggestions) > relatedSongs {
+		suggestions = suggestions[:relatedSongs]
 	}
 
-	if len(suggestions) < 3 {
-		return []music.Entry{suggestions[0].s, suggestions[1].s}
+	for _, s := range suggestions {
+		out = append(out, s.s)
 	}
-
-	// Or two items
-	return []music.Entry{suggestions[0].s, suggestions[1].s, suggestions[2].s}
+	return out
 }

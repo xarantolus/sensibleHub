@@ -19,19 +19,14 @@ defineProps<{ songs: readonly SongSummary[] }>()
 <style scoped>
 .song-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
   gap: 1.25rem 1rem;
-}
-
-.song-grid > * {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 13rem;
 }
 
 @media (max-width: 480px) {
   .song-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem 0.75rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 0.625rem;
   }
 }
 </style>

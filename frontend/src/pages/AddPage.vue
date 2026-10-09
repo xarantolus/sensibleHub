@@ -55,8 +55,8 @@ function submit(): void {
 </script>
 
 <template>
-  <section class="section">
-    <div class="container add-page">
+  <div>
+    <div class="add-page">
       <h1 class="title">
         Add songs
       </h1>
@@ -200,7 +200,7 @@ function submit(): void {
         </div>
       </section>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

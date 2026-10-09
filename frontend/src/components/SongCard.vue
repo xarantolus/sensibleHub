@@ -82,12 +82,40 @@ const player = usePlayer()
   color: var(--bulma-primary);
 }
 
+/* A square over the cover, so the button sits in the cover's corner without being inside the link. */
 .song-card-play {
   position: absolute;
-  right: 0.5rem;
-  top: calc(100% - 4.5rem);
+  top: 0;
+  left: 0;
+  right: 0;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0.4rem;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s;
+}
+
+.song-card-play > :deep(*) {
+  pointer-events: auto;
+}
+
+@media (max-width: 480px) {
+  .song-card-play :deep(.song-actions-icon) {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.85rem;
+  }
+
+  .song-card-title {
+    font-size: 0.875rem;
+  }
+
+  .song-card-artist {
+    font-size: 0.75rem;
+  }
 }
 
 .song-card:hover .song-card-play,

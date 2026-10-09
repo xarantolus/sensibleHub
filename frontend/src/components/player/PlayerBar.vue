@@ -87,15 +87,12 @@ function seek(ev: Event): void {
       >{{ hint ?? song.artist ?? '' }}</span>
     </div>
 
-    <div
-      class="bar-controls"
-      @click.stop
-    >
+    <div class="bar-controls">
       <button
         type="button"
         class="sh-icon-button"
         aria-label="Previous song"
-        @click="player.previous()"
+        @click.stop="player.previous()"
       >
         <PlayerIcon name="prev" />
       </button>
@@ -103,7 +100,7 @@ function seek(ev: Event): void {
         type="button"
         class="sh-icon-button is-primary"
         :aria-label="player.playing ? 'Pause' : 'Play'"
-        @click="player.toggle()"
+        @click.stop="player.toggle()"
       >
         <PlayerIcon :name="player.playing ? 'pause' : 'play'" />
       </button>
@@ -111,7 +108,7 @@ function seek(ev: Event): void {
         type="button"
         class="sh-icon-button"
         aria-label="Next song"
-        @click="void player.next()"
+        @click.stop="void player.next()"
       >
         <PlayerIcon name="next" />
       </button>
@@ -133,15 +130,15 @@ function seek(ev: Event): void {
       >
     </div>
 
-    <div
-      class="bar-extra"
-      @click.stop
-    >
+    <div class="bar-extra">
       <span class="bar-time has-text-grey">
         {{ formatDuration(player.position) }} / {{ formatDuration(player.duration) }}
       </span>
       <template v-if="!compact">
-        <label class="bar-volume">
+        <label
+          class="bar-volume"
+          @click.stop
+        >
           <PlayerIcon name="volume" />
           <input
             v-model.number="player.volume"
@@ -159,7 +156,7 @@ function seek(ev: Event): void {
           class="sh-icon-button"
           aria-label="Pop out player"
           title="Pop out player"
-          @click="void pip.open()"
+          @click.stop="void pip.open()"
         >
           <PlayerIcon name="pip" />
         </button>
@@ -251,14 +248,12 @@ function seek(ev: Event): void {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  cursor: default;
 }
 
 .bar-extra {
   display: none;
   align-items: center;
   gap: 0.75rem;
-  cursor: default;
 }
 
 .bar-time {

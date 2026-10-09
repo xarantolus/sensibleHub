@@ -24,6 +24,10 @@ const lists: { name: UpNextList; title: string }[] = [
   { name: 'autoplay', title: 'Autoplay' },
 ]
 
+function isSlim(name: UpNextList): boolean {
+  return name === 'queue' && player.queue.length === 0
+}
+
 function listOf(el: HTMLElement): UpNextList {
   return el.dataset.list === 'autoplay' ? 'autoplay' : 'queue'
 }
@@ -66,7 +70,10 @@ onBeforeUnmount(() => {
       v-for="list in lists"
       :key="list.name"
     >
-      <div class="queue-head">
+      <div
+        v-if="!isSlim(list.name)"
+        class="queue-head"
+      >
         <h2 class="title is-5 mb-0">
           {{ list.title }}
         </h2>
@@ -83,6 +90,7 @@ onBeforeUnmount(() => {
       <ol
         :ref="(el) => setListEl(list.name, el)"
         class="queue"
+        :class="{ 'is-slim': isSlim(list.name) }"
         :data-list="list.name"
       >
         <li
@@ -168,6 +176,21 @@ onBeforeUnmount(() => {
 
 .queue:empty {
   border: 1px dashed var(--bulma-border);
+}
+
+.queue.is-slim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px dashed var(--bulma-border);
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+}
+
+.queue.is-slim::before {
+  content: 'Queue';
 }
 
 .row {
