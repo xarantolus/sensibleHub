@@ -48,8 +48,17 @@ function seek(ev: Event): void {
     class="player-bar"
     :class="{ 'is-compact': compact, 'is-behind': !compact && player.expanded }"
     :inert="!compact && player.expanded"
-    @click="expand"
   >
+    <!-- A real button under the content: iOS Safari doesn't reliably turn taps on plain elements into clicks. -->
+    <button
+      v-if="!compact"
+      type="button"
+      class="bar-hit"
+      tabindex="-1"
+      aria-hidden="true"
+      @click="expand"
+    />
+
     <div
       v-if="!compact"
       class="bar-progress"
@@ -65,7 +74,7 @@ function seek(ev: Event): void {
       type="button"
       class="bar-cover"
       aria-label="Open player"
-      @click.stop="expand"
+      @click="expand"
     >
       <CoverImage
         :song="song"
@@ -92,7 +101,7 @@ function seek(ev: Event): void {
         type="button"
         class="sh-icon-button"
         aria-label="Previous song"
-        @click.stop="player.previous()"
+        @click="player.previous()"
       >
         <PlayerIcon name="prev" />
       </button>
@@ -100,7 +109,7 @@ function seek(ev: Event): void {
         type="button"
         class="sh-icon-button is-primary"
         :aria-label="player.playing ? 'Pause' : 'Play'"
-        @click.stop="player.toggle()"
+        @click="player.toggle()"
       >
         <PlayerIcon :name="player.playing ? 'pause' : 'play'" />
       </button>
@@ -108,7 +117,7 @@ function seek(ev: Event): void {
         type="button"
         class="sh-icon-button"
         aria-label="Next song"
-        @click.stop="void player.next()"
+        @click="void player.next()"
       >
         <PlayerIcon name="next" />
       </button>
@@ -135,10 +144,7 @@ function seek(ev: Event): void {
         {{ formatDuration(player.position) }} / {{ formatDuration(player.duration) }}
       </span>
       <template v-if="!compact">
-        <label
-          class="bar-volume"
-          @click.stop
-        >
+        <label class="bar-volume">
           <PlayerIcon name="volume" />
           <input
             v-model.number="player.volume"
@@ -156,7 +162,7 @@ function seek(ev: Event): void {
           class="sh-icon-button"
           aria-label="Pop out player"
           title="Pop out player"
-          @click.stop="void pip.open()"
+          @click="void pip.open()"
         >
           <PlayerIcon name="pip" />
         </button>
@@ -197,6 +203,25 @@ function seek(ev: Event): void {
   .player-bar {
     transition: none;
   }
+}
+
+.bar-hit {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.player-bar:not(.is-compact) > :is(.bar-cover, .bar-info, .bar-controls, .bar-extra) {
+  position: relative;
+  pointer-events: none;
+}
+
+.player-bar:not(.is-compact) :is(button, input, label) {
+  pointer-events: auto;
 }
 
 .bar-progress {
@@ -275,7 +300,9 @@ function seek(ev: Event): void {
     grid-template-areas:
       'cover info'
       'controls controls';
-    row-gap: 0.25rem;
+    row-gap: 0.375rem;
+    padding-top: 0.625rem;
+    padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
   }
 
   .player-bar:not(.is-compact) .bar-cover {

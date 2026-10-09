@@ -48,6 +48,24 @@
   color-scheme: light dark;
 }
 
+:root:has(.player-bar:not(.is-compact)) .notices.is-bottom {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .notices {
+    padding: 1rem;
+  }
+
+  .notices > .notification.notification {
+    align-self: stretch;
+  }
+
+  :root:has(.player-bar:not(.is-compact)) .notices.is-bottom {
+    padding-bottom: calc(8.5rem + env(safe-area-inset-bottom));
+  }
+}
+
 .page-title {
   font-size: 1.75rem;
   font-weight: 700;
