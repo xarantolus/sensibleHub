@@ -21,7 +21,7 @@ const box = useTemplateRef('box')
 const focusRequests = useSearchFocusRequests()
 
 const suggestions = computed<Suggestion[]>(() =>
-  debounced.value.trim() === ''
+  input.value.trim() === '' || debounced.value.trim() === ''
     ? []
     : resolve(search.data.value?.songIds).map((s) => ({ label: s.title, value: s.id, artist: s.artist ?? '' })),
 )
@@ -67,6 +67,8 @@ defineExpose({
     v-model:input="input"
     :options="suggestions"
     backend-filtering
+    :debounce="0"
+    max-height="none"
     clear-on-select
     expanded
     rounded
@@ -76,24 +78,43 @@ defineExpose({
     @keydown.enter="onEnter"
   >
     <template #option="{ option }">
-      <span class="suggestion-title">{{ option.item.label }}</span>
-      <span
-        v-if="option.item.artist"
-        class="suggestion-artist"
-      > {{ option.item.artist }}</span>
+      <span class="suggestion">
+        <span class="suggestion-title">{{ option.item.label }}</span>
+        <span
+          v-if="option.item.artist"
+          class="suggestion-artist"
+        >{{ option.item.artist }}</span>
+      </span>
     </template>
-    <template #empty>
+    <template
+      v-if="input.trim() !== ''"
+      #empty
+    >
       No matching songs
     </template>
   </o-autocomplete>
 </template>
 
 <style scoped>
+.suggestion {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.suggestion-title,
+.suggestion-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .suggestion-title {
   font-weight: 600;
 }
 
 .suggestion-artist {
+  font-size: 0.8125rem;
   color: var(--bulma-text-weak);
 }
 </style>

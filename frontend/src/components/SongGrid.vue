@@ -3,7 +3,7 @@ import type { SongSummary } from '@/api/schema'
 
 import SongCard from './SongCard.vue'
 
-defineProps<{ songs: readonly SongSummary[] }>()
+withDefaults(defineProps<{ songs: readonly SongSummary[]; showYear?: boolean }>(), { showYear: false })
 </script>
 
 <template>
@@ -12,6 +12,7 @@ defineProps<{ songs: readonly SongSummary[] }>()
       v-for="song in songs"
       :key="song.id"
       :song="song"
+      :show-year="showYear"
     />
   </div>
 </template>

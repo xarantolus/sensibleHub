@@ -44,9 +44,15 @@
   }
 }
 
+:root {
+  color-scheme: light dark;
+}
+
 .page-title {
   font-size: 1.75rem;
   font-weight: 700;
+  line-height: 1.25;
+  color: var(--bulma-text-strong);
   margin-bottom: 1rem;
 }
 

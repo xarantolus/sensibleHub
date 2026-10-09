@@ -28,7 +28,7 @@ watch(
 
 <template>
   <h1 class="page-title">
-    Search
+    {{ trimmed === '' ? 'Search' : `“${trimmed}”` }}
   </h1>
   <p
     v-if="trimmed === ''"

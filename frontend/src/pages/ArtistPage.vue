@@ -51,7 +51,7 @@ function radio(): void {
             {{ data.name }}
           </h1>
           <p class="subtitle is-6 has-text-grey">
-            {{ formatDuration(data.playTime) }}<template v-if="years">
+            {{ allIds.length }} {{ allIds.length === 1 ? 'song' : 'songs' }} · {{ formatDuration(data.playTime) }}<template v-if="years">
               · {{ years }}
             </template>
           </p>
@@ -91,7 +91,10 @@ function radio(): void {
                 Other songs
               </template>
             </h2>
-            <SongGrid :songs="resolve(album.songIds)" />
+            <SongGrid
+              :songs="resolve(album.songIds)"
+              show-year
+            />
           </section>
 
           <section

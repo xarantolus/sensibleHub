@@ -57,7 +57,7 @@ function submit(): void {
 <template>
   <div>
     <div class="add-page">
-      <h1 class="title">
+      <h1 class="page-title">
         Add songs
       </h1>
 
@@ -65,17 +65,35 @@ function submit(): void {
         novalidate
         @submit.prevent="submit"
       >
-        <o-field label="Link or search term">
-          <input
-            v-model="query"
-            class="input"
-            type="text"
-            autocomplete="off"
-            autocapitalize="off"
-            spellcheck="false"
-            required
-          >
-        </o-field>
+        <label
+          class="label"
+          for="add-query"
+        >Link or search term</label>
+        <div class="field has-addons mb-1">
+          <div class="control is-expanded">
+            <input
+              id="add-query"
+              v-model="query"
+              class="input"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+            >
+          </div>
+          <div class="control">
+            <button
+              type="submit"
+              class="button is-primary"
+              :class="{ 'is-loading': enqueue.isPending.value }"
+              :disabled="!online || enqueue.isPending.value || query.trim() === ''"
+              :title="online ? undefined : 'You are offline'"
+            >
+              Add
+            </button>
+          </div>
+        </div>
         <p class="help mb-3">
           Any site supported by yt-dlp works. Search terms are looked up on YouTube Music.
         </p>
@@ -92,15 +110,6 @@ function submit(): void {
             Open the existing song
           </RouterLink>
         </p>
-        <button
-          type="submit"
-          class="button is-primary"
-          :class="{ 'is-loading': enqueue.isPending.value }"
-          :disabled="!online || enqueue.isPending.value || query.trim() === ''"
-          :title="online ? undefined : 'You are offline'"
-        >
-          Add
-        </button>
       </form>
 
       <div

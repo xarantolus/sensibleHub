@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import type { SongSummary } from '@/api/schema'
 import { usePlayer } from '@/stores/player'
 
 import CoverImage from './CoverImage.vue'
 import SongActions from './SongActions.vue'
 
-defineProps<{ song: SongSummary }>()
+const props = withDefaults(defineProps<{ song: SongSummary; showYear?: boolean }>(), { showYear: false })
 const player = usePlayer()
+
+const secondary = computed(() =>
+  props.showYear ? (props.song.year === undefined ? '' : String(props.song.year)) : (props.song.artist ?? ''),
+)
 </script>
 
 <template>
@@ -44,11 +50,11 @@ const player = usePlayer()
           {{ song.title }}
         </p>
         <p
-          v-if="song.artist"
+          v-if="secondary"
           class="song-card-artist"
-          :title="song.artist"
+          :title="secondary"
         >
-          {{ song.artist }}
+          {{ secondary }}
         </p>
       </div>
     </RouterLink>
