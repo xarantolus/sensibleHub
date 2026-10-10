@@ -315,6 +315,15 @@ export const usePlayer = defineStore('player', () => {
     status.value = 'idle'
   }
 
+  /** Ends the session: nothing plays and up next is emptied, which hides the player. */
+  function close(): void {
+    reportLeaving('neutral')
+    queue.value = []
+    autoplay.value = []
+    expanded.value = false
+    stop()
+  }
+
   /** Asks the server for more autoplay songs when it runs low. */
   async function refill(): Promise<void> {
     if (refilling.value || !needsRefill(autoplay.value.length)) {
@@ -394,6 +403,7 @@ export const usePlayer = defineStore('player', () => {
     previous,
     toggle,
     stop,
+    close,
     refill,
     forget,
   }

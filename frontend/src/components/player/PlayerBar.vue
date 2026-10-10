@@ -168,6 +168,17 @@ function seek(ev: Event): void {
         </button>
       </template>
     </div>
+
+    <button
+      v-if="!compact"
+      type="button"
+      class="sh-icon-button bar-close"
+      aria-label="Close player"
+      title="Close player"
+      @click="player.close()"
+    >
+      <PlayerIcon name="close" />
+    </button>
   </div>
 </template>
 
@@ -275,6 +286,11 @@ function seek(ev: Event): void {
   gap: 0.25rem;
 }
 
+.bar-close {
+  position: relative;
+  color: var(--bulma-text-weak);
+}
+
 .bar-extra {
   display: none;
   align-items: center;
@@ -296,10 +312,10 @@ function seek(ev: Event): void {
 
 @media (max-width: 768px) {
   .player-bar:not(.is-compact) {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
-      'cover info'
-      'controls controls';
+      'cover info close'
+      'controls controls controls';
     row-gap: 0.375rem;
     padding-top: 0.625rem;
     padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
@@ -314,6 +330,10 @@ function seek(ev: Event): void {
     grid-area: info;
   }
 
+  .player-bar:not(.is-compact) .bar-close {
+    grid-area: close;
+  }
+
   .player-bar:not(.is-compact) .bar-controls {
     grid-area: controls;
     justify-content: center;
@@ -323,7 +343,7 @@ function seek(ev: Event): void {
 
 @media (min-width: 769px) {
   .player-bar:not(.is-compact) {
-    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }

@@ -71,6 +71,19 @@ describe('up next', () => {
     expect(p.queue).toEqual(['b'])
   })
 
+  it('closing stops playback and forgets up next', () => {
+    const p = withAutoplay('x')
+    p.playNow(['a', 'b'])
+    p.close()
+    expect(p.hasSong).toBe(false)
+    expect(p.playing).toBe(false)
+    expect(p.upcoming).toEqual([])
+
+    p.enqueue('c')
+    expect(p.currentId).toBe('c')
+    expect(p.queue).toEqual([])
+  })
+
   it('moves songs within and between the lists', () => {
     const p = withAutoplay('x', 'y', 'z')
     p.currentId = 'now'

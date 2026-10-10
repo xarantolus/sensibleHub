@@ -144,7 +144,7 @@ async function randomSong(): Promise<void> {
 
         <div
           ref="more"
-          class="navbar-item has-dropdown"
+          class="navbar-item has-dropdown is-hoverable"
           :class="{ 'is-active': moreOpen }"
         >
           <button
@@ -291,8 +291,14 @@ async function randomSong(): Promise<void> {
     padding: 0;
   }
 
-  .has-dropdown.is-active > .navbar-dropdown {
+  .has-dropdown.is-active > .navbar-dropdown,
+  .has-dropdown.is-hoverable:hover > .navbar-dropdown {
     animation: dropdown-in 0.15s ease-out;
+  }
+
+  .has-dropdown.is-hoverable:hover > .navbar-link::after {
+    transform: rotate(135deg);
+    margin-top: -0.125em;
   }
 }
 
