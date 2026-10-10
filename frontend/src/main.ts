@@ -7,9 +7,11 @@ import { createApp } from 'vue'
 import { isApiError } from './api/client'
 import { startServerEvents } from './api/events'
 import App from './App.vue'
+import { loadNewVersionWhenIdle } from './lib/appUpdate'
 import { notifyError } from './lib/notify'
 import { startOfflineSupport } from './offline'
 import { router } from './router'
+import { usePlayer } from './stores/player'
 import './styles/main.scss'
 
 const queryClient = new QueryClient({
@@ -39,4 +41,7 @@ const oruga = createOruga(bulmaConfig, [Autocomplete, Collapse, Field, Modal, No
 app.use(createPinia()).use(router).use(VueQueryPlugin, { queryClient }).use(oruga).mount('#app')
 
 startServerEvents(queryClient)
-startOfflineSupport(queryClient)
+startOfflineSupport(queryClient, () => {
+  const player = usePlayer()
+  loadNewVersionWhenIdle(router, () => player.playing)
+})

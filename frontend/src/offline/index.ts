@@ -14,7 +14,7 @@ const maxAge = 30 * 24 * 60 * 60 * 1000
  * (IndexedDB), the app shell and fetched media are served by the service
  * worker, and upcoming songs are downloaded ahead of time.
  */
-export function startOfflineSupport(qc: QueryClient): void {
+export function startOfflineSupport(qc: QueryClient, onNewVersion: () => void): void {
   if (typeof indexedDB !== 'undefined') {
     const [, restored] = persistQueryClient({
       queryClient: qc,
@@ -39,6 +39,16 @@ export function startOfflineSupport(qc: QueryClient): void {
   }
 
   if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureContext) {
+    // The page that loaded keeps running the old code (it may even have come
+    // from the old precache), so an update only shows after a reload. Not
+    // Workbox's `controlling` event: it ignores updates found more than a
+    // minute after the page loaded, which is how a tab left open sees them.
+    const updating = navigator.serviceWorker.controller !== null
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (updating) {
+        onNewVersion()
+      }
+    })
     void new Workbox('/sw.js', { scope: '/' }).register()
   }
 
