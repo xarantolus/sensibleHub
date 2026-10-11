@@ -134,4 +134,12 @@
     background: var(--bulma-primary);
     color: var(--bulma-primary-invert);
   }
+
+  &.is-primary:hover:not(:disabled) {
+    background: hsl(
+      var(--bulma-primary-h),
+      var(--bulma-primary-s),
+      calc(var(--bulma-primary-l) + var(--bulma-hover-background-l-delta))
+    );
+  }
 }
