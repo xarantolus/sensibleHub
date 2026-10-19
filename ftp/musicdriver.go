@@ -11,7 +11,7 @@ import (
 	"strings"
 	"xarantolus/sensibleHub/store"
 
-	"goftp.io/server"
+	"goftp.io/server/v2"
 )
 
 var (
@@ -21,145 +21,92 @@ var (
 
 // The different depths an FTP path can have
 const (
-	rootDirectory   int = 0
 	artistDirectory int = 1
 	albumDirectory  int = 2
 	songFile        int = 3
 )
 
+// musicDriver serves the library snapshot of each session (see treeSnapshot)
 type musicDriver struct {
-	Artists map[string]album
-
 	manager *store.Manager
 }
 
-// album is part of the virtual file system
-type album map[string][]*fileInfo
-
-func (m *musicDriver) Init(c *server.Conn) {
-	log.Println("[FTP] Connected client from", c.RemoteAddr())
-}
-
-func (m *musicDriver) Stat(path string) (fi server.FileInfo, err error) {
+func (m *musicDriver) Stat(ctx *server.Context, path string) (os.FileInfo, error) {
+	artists := sessionTree(ctx)
 	split := splitPath(path)
 
 	switch len(split) {
-	case rootDirectory:
-		// this one pretends to be a good root directory
-		return &artistAlbumInfo{
-			Album: "/",
-		}, nil
 	case artistDirectory:
-		return &artistAlbumInfo{
-			Artist:   split[0],
-			isArtist: true,
-		}, nil
+		if split[0] == "" {
+			// this one pretends to be a good root directory
+			return &artistAlbumInfo{Album: "/"}, nil
+		}
+		if _, ok := artists[split[0]]; ok {
+			return &artistAlbumInfo{Artist: split[0], isArtist: true}, nil
+		}
 	case albumDirectory:
-		return &artistAlbumInfo{
-			Album: split[1],
-		}, nil
+		if _, ok := artists[split[0]][split[1]]; ok {
+			return &artistAlbumInfo{Album: split[1]}, nil
+		}
 	case songFile:
-		{
-			// Stat the actual mp3 files
-			a, ok := m.Artists[split[0]]
-			if ok {
-				if files, ok := a[split[1]]; ok {
-					for _, fi := range files {
-						if fi.Name() == split[2] {
-							return fi, nil
-						}
-					}
-				}
-			}
-		}
-	default:
-		err = errNotFound
-	}
-
-	return
-}
-
-func (m *musicDriver) ChangeDir(path string) (err error) {
-	split := splitPath(path)
-
-	if len(split) == artistDirectory {
-		// Exists or is root
-		if _, ok := m.Artists[split[0]]; split[0] == "" || ok {
-			return nil
-		}
-	} else if len(split) == albumDirectory {
-		a, ok := m.Artists[split[0]]
-		if ok {
-			if _, ok := a[split[1]]; ok {
-				return nil
-			}
+		if fi := findSong(artists, split); fi != nil {
+			return fi, nil
 		}
 	}
 
-	return errNotFound
+	return nil, errNotFound
 }
 
-// params  - path
-// returns - a string containing the file data to send to the client
-func (m *musicDriver) GetFile(path string, offset int64) (i int64, content io.ReadCloser, err error) {
+func findSong(artists tree, split []string) *fileInfo {
+	for _, fi := range artists[split[0]][split[1]] {
+		if fi.Name() == split[2] {
+			return fi
+		}
+	}
+	return nil
+}
+
+// GetFile returns the MP3 file at path, starting at offset
+func (m *musicDriver) GetFile(ctx *server.Context, path string, offset int64) (int64, io.ReadCloser, error) {
 	split := splitPath(path)
 	if len(split) != songFile {
-		err = errNotFound
-		return
+		return 0, nil, errNotFound
 	}
 
-	art, ok := m.Artists[split[0]]
-	if !ok {
-		err = errNotFound
-		return
+	file := findSong(sessionTree(ctx), split)
+	if file == nil {
+		return 0, nil, errNotFound
 	}
 
-	al, ok := art[split[1]]
-	if !ok {
-		err = errNotFound
-		return
+	p, err := m.manager.MP3Path(file.Entry)
+	if err != nil {
+		return 0, nil, err
 	}
 
-	for _, file := range al {
-		// Serve the file with the given name
-		if file.Name() == split[2] {
-			p, er := m.manager.MP3Path(file.Entry)
-			if er != nil {
-				err = er
-				return
-			}
+	f, err := os.Open(p)
+	if err != nil {
+		return 0, nil, err
+	}
 
-			f, er := os.Open(p)
-			if er != nil {
-				err = er
-				return
-			}
+	fi, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return 0, nil, err
+	}
 
-			fi, er := f.Stat()
-			if er != nil {
-				f.Close()
-				err = er
-				return
-			}
-
-			if offset > 0 {
-				_, err = f.Seek(offset, io.SeekStart)
-				if err != nil {
-					f.Close()
-					return 0, nil, err
-				}
-			}
-
-			return fi.Size() - offset, f, nil
+	if offset > 0 {
+		_, err = f.Seek(offset, io.SeekStart)
+		if err != nil {
+			f.Close()
+			return 0, nil, err
 		}
 	}
 
-	// seems like we couldn't find the file
-	err = errNotFound
-	return
+	return fi.Size() - offset, f, nil
 }
 
-func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err error) {
+func (m *musicDriver) ListDir(ctx *server.Context, path string, f func(os.FileInfo) error) (err error) {
+	artists := sessionTree(ctx)
 	split := splitPath(path)
 
 	switch len(split) {
@@ -167,7 +114,7 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 		if split[0] == "" {
 			// We want them in alphabetical order
 			var keys []string
-			for k := range m.Artists {
+			for k := range artists {
 				keys = append(keys, k)
 			}
 
@@ -185,7 +132,7 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 			}
 		} else {
 			var keys []string
-			for k := range m.Artists[split[0]] {
+			for k := range artists[split[0]] {
 				keys = append(keys, k)
 			}
 			sort.Strings(keys)
@@ -201,8 +148,8 @@ func (m *musicDriver) ListDir(path string, f func(server.FileInfo) error) (err e
 			}
 		}
 	case albumDirectory:
-		// List all albums in artist directory
-		for _, song := range m.Artists[split[0]][split[1]] {
+		// List all songs in album directory
+		for _, song := range artists[split[0]][split[1]] {
 			err = f(song)
 			if err != nil {
 				return
@@ -220,7 +167,11 @@ func splitPath(p string) []string {
 }
 
 // PutFile implements putting files on the server while also importing them. That way, you can use FTP to import your music library
-func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, err error) {
+func (m *musicDriver) PutFile(_ *server.Context, p string, f io.Reader, offset int64) (n int64, err error) {
+	if offset > 0 {
+		return 0, fmt.Errorf("resuming uploads is not supported")
+	}
+
 	dest := filepath.Join("import", store.CleanName(path.Base(strings.ReplaceAll(p, "\\", "/"))))
 
 	// Try to create the import directory, but ignore if it doesn't work.
@@ -255,18 +206,18 @@ func (m *musicDriver) PutFile(p string, f io.Reader, overwrite bool) (n int64, e
 
 // Methods that are not implemented as the server is supposed to be mostly read-only:
 
-func (m *musicDriver) DeleteDir(path string) (err error) {
+func (m *musicDriver) DeleteDir(*server.Context, string) error {
 	return errReadOnly
 }
 
-func (m *musicDriver) DeleteFile(string) (err error) {
+func (m *musicDriver) DeleteFile(*server.Context, string) error {
 	return errReadOnly
 }
 
-func (m *musicDriver) Rename(src string, dest string) (err error) {
+func (m *musicDriver) Rename(*server.Context, string, string) error {
 	return errReadOnly
 }
 
-func (m *musicDriver) MakeDir(path string) (err error) {
+func (m *musicDriver) MakeDir(*server.Context, string) error {
 	return errReadOnly
 }

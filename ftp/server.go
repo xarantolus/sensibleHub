@@ -7,24 +7,25 @@ import (
 	"xarantolus/sensibleHub/store"
 	"xarantolus/sensibleHub/store/config"
 
-	"goftp.io/server/core"
+	"goftp.io/server/v2"
 )
 
 // RunServer runs the FTP server until it crashes
 func RunServer(manager *store.Manager, cfg config.Config) (err error) {
-	opts := &core.ServerOpts{
-		Factory: &musicDriverFactory{
-			Manager: manager,
-		},
+	s, err := server.NewServer(&server.Options{
+		Driver: &musicDriver{manager: manager},
 		Port:   cfg.FTP.Port,
 		Auth:   &configAuth{cfg: cfg},
-		Logger: &core.DiscardLogger{},
+		Perm:   server.NewSimplePerm("human", "music"),
+		Logger: &server.DiscardLogger{},
+	})
+	if err != nil {
+		return err
 	}
-
-	server := core.NewServer(opts)
+	s.RegisterNotifer(&treeSnapshot{manager: manager})
 
 	log.Printf("[FTP] Server listening on port %d\n", cfg.FTP.Port)
-	return server.ListenAndServe()
+	return s.ListenAndServe()
 }
 
 // configAuth implements the server.Auth interface
@@ -33,7 +34,7 @@ type configAuth struct {
 }
 
 // CheckPasswd will check user's password
-func (a *configAuth) CheckPasswd(name, pass string) (bool, error) {
+func (a *configAuth) CheckPasswd(_ *server.Context, name, pass string) (bool, error) {
 	for _, user := range a.cfg.FTP.Users {
 		if constantTimeEquals(name, user.Name) && constantTimeEquals(pass, user.Passwd) {
 			log.Printf("[FTP] Logged in %s\n", user.Name)

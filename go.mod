@@ -11,26 +11,13 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0
 	github.com/vitali-fedulov/images4 v1.3.1
-	goftp.io/server v0.4.1
+	goftp.io/server/v2 v2.0.3
 	golang.org/x/image v0.45.0
 	golang.org/x/sync v0.22.0
 	gonum.org/v1/gonum v0.17.0
 )
 
 require (
-	github.com/jlaffaye/ftp v0.0.0-20200602180915-5563613968bf // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
-	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/minio-go/v6 v6.0.57 // indirect
-	github.com/minio/sha256-simd v1.0.1 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
-	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
-	gopkg.in/ini.v1 v1.67.0 // indirect
 )
