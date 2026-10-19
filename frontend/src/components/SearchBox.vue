@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useSearch, useSongIndex } from '@/api/queries'
@@ -15,7 +15,7 @@ interface Suggestion {
 const router = useRouter()
 const input = ref('')
 const debounced = useDebounced(input, 150)
-const search = useSearch(debounced, 5)
+const search = useSearch(debounced, 8)
 const { resolve } = useSongIndex()
 const box = useTemplateRef('box')
 const focusRequests = useSearchFocusRequests()
@@ -50,7 +50,9 @@ function onEnter(): void {
   box.value?.blur()
 }
 
-watch(focusRequests, () => {
+watch(focusRequests, async () => {
+  // On mobile the box only becomes visible once the navbar menu has opened
+  await nextTick()
   box.value?.focus()
 })
 
@@ -67,6 +69,7 @@ defineExpose({
     v-model:input="input"
     :options="suggestions"
     backend-filtering
+    :keep-first="suggestions.length === 1"
     :debounce="0"
     max-height="none"
     clear-on-select
@@ -96,9 +99,16 @@ defineExpose({
 </template>
 
 <style scoped>
+@media (min-width: 1024px) {
+  :deep(.dropdown-menu) {
+    min-width: 26rem;
+  }
+}
+
 .suggestion {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  gap: 0.5rem;
   min-width: 0;
 }
 
@@ -110,10 +120,12 @@ defineExpose({
 }
 
 .suggestion-title {
+  flex: 0 1 auto;
   font-weight: 600;
 }
 
 .suggestion-artist {
+  flex: 0 10 auto;
   font-size: 0.8125rem;
   color: var(--bulma-text-weak);
 }

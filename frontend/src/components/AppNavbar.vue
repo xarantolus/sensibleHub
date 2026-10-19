@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { fetchRandomSong, useDownloads } from '@/api/queries'
+import { useSearchFocusRequests } from '@/composables/searchFocus'
 import { useSettings } from '@/composables/useSettings'
 import { notifyError } from '@/lib/notify'
 
@@ -25,6 +26,12 @@ function close(): void {
 }
 
 watch(() => route.fullPath, close)
+
+watch(useSearchFocusRequests(), () => {
+  if (window.matchMedia('(max-width: 1023px)').matches) {
+    menuOpen.value = true
+  }
+})
 
 function onDocumentClick(ev: MouseEvent): void {
   if (!(ev.target instanceof Node)) {
