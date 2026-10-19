@@ -10,9 +10,12 @@ import SongActions from './SongActions.vue'
 const props = withDefaults(defineProps<{ song: SongSummary; showYear?: boolean }>(), { showYear: false })
 const player = usePlayer()
 
-const secondary = computed(() =>
-  props.showYear ? (props.song.year === undefined ? '' : String(props.song.year)) : (props.song.artist ?? ''),
-)
+const secondary = computed(() => {
+  if (props.showYear) {
+    return props.song.year === undefined ? '' : String(props.song.year)
+  }
+  return [props.song.artist, props.song.album].filter((s) => s !== undefined && s !== '').join(' · ')
+})
 </script>
 
 <template>
@@ -50,11 +53,10 @@ const secondary = computed(() =>
           {{ song.title }}
         </p>
         <p
-          v-if="secondary"
           class="song-card-artist"
           :title="secondary"
         >
-          {{ secondary }}
+          {{ secondary || ' ' }}
         </p>
       </div>
     </RouterLink>
@@ -75,23 +77,33 @@ const secondary = computed(() =>
   color: inherit;
 }
 
+/*
+ * Room for two title lines and one artist line, however long the title is:
+ * every row of cards is equally high, which VirtualSongGrid relies on.
+ */
 .song-card-text {
+  height: calc(0.4rem + 2.6rem + 1.3125rem);
   padding-top: 0.4rem;
   min-width: 0;
-}
-
-.song-card-title,
-.song-card-artist {
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .song-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
   font-weight: 600;
 }
 
 .song-card-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
   font-size: 0.875rem;
   color: var(--bulma-text-weak);
 }
@@ -113,6 +125,10 @@ const secondary = computed(() =>
     width: 2.1rem;
     height: 2.1rem;
     font-size: 0.85rem;
+  }
+
+  .song-card-text {
+    height: calc(0.4rem + 2.275rem + 1.125rem);
   }
 
   .song-card-title {

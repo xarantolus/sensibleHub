@@ -68,9 +68,15 @@ const rows = computed<Row[]>(() =>
 
 const stickyOffset = 120
 
+/**
+ * Card text has a fixed height (see SongCard), so this is exact: text plus
+ * the row's bottom padding. Measuring it at runtime instead makes the
+ * virtualizer jump away from the top while the first rows render.
+ */
+const textHeight = computed(() => (width.value <= mobileBreakpoint ? 77 : 89))
 const cardRowHeight = computed(() => {
   const cardWidth = (width.value - gap * (columns.value - 1)) / Math.max(columns.value, 1)
-  return cardWidth + 64
+  return cardWidth + textHeight.value
 })
 
 const scrollMargin = ref(0)
