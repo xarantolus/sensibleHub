@@ -12,7 +12,7 @@ require (
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0
 	github.com/vitali-fedulov/images4 v1.3.1
 	goftp.io/server v0.4.1
-	golang.org/x/image v0.25.0
+	golang.org/x/image v0.45.0
 	golang.org/x/sync v0.22.0
 	gonum.org/v1/gonum v0.17.0
 )
@@ -31,6 +31,6 @@ require (
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
