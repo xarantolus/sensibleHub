@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { isApiError } from '@/api/client'
 import { audioUrl, mp3Url } from '@/api/media'
-import { useDeleteSong, useUpdateSong } from '@/api/queries'
+import { useDeleteSong, useSetCover, useUpdateSong } from '@/api/queries'
 import type { SongDetail, SongEditBody, SongSummary } from '@/api/schema'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { useOnline } from '@/composables/useOnline'
@@ -13,12 +13,20 @@ import { notify } from '@/lib/notify'
 import { usePlayer } from '@/stores/player'
 
 const props = defineProps<{ song: SongSummary; detail?: SongDetail }>()
+const coverFile = defineModel<File | undefined>('coverFile')
 
 const router = useRouter()
 const player = usePlayer()
 const online = useOnline()
 const update = useUpdateSong()
+const setCover = useSetCover()
 const deleteSong = useDeleteSong()
+const saving = computed(() => update.isPending.value || setCover.isPending.value)
+const justSaved = ref(false)
+let savedTimer: ReturnType<typeof setTimeout> | undefined
+onBeforeUnmount(() => {
+  clearTimeout(savedTimer)
+})
 
 const title = ref('')
 const artist = ref('')
@@ -65,6 +73,12 @@ const dirty = computed(
     sync.value !== props.song.sync,
 )
 
+watch([dirty, coverFile], ([changed, cover]) => {
+  if (changed || cover !== undefined) {
+    justSaved.value = false
+  }
+})
+
 const localErrors = computed(() => {
   const out: Record<string, string> = {}
   if (title.value.trim() === '') {
@@ -88,13 +102,18 @@ function message(field: string): string | undefined {
   return errors.value[field]
 }
 
-function save(): void {
+async function save(): Promise<void> {
   errors.value = {}
   failure.value = undefined
   if (Object.keys(localErrors.value).length > 0) {
     errors.value = localErrors.value
     return
   }
+  const cover = coverFile.value
+  if ((!dirty.value && cover === undefined) || saving.value) {
+    return
+  }
+  const id = props.song.id
   const edit: SongEditBody = {
     title: title.value.trim(),
     artist: artist.value.trim(),
@@ -104,24 +123,33 @@ function save(): void {
     sync: sync.value,
     ...(yearValue.value === undefined ? {} : { year: yearValue.value }),
   }
-  update.mutate(
-    { id: props.song.id, edit },
-    {
-      onSuccess: () => {
-        notify('Song saved', 'success')
-      },
-      onError: (err) => {
-        if (isApiError(err)) {
-          errors.value = { ...err.fieldErrors }
-          if (Object.keys(err.fieldErrors).length === 0) {
-            failure.value = err.message
-          }
-        } else {
-          failure.value = 'Saving failed'
-        }
-      },
-    },
-  )
+  try {
+    if (dirty.value) {
+      await update.mutateAsync({ id, edit })
+    }
+    if (cover !== undefined) {
+      await setCover.mutateAsync({ id, file: cover })
+      if (coverFile.value === cover) {
+        coverFile.value = undefined
+      }
+    }
+  } catch (err) {
+    // The global mutation handler already shows a toast; this marks the fields.
+    if (isApiError(err)) {
+      errors.value = { ...err.fieldErrors }
+      if (Object.keys(err.fieldErrors).length === 0) {
+        failure.value = err.message
+      }
+    } else {
+      failure.value = 'Saving failed'
+    }
+    return
+  }
+  justSaved.value = true
+  clearTimeout(savedTimer)
+  savedTimer = setTimeout(() => {
+    justSaved.value = false
+  }, 2000)
 }
 
 function removeSong(): void {
@@ -139,7 +167,7 @@ function removeSong(): void {
   <form
     class="song-fields"
     novalidate
-    @submit.prevent="save"
+    @submit.prevent="void save()"
   >
     <div class="buttons has-addons mb-4 is-flex-wrap-nowrap action-group">
       <button
@@ -345,7 +373,7 @@ function removeSong(): void {
               type="number"
               min="0"
               :max="song.duration"
-              step="0.1"
+              step="any"
               :disabled="readOnly"
             >
           </div>
@@ -370,7 +398,7 @@ function removeSong(): void {
               type="number"
               min="0"
               :max="song.duration"
-              step="0.1"
+              step="any"
               :disabled="readOnly"
             >
           </div>
@@ -430,11 +458,11 @@ function removeSong(): void {
       <button
         type="submit"
         class="button is-primary save-song"
-        :class="{ 'is-loading': update.isPending.value }"
-        :disabled="readOnly || !dirty || update.isPending.value"
+        :class="{ 'is-loading': saving }"
+        :disabled="readOnly"
         :title="offlineTitle"
       >
-        Save
+        {{ justSaved ? 'Saved ✓' : 'Save' }}
       </button>
       <button
         type="button"

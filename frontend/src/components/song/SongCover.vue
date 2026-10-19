@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 import { coverUrl, placeholderCover } from '@/api/media'
 import type { SongSummary } from '@/api/schema'
-import { useDeleteCover, useSetCover } from '@/api/queries'
+import { useDeleteCover } from '@/api/queries'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { useOnline } from '@/composables/useOnline'
 import { notify } from '@/lib/notify'
 
 const props = defineProps<{ song: SongSummary; loading?: boolean }>()
+const file = defineModel<File | undefined>('file')
 
 const online = useOnline()
-const setCover = useSetCover()
 const deleteCover = useDeleteCover()
 
 const input = ref<HTMLInputElement>()
-const file = ref<File>()
 const preview = ref<string>()
 const failed = ref(false)
 const confirmDelete = ref(false)
@@ -46,34 +45,18 @@ function onChange(event: Event): void {
   const target = event.target as HTMLInputElement
   const chosen = target.files?.[0]
   target.value = ''
-  if (chosen === undefined) {
-    return
+  if (chosen !== undefined) {
+    file.value = chosen
   }
-  revoke()
-  file.value = chosen
-  preview.value = URL.createObjectURL(chosen)
 }
 
-function cancel(): void {
+watch(file, (chosen) => {
   revoke()
-  file.value = undefined
-}
-
-function save(): void {
-  if (file.value === undefined) {
-    return
+  if (chosen !== undefined) {
+    preview.value = URL.createObjectURL(chosen)
+    failed.value = false
   }
-  setCover.mutate(
-    { id: props.song.id, file: file.value },
-    {
-      onSuccess: () => {
-        cancel()
-        failed.value = false
-        notify('Cover updated', 'success')
-      },
-    },
-  )
-}
+})
 
 function remove(): void {
   deleteCover.mutate(props.song.id, {
@@ -136,21 +119,10 @@ onBeforeUnmount(revoke)
     >
       <button
         type="button"
-        class="button is-primary"
-        :class="{ 'is-loading': setCover.isPending.value }"
-        :disabled="locked"
-        :title="lockedTitle"
-        @click="save"
+        class="button is-small"
+        @click="file = undefined"
       >
-        Save cover
-      </button>
-      <button
-        type="button"
-        class="button"
-        :disabled="setCover.isPending.value"
-        @click="cancel"
-      >
-        Cancel
+        Discard new cover
       </button>
     </div>
     <p
