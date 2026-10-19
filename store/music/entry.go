@@ -41,6 +41,26 @@ type Entry struct {
 	Analysis *Analysis `json:"analysis,omitempty"`
 
 	Listening *Listening `json:"listening,omitempty"`
+
+	// MP3 remembers the generated MP3 after its file is deleted, so FTP
+	// clients see an unchanged size and don't download the song again.
+	MP3 *GeneratedMP3 `json:"mp3,omitempty"`
+}
+
+// GeneratedMP3 describes the MP3 last generated for an entry.
+type GeneratedMP3 struct {
+	Size     int64     `json:"size"`
+	LastEdit time.Time `json:"last_edit"`
+	Version  int       `json:"version"`
+}
+
+// MP3Size returns the size of the MP3 that MP3Path generates for the entry
+// in its current state, if one was generated before.
+func (e *Entry) MP3Size() (int64, bool) {
+	if e.MP3 == nil || e.MP3.Version != MP3Version || !e.MP3.LastEdit.Equal(e.LastEdit) {
+		return 0, false
+	}
+	return e.MP3.Size, true
 }
 
 // Listening counts plays and skips. The counts decay over time (see

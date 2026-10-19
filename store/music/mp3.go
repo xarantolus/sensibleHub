@@ -9,26 +9,39 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
+	"time"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/file"
 
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 	"golang.org/x/sync/singleflight"
 )
 
+// MP3Version changes whenever MP3Path produces different files for the same
+// entry, which invalidates every remembered MP3 size.
+const MP3Version = 1
+
 var mp3Group singleflight.Group
 
-// MP3Path returns the path for an mp3 file for this song. This might take some time
+// MP3FilePath is where MP3Path keeps the generated MP3 of the song with this ID.
+func MP3FilePath(id string) string {
+	return filepath.Join("data", "songs", id, "latest.mp3")
+}
+
+// MP3Path returns the path for an mp3 file for this song, generating it if needed.
+// Reusing a file marks it as recently used for the cleanup of generated files.
 func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
-	outName := filepath.Join("data", "songs", e.ID, "latest.mp3")
+	outName := MP3FilePath(e.ID)
 
 	// Re-create this mp3 file if it doesn't exist or doesn't have the latest details
-	if fi, ferr := os.Stat(outName); !os.IsNotExist(ferr) &&
-		fi != nil && fi.ModTime().After(e.LastEdit) {
-		return outName, ferr
+	if fi, ferr := os.Stat(outName); ferr == nil && fi.ModTime().After(e.LastEdit) {
+		now := time.Now()
+		if err := os.Chtimes(outName, now, now); err != nil && !os.IsNotExist(err) {
+			log.Printf("Cannot mark %s as used: %v\n", outName, err)
+		}
+		return outName, nil
 	}
 
 	ap, err := filepath.Abs(e.AudioPath())
@@ -37,7 +50,6 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 	}
 
 	_, err, _ = mp3Group.Do(e.ID, func() (res interface{}, err error) {
-		defer runtime.GC()
 		defer mp3Group.Forget(e.ID)
 
 		td, err := os.MkdirTemp("", "sh-mp3")
@@ -48,43 +60,16 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 
 		tempAudio := filepath.Join(td, "temp.mp3")
 
-		var outbuf bytes.Buffer
-
 		cmd := exec.Command(cfg.Alternatives.FFmpeg, "-y", "-i", ap)
 
-		// If we have a cover image, we add it
 		if e.PictureData.Filename != "" {
-			b, err := os.ReadFile(e.CoverPath())
+			cover, err := coverJPEG(e.CoverPath(), cfg.Cover.MaxSize)
 			if err != nil {
-				return nil, err
-			}
-
-			var coverBuf bytes.Buffer
-
-			coverImg, _, err := image.Decode(bytes.NewBuffer(b))
-			if err == nil {
-				maxImageSize := cfg.Cover.MaxSize
-				if maxImageSize > 0 && coverImg.Bounds().Dx() > maxImageSize {
-					resized := resize.Resize(uint(maxImageSize), 0, coverImg, resize.MitchellNetravali)
-					coverImg = resized
-				}
-
-				// Yes, all png images are also converted to JPEG.
-				// This might not be optimal for all use cases, but there are *some* audio players that support *only* JPEG
-				err = jpeg.Encode(&coverBuf, coverImg, &jpeg.Options{Quality: 100})
-				if err != nil {
-					coverBuf.Reset()
-				}
+				log.Printf("Cannot embed cover of %s: %v\n", e.ID, err)
 			} else {
-				log.Println("error while decoding image:", err.Error())
-				b = nil
-			}
-
-			// If everything worked, we can now add the cover image command-line arguments
-			if len(b) > 0 && err == nil {
-				// Use the buffer as cover input (stdin) and tell ffmpeg that it is a JPEG stream
+				// Use the cover as second input (stdin) and tell ffmpeg that it is a JPEG stream
 				cmd.Args = append(cmd.Args, "-probesize", "64M", "-f", "jpeg_pipe", "-i", "-")
-				cmd.Stdin = &coverBuf
+				cmd.Stdin = bytes.NewReader(cover)
 
 				cmd.Args = append(cmd.Args, "-c:v", "copy")
 
@@ -134,6 +119,10 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 		cmd.Args = append(cmd.Args,
 			"-hide_banner", // don't show the ffmpeg banner, it's unnecessary noise for potential error output
 
+			// Leave out the encoder version tags, so the file (and the size FTP
+			// clients remember) stays the same across ffmpeg upgrades.
+			"-fflags", "+bitexact", "-flags:a", "+bitexact",
+
 			// Don't write a duration header to the output file.
 			// This causes media players to display the correct duration.
 			// https://superuser.com/questions/607703/wrong-audio-duration-with-ffmpeg
@@ -142,17 +131,25 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 			// Write everything to tempAudio
 			tempAudio)
 
-		cmd.Stderr = os.Stderr // &outbuf // Collect error output in case we need it for error logging
+		// An edit while ffmpeg runs must leave the result outdated.
+		started := time.Now()
+
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
 
 		// Generate / Convert audio file
 		err = cmd.Run()
 		if err != nil {
-			err = fmt.Errorf("%s\n\nStderr:%s", err.Error(), outbuf.String())
+			err = fmt.Errorf("%s\n\nStderr:%s", err.Error(), stderr.String())
 			log.Println("Error while running ffmpeg for mp3 generation:", err.Error())
 			return
 		}
 		// if everything goes right, we can now move it to its destination
 		err = file.Move(tempAudio, outName)
+		if err != nil {
+			return
+		}
+		err = os.Chtimes(outName, started, started)
 		if err != nil {
 			return
 		}
@@ -164,6 +161,39 @@ func (e *Entry) MP3Path(cfg config.Config) (p string, err error) {
 	}
 
 	return outName, nil
+}
+
+// coverJPEG returns the cover at path as JPEG no wider than maxSize (if
+// positive). Some players only support JPEG covers, so PNGs are converted too.
+// Stored covers usually qualify already and are passed through unchanged.
+func coverJPEG(path string, maxSize int) ([]byte, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg, format, err := image.DecodeConfig(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	tooLarge := maxSize > 0 && cfg.Width > maxSize
+	if format == "jpeg" && !tooLarge {
+		return b, nil
+	}
+
+	img, _, err := image.Decode(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	if tooLarge {
+		img = imaging.Resize(img, maxSize, 0, imaging.Lanczos)
+	}
+
+	var out bytes.Buffer
+	if err := jpeg.Encode(&out, img, &jpeg.Options{Quality: 95}); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }
 
 func have(s *string) bool {

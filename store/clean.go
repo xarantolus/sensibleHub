@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"xarantolus/sensibleHub/store/music"
 )
 
 // CleanUp removes all unused directories in the data directory. They might not have been deleted due to errors.
@@ -57,21 +58,10 @@ func (m *Manager) CleanUp() (n int) {
 	return
 }
 
-// runCleanJob deletes all unused songs at 0:00
+// runCleanJob deletes unused generated files every hour
 func (m *Manager) runCleanJob(maxAgeDays int) {
-	// since maxAgeDays never changes while running, we don't need to start this at all
-	if maxAgeDays < 0 {
-		return
-	}
-
-	for {
-		now := time.Now()
-		nextTime := now.Round(24 * time.Hour)
-		if nextTime.Before(now) {
-			nextTime = nextTime.Add(24 * time.Hour)
-		}
-
-		time.Sleep(time.Until(nextTime))
+	for range time.Tick(time.Hour) {
+		m.SaveMP3Sizes()
 
 		deleted := m.DeleteGeneratedFiles(maxAgeDays)
 		if deleted > 0 {
@@ -80,7 +70,7 @@ func (m *Manager) runCleanJob(maxAgeDays int) {
 	}
 }
 
-// DeleteGeneratedFiles deletes generates files older than maxAgeDays * 24 * Hour.
+// DeleteGeneratedFiles deletes generated MP3 files that weren't used for maxAgeDays * 24 hours.
 // if maxAgeDays is less than 0, no files will be deleted
 // if maxAgeDays is 0, all generated files will be deleted
 func (m *Manager) DeleteGeneratedFiles(maxAgeDays int) (n int) {
@@ -89,21 +79,27 @@ func (m *Manager) DeleteGeneratedFiles(maxAgeDays int) (n int) {
 		return
 	}
 
-	// Delete all generated files that were created before this date
-	maxDate := time.Now().Add(time.Duration(-maxAgeDays) * 24 * time.Hour)
+	// MP3Path sets the mtime whenever it serves a file
+	unusedSince := time.Now().Add(time.Duration(-maxAgeDays) * 24 * time.Hour)
 
 	m.SongsLock.RLock()
 	defer m.SongsLock.RUnlock()
 
 	for _, song := range m.Songs {
-		if song.LastEdit.After(maxDate) {
+		outName := music.MP3FilePath(song.ID)
+
+		fi, err := os.Stat(outName)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				log.Printf("Cannot check MP3 file for %s (%s): %s\n", song.SongName(), song.ID, err.Error())
+			}
+			continue
+		}
+		if fi.ModTime().After(unusedSince) {
 			continue
 		}
 
-		// this is the mp3 file
-		outName := filepath.Join("data", "songs", song.ID, "latest.mp3")
-
-		err := os.Remove(outName)
+		err = os.Remove(outName)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				log.Printf("Cannot clean up MP3 file for %s (%s): %s\n", song.SongName(), song.ID, err.Error())

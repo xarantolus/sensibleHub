@@ -30,7 +30,10 @@ func (f *fileInfo) Name() string {
 }
 
 func (f *fileInfo) Size() int64 {
-	// We might not know the mp3 size just yet
+	if size, ok := f.MP3Size(); ok {
+		return size
+	}
+	// Not generated yet, so the client has to download it anyway
 	return 4096
 }
 

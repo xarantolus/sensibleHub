@@ -17,11 +17,11 @@
             }
         ]
     },
-    // How long generated files are kept, in days.
-    // A small number means that less storage is used in general, but files will be generated with every sync/download (if there are changes).
+    // How long generated MP3 files are kept after their last download, in days.
+    // A small number uses less storage, but songs are generated again when they are downloaded again.
+    // Their sizes are remembered, so sync clients don't download unchanged songs again either way.
     // If negative, they will be kept forever, if zero they will not be kept.
-    // Files are checked every day at 0:00.
-    // If you use multiple devices that sync at different intervals, it is recommended to keep files for a few days.
+    // Files are checked every hour.
     "keep_generated_days": 3,
     // External data sources can be disabled
     "allow_external": {

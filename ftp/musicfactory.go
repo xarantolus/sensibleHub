@@ -19,7 +19,6 @@ func (m *musicDriverFactory) NewDriver() (server.Driver, error) {
 	d := &musicDriver{
 		Artists: make(map[string]album),
 		manager: m.Manager,
-		cfg:     m.GetConfig(),
 	}
 
 	uniquePaths := make(map[string]bool)

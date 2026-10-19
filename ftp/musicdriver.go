@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strings"
 	"xarantolus/sensibleHub/store"
-	"xarantolus/sensibleHub/store/config"
 
 	"goftp.io/server"
 )
@@ -32,7 +31,6 @@ type musicDriver struct {
 	Artists map[string]album
 
 	manager *store.Manager
-	cfg     config.Config
 }
 
 // album is part of the virtual file system
@@ -125,7 +123,7 @@ func (m *musicDriver) GetFile(path string, offset int64) (i int64, content io.Re
 	for _, file := range al {
 		// Serve the file with the given name
 		if file.Name() == split[2] {
-			p, er := file.MP3Path(m.cfg)
+			p, er := m.manager.MP3Path(file.Entry)
 			if er != nil {
 				err = er
 				return

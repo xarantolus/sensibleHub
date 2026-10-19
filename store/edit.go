@@ -96,6 +96,7 @@ func (m *Manager) EditEntry(id string, data EditEntryData) (err error) {
 	}
 
 	entry.LastEdit = time.Now()
+	removeGeneratedMP3(id)
 
 	m.Songs[id] = entry
 
@@ -182,6 +183,7 @@ func (m *Manager) SetCover(id string, r io.Reader, filename string) (music.Entry
 // commit stores an edited entry and notifies subscribers. m.SongsLock must be held.
 func (m *Manager) commit(entry music.Entry) (music.Entry, error) {
 	entry.LastEdit = time.Now()
+	removeGeneratedMP3(entry.ID)
 	m.Songs[entry.ID] = entry
 
 	if err := m.Save(false); err != nil {
@@ -311,6 +313,7 @@ func (m *Manager) EditAlbumCover(artist, album string, coverName string, coverIm
 		e.PictureData.DominantColorHEX = music.Color(hex)
 		e.PictureData.Size = imageSize
 		e.LastEdit = time.Now()
+		removeGeneratedMP3(sid)
 
 		m.Songs[sid] = e
 		updated = append(updated, e)

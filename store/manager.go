@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 	"xarantolus/sensibleHub/store/config"
 	"xarantolus/sensibleHub/store/music"
 )
@@ -41,6 +42,10 @@ type Manager struct {
 
 	events   broker
 	analysis analysisQueue
+
+	// Guarded by SongsLock
+	mp3SizesUnsaved bool
+	mp3SizesSaved   time.Time
 
 	// isWorking indicates if the manager is currently downloading something.
 	// State changes are accompanied by the "progress-start" and "progress-end" websocket events
